@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>开始 on DaYang</title>
+        <link>http://localhost:1313/tags/%E5%BC%80%E5%A7%8B/</link>
+        <description>Recent content in 开始 on DaYang</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en</language>
+        <copyright>DaYang</copyright>
+        <lastBuildDate>Sun, 14 Sep 2025 21:40:17 +0800</lastBuildDate><atom:link href="http://localhost:1313/tags/%E5%BC%80%E5%A7%8B/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>我的第一篇博客</title>
+        <link>http://localhost:1313/p/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/</link>
+        <pubDate>Sun, 14 Sep 2025 21:40:17 +0800</pubDate>
+        
+        <guid>http://localhost:1313/p/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/</guid>
+        <description>&lt;img src="http://localhost:1313/first-blog-cover.jpg" alt="Featured image of post 我的第一篇博客" /&gt;&lt;p&gt;欢迎来到我的个人博客！这是我的第一篇文章，标志着我博客之旅的正式开始。&lt;/p&gt;
+&lt;h2 id=&#34;为什么要写博客&#34;&gt;为什么要写博客？
+&lt;/h2&gt;&lt;p&gt;写博客对我来说有着特殊的意义：&lt;/p&gt;
+&lt;h3 id=&#34;-记录学习历程&#34;&gt;📚 记录学习历程
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;知识整理&lt;/strong&gt;：将学到的知识系统化整理，加深理解&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;经验总结&lt;/strong&gt;：记录学习过程中的心得体会和踩过的坑&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;进步追踪&lt;/strong&gt;：回顾自己的成长轨迹，看到进步的足迹&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;-分享思考感悟&#34;&gt;💭 分享思考感悟
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;思维整理&lt;/strong&gt;：通过写作梳理自己的想法和观点&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;深度思考&lt;/strong&gt;：写作过程促使我更深入地思考问题&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;价值传递&lt;/strong&gt;：希望我的思考能给其他人带来一些启发&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;-建立连接&#34;&gt;🌐 建立连接
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;交流平台&lt;/strong&gt;：与志同道合的人交流讨论&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;知识共享&lt;/strong&gt;：在开源精神的指引下分享知识&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;社区参与&lt;/strong&gt;：成为技术和学术社区的一员&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;博客内容规划&#34;&gt;博客内容规划
+&lt;/h2&gt;&lt;p&gt;我计划在这个博客中分享以下内容：&lt;/p&gt;
+&lt;h3 id=&#34;-强化学习-rl&#34;&gt;🤖 强化学习 (RL)
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;强化学习理论和算法&lt;/li&gt;
+&lt;li&gt;实践项目和代码实现&lt;/li&gt;
+&lt;li&gt;最新研究进展和论文解读&lt;/li&gt;
+&lt;li&gt;应用案例分析&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;-学习笔记-notes&#34;&gt;📝 学习笔记 (Notes)
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;日常学习记录&lt;/li&gt;
+&lt;li&gt;技术文档和教程&lt;/li&gt;
+&lt;li&gt;问题解决方案&lt;/li&gt;
+&lt;li&gt;工具使用心得&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;-理论知识-theory&#34;&gt;🎓 理论知识 (Theory)
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;机器学习基础理论&lt;/li&gt;
+&lt;li&gt;数学和统计学知识&lt;/li&gt;
+&lt;li&gt;算法原理解析&lt;/li&gt;
+&lt;li&gt;学术论文笔记&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;技术栈&#34;&gt;技术栈
+&lt;/h2&gt;&lt;p&gt;这个博客使用了以下技术：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;静态站点生成器&lt;/strong&gt;：&lt;a class=&#34;link&#34; href=&#34;https://gohugo.io/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Hugo&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;主题&lt;/strong&gt;：&lt;a class=&#34;link&#34; href=&#34;https://github.com/CaiJimmy/hugo-theme-stack&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Stack&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;部署&lt;/strong&gt;：准备使用 GitHub Pages 或 Netlify&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;版本控制&lt;/strong&gt;：Git&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;写作计划&#34;&gt;写作计划
+&lt;/h2&gt;&lt;p&gt;我希望能够：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;✅ 每周至少发布一篇文章&lt;/li&gt;
+&lt;li&gt;✅ 保持内容的质量和深度&lt;/li&gt;
+&lt;li&gt;✅ 及时回复读者的评论和反馈&lt;/li&gt;
+&lt;li&gt;✅ 不断改进博客的设计和功能&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;致谢&#34;&gt;致谢
+&lt;/h2&gt;&lt;p&gt;感谢所有开源项目的贡献者，特别是：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Hugo 开发团队&lt;/li&gt;
+&lt;li&gt;Stack 主题作者&lt;/li&gt;
+&lt;li&gt;所有分享知识的博主们&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;结语&#34;&gt;结语
+&lt;/h2&gt;&lt;p&gt;写博客是一个长期的过程，需要坚持和耐心。我希望通过这个平台：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;记录成长，分享知识，连接世界&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;如果您对我的文章有任何建议或想法，欢迎在评论区留言，或者通过邮件与我联系。让我们一起在知识的海洋中探索前行！&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;em&gt;这篇文章写于 2025年9月14日，是我博客的第一篇文章。希望它能成为一个美好的开始。&lt;/em&gt;&lt;/p&gt;</description>
+        </item>
+        
+    </channel>
+</rss>

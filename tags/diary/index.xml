@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Diary on DaYang</title>
+        <link>http://localhost:1313/tags/diary/</link>
+        <description>Recent content in Diary on DaYang</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en</language>
+        <copyright>DaYang</copyright>
+        <lastBuildDate>Wed, 15 Jan 2025 21:40:17 +0800</lastBuildDate><atom:link href="http://localhost:1313/tags/diary/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>我的第一篇博客</title>
+        <link>http://localhost:1313/p/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/</link>
+        <pubDate>Wed, 15 Jan 2025 21:40:17 +0800</pubDate>
+        
+        <guid>http://localhost:1313/p/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/</guid>
+        <description>&lt;img src="http://localhost:1313/first-blog-cover.jpg" alt="Featured image of post 我的第一篇博客" /&gt;&lt;p&gt;欢迎来到我的个人博客！这是我的第一篇文章，标志着我博客之旅的正式开始。&lt;/p&gt;
+&lt;h2 id=&#34;为什么要写博客&#34;&gt;为什么要写博客？
+&lt;/h2&gt;&lt;p&gt;写博客对我来说有着特殊的意义：&lt;/p&gt;
+&lt;h3 id=&#34;-对自己&#34;&gt;📚 对自己
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;笔记&lt;/strong&gt;：把学到的东西都记下来，以后可以复习&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;经验&lt;/strong&gt;：积攒宝贵的经验&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;进步&lt;/strong&gt;：记录自己的进步&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;-对他人&#34;&gt;💭 对他人
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;感谢&lt;/strong&gt;：感谢文聪学长的帮助，永远的师傅！&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;传承&lt;/strong&gt;：希望后来者能够更快速地入门&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;分享&lt;/strong&gt;：希望其他人能够更快地了解我&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;博客内容规划&#34;&gt;博客内容规划
+&lt;/h2&gt;&lt;p&gt;我计划我的博客中分享以下内容：&lt;/p&gt;
+&lt;h3 id=&#34;笔记-notes&#34;&gt;笔记 (Notes)
+&lt;/h3&gt;&lt;p&gt;尤其是关于强化学习的内容&lt;/p&gt;
+&lt;h3 id=&#34;理论-theory&#34;&gt;理论 (Theory)
+&lt;/h3&gt;&lt;h2 id=&#34;结语&#34;&gt;结语
+&lt;/h2&gt;&lt;p&gt;写博客是一个长期的过程，也应该是一个很开心的过程！&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;这篇文章写于 2025年9月15日，是我博客的第一篇文章。希望它能成为一个美好的开始。&lt;/em&gt;&lt;/p&gt;</description>
+        </item>
+        
+    </channel>
+</rss>
