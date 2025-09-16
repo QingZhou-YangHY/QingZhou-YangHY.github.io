@@ -2,64 +2,64 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost:59739/zh-cn/</loc>
+    <loc>http://localhost:1313/zh-cn/</loc>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
-                href="http://localhost:59739/"
+                href="http://localhost:1313/"
                 />
     <xhtml:link
                 rel="alternate"
                 hreflang="zh-cn"
-                href="http://localhost:59739/zh-cn/"
+                href="http://localhost:1313/zh-cn/"
                 />
   </url><url>
-    <loc>http://localhost:59739/zh-cn/categories/</loc>
+    <loc>http://localhost:1313/zh-cn/categories/</loc>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
-                href="http://localhost:59739/categories/"
+                href="http://localhost:1313/categories/"
                 />
     <xhtml:link
                 rel="alternate"
                 hreflang="zh-cn"
-                href="http://localhost:59739/zh-cn/categories/"
+                href="http://localhost:1313/zh-cn/categories/"
                 />
   </url><url>
-    <loc>http://localhost:59739/zh-cn/page/</loc>
+    <loc>http://localhost:1313/zh-cn/page/</loc>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
-                href="http://localhost:59739/page/"
+                href="http://localhost:1313/page/"
                 />
     <xhtml:link
                 rel="alternate"
                 hreflang="zh-cn"
-                href="http://localhost:59739/zh-cn/page/"
+                href="http://localhost:1313/zh-cn/page/"
                 />
   </url><url>
-    <loc>http://localhost:59739/zh-cn/tags/</loc>
+    <loc>http://localhost:1313/zh-cn/tags/</loc>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
-                href="http://localhost:59739/tags/"
+                href="http://localhost:1313/tags/"
                 />
     <xhtml:link
                 rel="alternate"
                 hreflang="zh-cn"
-                href="http://localhost:59739/zh-cn/tags/"
+                href="http://localhost:1313/zh-cn/tags/"
                 />
   </url><url>
-    <loc>http://localhost:59739/zh-cn/%E5%85%B3%E4%BA%8E/</loc>
+    <loc>http://localhost:1313/zh-cn/%E5%85%B3%E4%BA%8E/</loc>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
-                href="http://localhost:59739/about/"
+                href="http://localhost:1313/about/"
                 />
     <xhtml:link
                 rel="alternate"
                 hreflang="zh-cn"
-                href="http://localhost:59739/zh-cn/%E5%85%B3%E4%BA%8E/"
+                href="http://localhost:1313/zh-cn/%E5%85%B3%E4%BA%8E/"
                 />
   </url>
 </urlset>

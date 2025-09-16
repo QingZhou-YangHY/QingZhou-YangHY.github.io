@@ -2,10 +2,10 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>计算机类 on DaYang</title>
-        <link>http://localhost:59739/categories/computer-science/</link>
+        <link>http://localhost:1313/categories/computer-science/</link>
         <description>Recent content in 计算机类 on DaYang</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en</language>
-        <copyright>DaYang</copyright><atom:link href="http://localhost:59739/categories/computer-science/index.xml" rel="self" type="application/rss+xml" />
+        <copyright>DaYang</copyright><atom:link href="http://localhost:1313/categories/computer-science/index.xml" rel="self" type="application/rss+xml" />
     </channel>
 </rss>

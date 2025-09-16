@@ -392,7 +392,52 @@
 不知不觉已经两个月了，但对我而言收获是颇多的。</p>
 <h5 id="选择一个好组是十分重要的软院tic高瓴ai-box让我深刻感受到了好的氛围成套的培养体系">选择一个好组是十分重要的！软院TIC，高瓴AI BOX让我深刻感受到了好的氛围，成套的培养体系！
 </h5><h5 id="希望自己可以平衡好课内科研还有生活等等其他方面">希望自己可以平衡好课内＋科研，还有生活等等其他方面
-</h5>
+</h5><p>晚上睡前简单看了一下verl官方文档里面Config Explanation的Data部分</p>
+<h5 id="梯度下降的三种常见形式">梯度下降的三种常见形式
+</h5><ul>
+<li>1.Batch Gradient Descent（批量梯度下降）</li>
+<li>2.Stochastic Gradient Descent (SGD，随机梯度下降)</li>
+<li>3.Mini-batch Gradient Descent（小批量梯度下降）</li>
+</ul>
+<p>几个epoch就是过几次数据集，实践中把 “batch” 这个词用得比较宽：在框架/代码里 batch_size 常指 mini-batch 的大小，所以容易混淆 “batch gradient descent” 与 “mini-batch”。</p>
+<h5 id="prompt_key">prompt_key
+</h5><p>这个不是学术上固定的术语，而是很多框架（比如 HuggingFace、VERL、LangChain 等）里常见的实现细节。</p>
+<ul>
+<li>在 字典 / JSON / 配置文件 里，用来标记某个 prompt 的 键名（key）。</li>
+<li>这样做可以在代码里快速查找/复用不同的 prompt 模板。</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">prompts = {
+</span></span><span class="line"><span class="cl">    &#34;translation&#34;: &#34;Translate the following English text into Chinese: {text}&#34;,
+</span></span><span class="line"><span class="cl">    &#34;summarization&#34;: &#34;Summarize the following paragraph: {text}&#34;,
+</span></span><span class="line"><span class="cl">    &#34;qa&#34;: &#34;Answer the question based on the context: {context}\nQuestion: {question}&#34;
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>这里 &ldquo;translation&rdquo;, &ldquo;summarization&rdquo;, &ldquo;qa&rdquo; 就是 prompt_key，
+而它们对应的 value 就是具体的 prompt 模板。</p>
+<blockquote>
+<p>Prompt = 给模型的输入提示，引导它完成任务。<br>
+Prompt_key = 在程序里标记或索引 prompt 模板的“名字/键”，方便管理和调用。</p></blockquote>
+<blockquote>
+<p>RM（Reward Model，奖励模型）：在 RLHF 里给生成结果打分的模型。</p></blockquote>
+<blockquote>
+<p>如果使用基于模型的 RM，并且策略和 RM 的聊天模板不同，则需要设置data.return_raw_input_ids=True
+data.return_full_prompt=True
+用户输入：你好，介绍一下强化学习
+返回：[INST] 你好，介绍一下强化学习 [/INST]
+data.return_raw_chat=True
+用户输入：你好，介绍一下强化学习
+返回的就是:你好，介绍一下强化学习</p></blockquote>
+
 </section>
 
 

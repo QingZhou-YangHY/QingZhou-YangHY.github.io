@@ -2,35 +2,10 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>Tags on DaYang</title>
-        <link>http://localhost:59739/tags/</link>
+        <link>http://localhost:1313/tags/</link>
         <description>Recent content in Tags on DaYang</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en</language>
-        <copyright>DaYang</copyright>
-        <lastBuildDate>Tue, 16 Sep 2025 10:00:00 +0800</lastBuildDate><atom:link href="http://localhost:59739/tags/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>RUC</title>
-        <link>http://localhost:59739/tags/ruc/</link>
-        <pubDate>Tue, 16 Sep 2025 10:00:00 +0800</pubDate>
-        
-        <guid>http://localhost:59739/tags/ruc/</guid>
-        <description></description>
-        </item>
-        <item>
-        <title>学习框架</title>
-        <link>http://localhost:59739/tags/%E5%AD%A6%E4%B9%A0%E6%A1%86%E6%9E%B6/</link>
-        <pubDate>Tue, 16 Sep 2025 10:00:00 +0800</pubDate>
-        
-        <guid>http://localhost:59739/tags/%E5%AD%A6%E4%B9%A0%E6%A1%86%E6%9E%B6/</guid>
-        <description></description>
-        </item>
-        <item>
-        <title>知识管理</title>
-        <link>http://localhost:59739/tags/%E7%9F%A5%E8%AF%86%E7%AE%A1%E7%90%86/</link>
-        <pubDate>Tue, 16 Sep 2025 10:00:00 +0800</pubDate>
-        
-        <guid>http://localhost:59739/tags/%E7%9F%A5%E8%AF%86%E7%AE%A1%E7%90%86/</guid>
-        <description></description>
-        </item>
-        
+        <copyright>DaYang</copyright><atom:link href="http://localhost:1313/tags/index.xml" rel="self" type="application/rss+xml" />
     </channel>
 </rss>

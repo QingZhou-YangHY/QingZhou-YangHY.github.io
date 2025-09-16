@@ -2,10 +2,53 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>Notes on DaYang</title>
-        <link>http://localhost:59739/categories/notes/</link>
+        <link>http://localhost:1313/categories/notes/</link>
         <description>Recent content in Notes on DaYang</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en</language>
-        <copyright>DaYang</copyright><atom:link href="http://localhost:59739/categories/notes/index.xml" rel="self" type="application/rss+xml" />
+        <copyright>DaYang</copyright>
+        <lastBuildDate>Tue, 16 Sep 2025 10:00:00 +0800</lastBuildDate><atom:link href="http://localhost:1313/categories/notes/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>RUC科研之旅</title>
+        <link>http://localhost:1313/p/ruc-study-framework/</link>
+        <pubDate>Tue, 16 Sep 2025 10:00:00 +0800</pubDate>
+        
+        <guid>http://localhost:1313/p/ruc-study-framework/</guid>
+        <description>&lt;img src="http://localhost:1313/p/ruc-study-framework/RUC.jpg" alt="Featured image of post RUC科研之旅" /&gt;&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/ruc-study-framework/AI-Box.jpg&#34;
+	width=&#34;200&#34;
+	height=&#34;200&#34;
+	srcset=&#34;http://localhost:1313/p/ruc-study-framework/AI-Box_hu_dd5bef9123c22f74.jpg 480w, http://localhost:1313/p/ruc-study-framework/AI-Box_hu_3cf40d827e974d65.jpg 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;AI Box小组&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;100&#34;
+		data-flex-basis=&#34;240px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;h1 id=&#34;科研日记&#34;&gt;科研日记
+&lt;/h1&gt;&lt;p&gt;用来记录我远程实习的日子&lt;/p&gt;
+&lt;h4 id=&#34;20250716&#34;&gt;2025.07.16
+&lt;/h4&gt;&lt;p&gt;成为赵老师的本科实习生，暑假跟着志朋师兄做了一个横向&lt;/p&gt;
+&lt;h5 id=&#34;家里网好差本来服务器就慢还是要在学校多用功&#34;&gt;家里网好差（本来服务器就慢），还是要在学校多用功
+&lt;/h5&gt;&lt;p&gt;暑假一共6周，还有各种事情，加上休息吃饭探亲balabala也做不了太多事情。确定了方向，看了一些知乎上的论文解读（后面发现如果要通透还是要看原文）。&lt;/p&gt;
+&lt;h4 id=&#34;20250916&#34;&gt;2025.09.16
+&lt;/h4&gt;&lt;p&gt;近期在搞论文复现的实验，跟上课题组的进度&lt;/p&gt;
+&lt;p&gt;今天在修改run_dapo.sh脚本的时候发现了几个常见的问题&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;.sh的格式十分严格&lt;/li&gt;
+&lt;li&gt;Parquet文件格式&lt;/li&gt;
+&lt;/ul&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://zhuanlan.zhihu.com/p/680143641&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Parquet文件格式讲解&lt;/a&gt;👈&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;vibe coding脚本是无比正确的。&lt;br&gt;
+不知不觉已经两个月了，但对我而言收获是颇多的。&lt;/p&gt;
+&lt;h5 id=&#34;选择一个好组是十分重要的软院tic高瓴ai-box让我深刻感受到了好的氛围成套的培养体系&#34;&gt;选择一个好组是十分重要的！软院TIC，高瓴AI BOX让我深刻感受到了好的氛围，成套的培养体系！
+&lt;/h5&gt;&lt;h5 id=&#34;希望自己可以平衡好课内科研还有生活等等其他方面&#34;&gt;希望自己可以平衡好课内＋科研，还有生活等等其他方面
+&lt;/h5&gt;</description>
+        </item>
+        
     </channel>
 </rss>
