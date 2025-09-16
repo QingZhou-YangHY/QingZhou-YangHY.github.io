@@ -2,10 +2,44 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>Diary on DaYang</title>
-        <link>http://localhost:1313/categories/diary/</link>
+        <link>http://localhost:59739/categories/diary/</link>
         <description>Recent content in Diary on DaYang</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en</language>
-        <copyright>DaYang</copyright><atom:link href="http://localhost:1313/categories/diary/index.xml" rel="self" type="application/rss+xml" />
+        <copyright>DaYang</copyright>
+        <lastBuildDate>Mon, 15 Sep 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:59739/categories/diary/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>第一篇文章</title>
+        <link>http://localhost:59739/p/%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/</link>
+        <pubDate>Mon, 15 Sep 2025 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:59739/p/%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/</guid>
+        <description>&lt;img src="http://localhost:59739/p/%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/first-blog-cover.jpg" alt="Featured image of post 第一篇文章" /&gt;&lt;p&gt;欢迎你能来到我的第一篇文章！&lt;/p&gt;
+&lt;h2 id=&#34;为什么要写博客&#34;&gt;为什么要写博客？
+&lt;/h2&gt;&lt;p&gt;写博客对我来说有着特殊的意义：&lt;/p&gt;
+&lt;h3 id=&#34;对自己&#34;&gt;对自己
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;记录笔记&lt;/strong&gt;：把学到的东西都记下来，以后可以复习&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;积攒经验&lt;/strong&gt;：积攒宝贵的经验&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;记录进步&lt;/strong&gt;：记录自己的进步&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;对他人&#34;&gt;对他人
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;感谢师父&lt;/strong&gt;：感谢文聪学长的帮助，永远的师傅！&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;传承精神&lt;/strong&gt;：希望后来者能够更快速地入门&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;分享内容&lt;/strong&gt;：希望其他人能够更快地了解我&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;博客内容规划&#34;&gt;博客内容规划
+&lt;/h2&gt;&lt;p&gt;我计划我的文章中记录以下内容：&lt;/p&gt;
+&lt;h3 id=&#34;笔记-notes&#34;&gt;笔记 (Notes)
+&lt;/h3&gt;&lt;p&gt;可能比较杂，什么都有。但重点是关于强化学习的内容&lt;/p&gt;
+&lt;h3 id=&#34;理论-theory&#34;&gt;理论 (Theory)
+&lt;/h3&gt;&lt;p&gt;一些理论知识&lt;/p&gt;
+&lt;h3 id=&#34;日记-diary&#34;&gt;日记 (Diary)
+&lt;/h3&gt;&lt;p&gt;记录一些自己的日常，探讨人生&lt;/p&gt;
+&lt;h2 id=&#34;结语&#34;&gt;结语
+&lt;/h2&gt;&lt;p&gt;写博客是一个长期的过程，也应该是一个很开心的过程！&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;这篇文章写于 2025年9月15日，是我博客的第一篇文章。希望它能成为一个美好的开始。&lt;/em&gt;&lt;/p&gt;</description>
+        </item>
+        
     </channel>
 </rss>
