@@ -47,7 +47,77 @@
 不知不觉已经两个月了，但对我而言收获是颇多的。&lt;/p&gt;
 &lt;h5 id=&#34;选择一个好组是十分重要的软院tic高瓴ai-box让我深刻感受到了好的氛围成套的培养体系&#34;&gt;选择一个好组是十分重要的！软院TIC，高瓴AI BOX让我深刻感受到了好的氛围，成套的培养体系！
 &lt;/h5&gt;&lt;h5 id=&#34;希望自己可以平衡好课内科研还有生活等等其他方面&#34;&gt;希望自己可以平衡好课内＋科研，还有生活等等其他方面
-&lt;/h5&gt;</description>
+&lt;/h5&gt;&lt;p&gt;晚上睡前简单看了一下verl官方文档里面Config Explanation的Data部分&lt;/p&gt;
+&lt;h5 id=&#34;梯度下降的三种常见形式&#34;&gt;梯度下降的三种常见形式
+&lt;/h5&gt;&lt;ul&gt;
+&lt;li&gt;1.Batch Gradient Descent（批量梯度下降）&lt;/li&gt;
+&lt;li&gt;2.Stochastic Gradient Descent (SGD，随机梯度下降)&lt;/li&gt;
+&lt;li&gt;3.Mini-batch Gradient Descent（小批量梯度下降）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;几个epoch就是过几次数据集，实践中把 “batch” 这个词用得比较宽：在框架/代码里 batch_size 常指 mini-batch 的大小，所以容易混淆 “batch gradient descent” 与 “mini-batch”。&lt;/p&gt;
+&lt;h5 id=&#34;prompt_key&#34;&gt;prompt_key
+&lt;/h5&gt;&lt;p&gt;这个不是学术上固定的术语，而是很多框架（比如 HuggingFace、VERL、LangChain 等）里常见的实现细节。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;在 字典 / JSON / 配置文件 里，用来标记某个 prompt 的 键名（key）。&lt;/li&gt;
+&lt;li&gt;这样做可以在代码里快速查找/复用不同的 prompt 模板。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;prompts = {
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &amp;#34;translation&amp;#34;: &amp;#34;Translate the following English text into Chinese: {text}&amp;#34;,
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &amp;#34;summarization&amp;#34;: &amp;#34;Summarize the following paragraph: {text}&amp;#34;,
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &amp;#34;qa&amp;#34;: &amp;#34;Answer the question based on the context: {context}\nQuestion: {question}&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;这里 &amp;ldquo;translation&amp;rdquo;, &amp;ldquo;summarization&amp;rdquo;, &amp;ldquo;qa&amp;rdquo; 就是 prompt_key，
+而它们对应的 value 就是具体的 prompt 模板。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Prompt = 给模型的输入提示，引导它完成任务。&lt;br&gt;
+Prompt_key = 在程序里标记或索引 prompt 模板的“名字/键”，方便管理和调用。&lt;/p&gt;&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;RM（Reward Model，奖励模型）：在 RLHF 里给生成结果打分的模型。&lt;/p&gt;&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;如果使用基于模型的 RM，并且策略和 RM 的聊天模板不同，则需要设置data.return_raw_input_ids=True
+data.return_full_prompt=True
+用户输入：你好，介绍一下强化学习
+返回：[INST] 你好，介绍一下强化学习 [/INST]
+data.return_raw_chat=True
+用户输入：你好，介绍一下强化学习
+返回的就是:你好，介绍一下强化学习&lt;/p&gt;&lt;/blockquote&gt;
+&lt;h4 id=&#34;20250917&#34;&gt;2025.09.17
+&lt;/h4&gt;&lt;p&gt;早晨起来去工位继续看verl&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;actor_rollout_ref.hybrid_engine：是否是混合引擎，目前只支持混合引擎.&lt;/p&gt;&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Dropout 是一种 正则化方法，用来防止神经网络过拟合。在训练时，随机“丢弃”一部分神经元（让它们暂时不参与计算和更新）。推理时,不再丢弃任何神经元，只是使用完整的输出。&lt;/p&gt;&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;actor_rollout_ref.model.use_remove_padding一般都选true移除&lt;code&gt;&amp;lt;PAD&amp;gt;&lt;/code&gt;来加速推理，但是多模态或者大工程里仍有人使用false&lt;/p&gt;&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Temperature （温度）。T = 1 → 正常分布。T &amp;gt; 1 → 分布更平滑，增加随机性，容易生成多样化甚至跑偏的内容。T &amp;lt; 1 → 分布更尖锐，模型更确定（更倾向选概率最高的 token，输出保守）。&lt;br&gt;
+Top-k：从 softmax 排序后的前 k 个 token 中随机抽样。&lt;br&gt;
+Top-p：动态选择前 累计概率 ≥ p 的最小 token 集合，从里面采样。&lt;/p&gt;&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Actor:负责 更新参数&lt;br&gt;
+Ref (Reference Model):负责 对比/约束。它是冻结的（不更新），通常是最初的预训练模型。&lt;br&gt;
+Rollout:负责 产生输出（推理采样）&lt;/p&gt;&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;EOS = End Of Sequence（序列结束标记）。在 tokenizer 里，EOS 往往是个特殊的 &lt;code&gt;&amp;lt;/s&amp;gt;&lt;/code&gt; 或 &lt;code&gt;&amp;lt;eos&amp;gt;&lt;/code&gt; 符号。ignore_eos=True 在训练中一般少用，除非你需要 生成固定长度序列，或者想收集超过 EOS 的 rollouts 数据。&lt;/p&gt;&lt;/blockquote&gt;
+&lt;h4 id=&#34;20250919&#34;&gt;2025.09.19
+&lt;/h4&gt;&lt;blockquote&gt;
+&lt;p&gt;一个深度学习训练任务中，nodes 指的是计算机，而 gpus-per-node 指的是每台计算机上安装的 GPU 数量。
+可以把 nodes 理解为一台台服务器，每台服务器里可以插上多张显卡（GPU）。
+nnodes: 1：你正在使用一台计算机来运行任务。
+n_gpus_per_node: 8：这台计算机上插了 8 张 GPU。
+所以，这个配置的意思是，你用一台装有 8 张 GPU 的服务器来运行你的任务。&lt;/p&gt;&lt;/blockquote&gt;
+</description>
         </item>
         
     </channel>
