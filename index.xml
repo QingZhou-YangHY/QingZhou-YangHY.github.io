@@ -7,7 +7,98 @@
         <generator>Hugo -- gohugo.io</generator>
         <language>en</language>
         <copyright>DaYang</copyright>
-        <lastBuildDate>Tue, 16 Sep 2025 10:00:00 +0800</lastBuildDate><atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Sat, 20 Sep 2025 10:00:00 +0800</lastBuildDate><atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>ray.init()初始化挂起/失败问题的解决</title>
+        <link>http://localhost:1313/p/ray.init%E5%88%9D%E5%A7%8B%E5%8C%96%E6%8C%82%E8%B5%B7/%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98%E7%9A%84%E8%A7%A3%E5%86%B3/</link>
+        <pubDate>Sat, 20 Sep 2025 10:00:00 +0800</pubDate>
+        
+        <guid>http://localhost:1313/p/ray.init%E5%88%9D%E5%A7%8B%E5%8C%96%E6%8C%82%E8%B5%B7/%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98%E7%9A%84%E8%A7%A3%E5%86%B3/</guid>
+        <description>&lt;img src="http://localhost:1313/p/ray.init%E5%88%9D%E5%A7%8B%E5%8C%96%E6%8C%82%E8%B5%B7/%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98%E7%9A%84%E8%A7%A3%E5%86%B3/Ray.jpg" alt="Featured image of post ray.init()初始化挂起/失败问题的解决" /&gt;&lt;h2 id=&#34;abstract&#34;&gt;Abstract
+&lt;/h2&gt;&lt;p&gt;此文章发布约一周前就已经发现该问题了，但是由于专注看官方文档和仓库进行规范 + 课内事情，一直没有得到解决。&lt;/p&gt;
+&lt;p&gt;在发文前一天发现此问题需要重点解决（无法避免），询问了师兄（论文作者）并咨询了相关团队，未果，所以花了两整天才解决这一个bug。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;issue&#34;&gt;Issue
+&lt;/h2&gt;&lt;h3 id=&#34;what-happened--what-you-expected-to-happen&#34;&gt;What happened + What you expected to happen
+&lt;/h3&gt;&lt;p&gt;Running the following snippet will hang indefinitely&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&amp;gt;&amp;gt;&amp;gt; import  ray
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&amp;gt;&amp;gt;&amp;gt; ray.init()
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;2025-09-20 11:44:47,741 INFO worker.py:1538 -- Started a local Ray instance.  
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;Sometimes it will fail instead&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;[2025-09-20 11:50:22,050 E 31652 31652] core_worker.cc:179: Failed to register worker 01000000ffffffffffffffffffffffffffffffffffffffffffffffff to Raylet. IOError: [RayletClient] Unable to register worker with raylet. No such file or directory
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id=&#34;versionsdependencies&#34;&gt;Versions/Dependencies
+&lt;/h3&gt;&lt;p&gt;Python 3.10
+Ray 1.44.0
+grpcio 1.48.2
+OS: CentOS Linux 7&lt;/p&gt;
+&lt;h3 id=&#34;reproduction-script&#34;&gt;Reproduction script
+&lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;import ray
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;ray.init()
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id=&#34;issue-severity&#34;&gt;Issue Severity
+&lt;/h3&gt;&lt;p&gt;High: It blocks me from completing my task.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;上面全英是因为当时要提issue或者给Ray框架作者发邮件，但是后来解决了，就打算留下来了，这样后来的人可以模仿一下这个写法。&lt;/p&gt;
+&lt;h2 id=&#34;可能的问题&#34;&gt;可能的问题
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;1.workers实际上并没有启动。（可以看一下&lt;code&gt;/tmp/ray/session_latest/raylet.out&lt;/code&gt;,如果在&lt;code&gt;/tmp/ray/session_latest/&lt;/code&gt;看到有前缀&lt;code&gt;python-core-worker-&lt;/code&gt; 的可以看一下，因为这个能了解工作进程可能发生了什么）&lt;/li&gt;
+&lt;li&gt;2.系统中进程数/线程数设置错误（可以通过cat /proc/sys/kernel/threads-max查看系统中一个进程可以创建多少个线程）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;可能的方法&#34;&gt;可能的方法
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;1.在&lt;code&gt;import ray&lt;/code&gt;之后加上&lt;code&gt;ray.init(num_cpus=56, num_gpus=2)&lt;/code&gt;。具体参数需要根据服务器进行自定义。
+作者根据这个方法对自己进行了适配解决了问题。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h5 id=&#34;具体操作yhyverltrainerconfigppo_traineryaml配置文件中对num_cpus0修改成num_cpus10-num_gpus1进行定义&#34;&gt;具体操作：&lt;code&gt;/yhy/verl/trainer/config/ppo_trainer.yaml&lt;/code&gt;配置文件中对&lt;code&gt;num_cpus=0&lt;/code&gt;修改成&lt;code&gt;num_cpus=10&lt;/code&gt;, &lt;code&gt;num_gpus=1&lt;/code&gt;进行定义。
+&lt;/h5&gt;&lt;ul&gt;
+&lt;li&gt;2.升级&lt;code&gt;grpcio&lt;/code&gt;,2023年的时候安装&lt;code&gt;grpcio 1.48.1&lt;/code&gt; 版本是有用的,相应的&lt;code&gt;venv&lt;/code&gt;是 &lt;code&gt;CentOS 7,Python 3.7.11，Ray 2.5.1,grpcio1.48.1&lt;/code&gt;。&lt;br&gt;
+但我进行升级的时候，无法解决该问题，并且会导致包之间的冲突。（是一个opencv的包，已经&lt;code&gt;pip install&lt;/code&gt;了）&lt;/li&gt;
+&lt;li&gt;3.添加&lt;code&gt;ulimit -n 65536&lt;/code&gt;语句，因为分布式训练一开始可能会开成千上万个进程，默认是4096，所以会导致线程创建失败。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h5 id=&#34;感觉这点也是有用的但可能不是主要因素&#34;&gt;感觉这点也是有用的，但可能不是主要因素？
+&lt;/h5&gt;&lt;ul&gt;
+&lt;li&gt;4.一定要设置参数,只是用&lt;code&gt;ray.init()&lt;/code&gt;就会崩溃。需要手动设置&lt;code&gt;num_cpus&lt;/code&gt;。&lt;br&gt;
+这点和1重复了，可以说是大家实验得到的结论？（也许）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;近期其他人也遇到过该问题&#34;&gt;近期其他人也遇到过该问题
+&lt;/h2&gt;&lt;p&gt;2024.1.16也有在&lt;code&gt;Ubuntu 20.04&lt;/code&gt;上遇到同样的问题 &lt;code&gt;venv: ray == 2.7.1,grpcio == 1.59.2,python == 3.11.5&lt;/code&gt;&lt;br&gt;
+2024.4.2有在&lt;code&gt;ubuntu 22.04.3&lt;/code&gt;（docker内部）上遇到同样的问题，但是他只是失败，而不是挂起。在docker之外运行良好（他的M1 MacBook上）&lt;/p&gt;
+&lt;p&gt;2024.4.14，2024.4.17，2024.7.11等等太多人遇到同样的问题了&lt;/p&gt;
+&lt;h2 id=&#34;至此问题的解决方案已经讲述完毕&#34;&gt;至此，问题的解决方案已经讲述完毕。
+&lt;/h2&gt;&lt;hr&gt;
+&lt;h3 id=&#34;回顾解决问题的流程&#34;&gt;回顾解决问题的流程
+&lt;/h3&gt;&lt;p&gt;刚遇到这个问题，我先看了一下是不是自己遇到过的，发现没有就交给了copilot，发现copilot无法解决，给了chatgpt5，同样无法解决，又给了Gemini看看能不能有些新意（其实这步可以忽略），上述方法都不行，问了师兄是否遇到过。&lt;/p&gt;
+&lt;p&gt;发现他们都没有遇到过，我只能去Ray官方仓库里面的issue进行查看。感觉现在人们都不怎么用StackOverflow等等论坛了，所以就只能去issue里面找了。&lt;/p&gt;
+&lt;p&gt;幸运的是发现了很多人遇到了同样的问题和报错，我就开始追根溯源，发现从17.18年就有人提出了这个问题，当时也有相应的解决办法，但是随着版本更新变得不适用。&lt;br&gt;
+我就开始收集所有对这个问题的理解和解决方案，逐个尝试，很幸运的是我debug成功了！&lt;/p&gt;
+&lt;p&gt;因为论文中没有常见的问题的解决方案，如果有的话应该是第一步先去看的。&lt;/p&gt;
+&lt;p&gt;这就是我整个解决这个问题的流程，大体上看似乎没有太大问题。但是还是可以优化一下，下次遇到类似比较“偏”的问题可以更快，心态更平和地解决这个问题。&lt;/p&gt;
+&lt;h3 id=&#34;看到这里了祝你遇到像我遇到的这样比较偏门的问题时也可以顺利并更快地解决&#34;&gt;看到这里了，祝你遇到像我遇到的这样比较“偏门”的问题时，也可以顺利并更快地解决！
+&lt;/h3&gt;</description>
+        </item>
+        <item>
         <title>RUC科研之旅</title>
         <link>http://localhost:1313/p/ruc-study-framework/</link>
         <pubDate>Tue, 16 Sep 2025 10:00:00 +0800</pubDate>
@@ -151,8 +242,7 @@ ray.init()&lt;/p&gt;&lt;/blockquote&gt;
 &lt;/h5&gt;&lt;p&gt;High:It blocks me from completing my task.&lt;/p&gt;
 &lt;p&gt;可能的原因:1.workers实际上没有启动
 2.系统中一个进程可以创建多少个线程？（可以通过cat /proc/sys/kernel/threads-max查看）&lt;/p&gt;
-&lt;p&gt;`
-可能的方法:1.在import ray后添加 ray.init(num_cpus=56, num_gpus=2)  这个方法很多人似乎有帮助，但不是一个好的解决方案
+&lt;p&gt;可能的方法:1.在import ray后添加 ray.init(num_cpus=56, num_gpus=2)  这个方法很多人似乎有帮助，但不是一个好的解决方案
 2.可以看一下/tmp/ray/session_latest/raylet.out,如果在/tmp/ray/session_latest/看到有前缀python-core-worker- 的可以看一下，因为这个能了解工作进程可能发生了什么
 3.升级grpcio,2023年的时候安装grpcio 1.48.1 版本是有用的,相应的venv是 CentOS 7,Python 3.7.11，Ray 2.5.1,grpcio1.48.1
 4.&lt;/p&gt;
@@ -165,7 +255,7 @@ python3 -m verl.trainer.main_ppo &amp;hellip;&lt;/p&gt;&lt;/blockquote&gt;
 2024.1.16也有在Ubuntu 20.04上遇到同样的问题 venv: ray == 2.7.1,grpcio == 1.59.2,python == 3.11.5
 2024.4.2有在ubuntu 22.04.3（docker内部）上遇到同样的问题，但是他只是失败，而不是挂起。在docker之外运行良好（他的M1 MacBook上）&lt;/p&gt;
 &lt;p&gt;2024.4.14，2024.4.17，2024.7.11等等太多人遇到同样的问题了&lt;/p&gt;
-&lt;p&gt;15点左右&lt;/p&gt;
+&lt;p&gt;15点左右,/yhy/verl/trainer/config/ppo_trainer.yaml配置文件中进行修改&lt;/p&gt;
 &lt;h5 id=&#34;问题已解决在import-ray后添加-rayinitnum_cpus56-num_gpus2&#34;&gt;问题已解决！在import ray后添加 ray.init(num_cpus=56, num_gpus=2)
 &lt;/h5&gt;&lt;p&gt;今天最开心的事情，自己成功看issue，扒仓库源码等等解决了这个问题&lt;/p&gt;
 </description>
