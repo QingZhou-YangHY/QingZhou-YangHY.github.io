@@ -30,7 +30,7 @@
 &lt;h1 id=&#34;科研日记&#34;&gt;科研日记
 &lt;/h1&gt;&lt;p&gt;用来记录我远程实习的日子&lt;/p&gt;
 &lt;h4 id=&#34;20250716&#34;&gt;2025.07.16
-&lt;/h4&gt;&lt;p&gt;成为赵老师的本科实习生，暑假跟着志朋师兄做了一个横向&lt;/p&gt;
+&lt;/h4&gt;&lt;p&gt;成为赵老师的本科实习生，暑假跟着师兄做了一个横向&lt;/p&gt;
 &lt;h5 id=&#34;家里网好差本来服务器就慢还是要在学校多用功&#34;&gt;家里网好差（本来服务器就慢），还是要在学校多用功
 &lt;/h5&gt;&lt;p&gt;暑假一共6周，还有各种事情，加上休息吃饭探亲balabala也做不了太多事情。确定了方向，看了一些知乎上的论文解读（后面发现如果要通透还是要看原文）。&lt;/p&gt;
 &lt;h4 id=&#34;20250916&#34;&gt;2025.09.16
@@ -112,11 +112,48 @@ Rollout:负责 产生输出（推理采样）&lt;/p&gt;&lt;/blockquote&gt;
 &lt;p&gt;EOS = End Of Sequence（序列结束标记）。在 tokenizer 里，EOS 往往是个特殊的 &lt;code&gt;&amp;lt;/s&amp;gt;&lt;/code&gt; 或 &lt;code&gt;&amp;lt;eos&amp;gt;&lt;/code&gt; 符号。ignore_eos=True 在训练中一般少用，除非你需要 生成固定长度序列，或者想收集超过 EOS 的 rollouts 数据。&lt;/p&gt;&lt;/blockquote&gt;
 &lt;h4 id=&#34;20250919&#34;&gt;2025.09.19
 &lt;/h4&gt;&lt;blockquote&gt;
-&lt;p&gt;一个深度学习训练任务中，nodes 指的是计算机，而 gpus-per-node 指的是每台计算机上安装的 GPU 数量。
-可以把 nodes 理解为一台台服务器，每台服务器里可以插上多张显卡（GPU）。
-nnodes: 1：你正在使用一台计算机来运行任务。
-n_gpus_per_node: 8：这台计算机上插了 8 张 GPU。
+&lt;p&gt;一个深度学习训练任务中，nodes 指的是计算机，而 gpus-per-node 指的是每台计算机上安装的 GPU 数量。&lt;br&gt;
+可以把 nodes 理解为一台台服务器，每台服务器里可以插上多张显卡（GPU）。&lt;br&gt;
+nnodes: 1：你正在使用一台计算机来运行任务。&lt;br&gt;
+n_gpus_per_node: 8：这台计算机上插了 8 张 GPU。&lt;br&gt;
 所以，这个配置的意思是，你用一台装有 8 张 GPU 的服务器来运行你的任务。&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;verl官方文档看完了，嗯。。还是要去看仓库&lt;/p&gt;
+&lt;p&gt;都在赶iclr导致服务器又变得卡卡的&lt;/p&gt;
+&lt;p&gt;实验复现遇到了问题导致一直是卡住的状态&lt;/p&gt;
+&lt;p&gt;神器：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;pkill -9 -u $USER -f ray&lt;/p&gt;&lt;/blockquote&gt;
+&lt;h4 id=&#34;20250920&#34;&gt;2025.09.20
+&lt;/h4&gt;&lt;p&gt;ray官方仓库，试图解决Ray实例后ray.init()挂起/失败问题&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;import  ray
+ray.init()
+2025-09-20 11:44:47,741 INFO worker.py:1538 &amp;ndash; Started a local Ray instance.&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;有时候会卡住&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;python
+import  ray
+ray.init()
+2025-09-20 11:44:47,741 INFO worker.py:1538 &amp;ndash; Started a local Ray instance.&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;有时候会失败&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;[2025-09-20 11:50:22,050 E 31652 31652] core_worker.cc:179: Failed to register worker 01000000ffffffffffffffffffffffffffffffffffffffffffffffff to Raylet. IOError: [RayletClient] Unable to register worker with raylet. No such file or directory&lt;/p&gt;&lt;/blockquote&gt;
+&lt;h5 id=&#34;versionsdependencies&#34;&gt;Versions/Dependencies
+&lt;/h5&gt;&lt;p&gt;Python 3.10
+Ray
+grpcio
+OS:&lt;/p&gt;
+&lt;h5 id=&#34;reproduction-script&#34;&gt;Reproduction script
+&lt;/h5&gt;&lt;blockquote&gt;
+&lt;p&gt;import ray
+ray.init()&lt;/p&gt;&lt;/blockquote&gt;
+&lt;h5 id=&#34;issue-severity&#34;&gt;Issue Severity
+&lt;/h5&gt;&lt;p&gt;High:It blocks me from completing my task.&lt;/p&gt;
+&lt;p&gt;可能的原因:1.workers实际上没有启动
+2.系统中一个进程可以创建多少个线程？（可以通过cat /proc/sys/kernel/threads-max查看）&lt;/p&gt;
+&lt;p&gt;可能的方法:1.在import ray后添加 ray.init(num_cpus=56, num_gpus=2)
+2.可以看一下/tmp/ray/session_latest/raylet.out,如果在/tmp/ray/session_latest/看到有前缀python-core-worker- 的可以看一下，因为这个能了解工作进程可能发生了什么
+3.升级grpcio&lt;/p&gt;
 </description>
         </item>
         
