@@ -7,7 +7,15 @@
         <generator>Hugo -- gohugo.io</generator>
         <language>en</language>
         <copyright>DaYang</copyright>
-        <lastBuildDate>Sat, 20 Sep 2025 10:00:00 +0800</lastBuildDate><atom:link href="http://localhost:1313/post/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Sun, 21 Sep 2025 16:00:00 +0800</lastBuildDate><atom:link href="http://localhost:1313/post/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Pass@k论文复现</title>
+        <link>http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E5%A4%8D%E7%8E%B0/</link>
+        <pubDate>Sun, 21 Sep 2025 16:00:00 +0800</pubDate>
+        
+        <guid>http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E5%A4%8D%E7%8E%B0/</guid>
+        <description>&lt;img src="http://localhost:1313/Seed.jpg" alt="Featured image of post Pass@k论文复现" /&gt;</description>
+        </item>
+        <item>
         <title>ray.init()初始化挂起/失败问题的解决</title>
         <link>http://localhost:1313/p/ray.init%E5%88%9D%E5%A7%8B%E5%8C%96%E6%8C%82%E8%B5%B7/%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98%E7%9A%84%E8%A7%A3%E5%86%B3/</link>
         <pubDate>Sat, 20 Sep 2025 10:00:00 +0800</pubDate>
