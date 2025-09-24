@@ -270,6 +270,13 @@
     <li><a href="#passk-training-for-adptively-balancing-eplortion-and-exploitation-of-lrms">Pass@k Training for Adptively Balancing Eplortion and Exploitation of LRMs</a>
       <ol>
         <li><a href="#versionsdependencies">Versions/Dependencies</a></li>
+        <li><a href="#如何从huggingface上下载数据集和模型">如何从huggingface上下载数据集和模型</a></li>
+        <li><a href="#安装">安装</a>
+          <ol>
+            <li><a href="#模型">模型</a></li>
+            <li><a href="#数据集">数据集</a></li>
+          </ol>
+        </li>
       </ol>
     </li>
   </ol>
@@ -379,6 +386,28 @@ Ray 2.49.1<br>
 grpcio 1.75.0<br>
 Ubuntu 24.04.2 LTS</p>
 <hr>
+<h3 id="如何从huggingface上下载数据集和模型">如何从huggingface上下载数据集和模型
+</h3><p>从huggingface上下载文件有2种方式，一种是直接登录后在网页上下载；一种是通过huggingface-cli命令下载。</p>
+<p>本文介绍的是第二种下载方式。</p>
+<h3 id="安装">安装
+</h3><p>对于huggingface-cli命令的下载直接通过pip命令安装即可：</p>
+<blockquote>
+<p>pip install -U huggingface_hub[hub_transfer]</p></blockquote>
+<p>对于国内用户还可以通过设置镜像网站的方式加速下载：</p>
+<blockquote>
+<p>#linux
+export HF_ENDPOINT=https://hf-mirror.com<br>
+#windows<br>
+set HF_ENDPOINT=https://hf-mirror.com</p></blockquote>
+<p>使用命令行下载</p>
+<h4 id="模型">模型
+</h4><blockquote>
+<p>huggingface-cli download &ndash;resume-download [1] &ndash;local-dir [2] &ndash;local-dir-use-symlinks False</p></blockquote>
+<h4 id="数据集">数据集
+</h4><blockquote>
+<p>huggingface-cli download &ndash;repo-type dataset &ndash;resume-download [3] &ndash;local-dir [4] &ndash;local-dir-use-symlinks False &ndash;token hf_***</p></blockquote>
+<p>格式为：[1]和[3]表示项目的路径，格式为用户名/项目，比如mistralai/Mistral-7B-Instruct-v0.2表示的是mistralai下的7B instruct v0.2权重。[2]和[4]表示的是本地的保存地址。</p>
+<p>需要的注意的是有些仓库需要登录才可以下载，形如–token hf_***为huggingface的token配置。token的生成需要在huggingface个人页面生成.</p>
 
 </section>
 

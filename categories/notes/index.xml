@@ -13,7 +13,55 @@
         <pubDate>Sun, 21 Sep 2025 16:00:00 +0800</pubDate>
         
         <guid>http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E5%A4%8D%E7%8E%B0/</guid>
-        <description>&lt;img src="http://localhost:1313/Seed.jpg" alt="Featured image of post Pass@k论文复现" /&gt;</description>
+        <description>&lt;img src="http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E5%A4%8D%E7%8E%B0/ByteDance.jpg" alt="Featured image of post Pass@k论文复现" /&gt;&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E5%A4%8D%E7%8E%B0/Seed.jpg&#34;
+	width=&#34;400&#34;
+	height=&#34;400&#34;
+	srcset=&#34;http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E5%A4%8D%E7%8E%B0/Seed_hu_2d5c39b72441c640.jpg 480w, http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E5%A4%8D%E7%8E%B0/Seed_hu_e08f665f0403ee6b.jpg 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;100&#34;
+		data-flex-basis=&#34;240px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;h1 id=&#34;passk论文复现&#34;&gt;Pass@k论文复现
+&lt;/h1&gt;&lt;h2 id=&#34;passk-training-for-adptively-balancing-eplortion-and-exploitation-of-lrms&#34;&gt;Pass@k Training for Adptively Balancing Eplortion and Exploitation of LRMs
+&lt;/h2&gt;&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/abs/2508.10751&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;arxiv文章&lt;/a&gt;👈&lt;br&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://github.com/RUCAIBox/Passk_Training&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;github仓库&lt;/a&gt;👈&lt;br&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://huggingface.co/datasets/RUC-AIBOX/Passk_Training_Maze&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Datasets&lt;/a&gt;👈&lt;/p&gt;
+&lt;h3 id=&#34;versionsdependencies&#34;&gt;Versions/Dependencies
+&lt;/h3&gt;&lt;p&gt;Python 3.10.18&lt;br&gt;
+Ray 2.49.1&lt;br&gt;
+grpcio 1.75.0&lt;br&gt;
+Ubuntu 24.04.2 LTS&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;如何从huggingface上下载数据集和模型&#34;&gt;如何从huggingface上下载数据集和模型
+&lt;/h3&gt;&lt;p&gt;从huggingface上下载文件有2种方式，一种是直接登录后在网页上下载；一种是通过huggingface-cli命令下载。&lt;/p&gt;
+&lt;p&gt;本文介绍的是第二种下载方式。&lt;/p&gt;
+&lt;h3 id=&#34;安装&#34;&gt;安装
+&lt;/h3&gt;&lt;p&gt;对于huggingface-cli命令的下载直接通过pip命令安装即可：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;pip install -U huggingface_hub[hub_transfer]&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;对于国内用户还可以通过设置镜像网站的方式加速下载：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;#linux
+export HF_ENDPOINT=https://hf-mirror.com&lt;br&gt;
+#windows&lt;br&gt;
+set HF_ENDPOINT=https://hf-mirror.com&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;使用命令行下载&lt;/p&gt;
+&lt;h4 id=&#34;模型&#34;&gt;模型
+&lt;/h4&gt;&lt;blockquote&gt;
+&lt;p&gt;huggingface-cli download &amp;ndash;resume-download [1] &amp;ndash;local-dir [2] &amp;ndash;local-dir-use-symlinks False&lt;/p&gt;&lt;/blockquote&gt;
+&lt;h4 id=&#34;数据集&#34;&gt;数据集
+&lt;/h4&gt;&lt;blockquote&gt;
+&lt;p&gt;huggingface-cli download &amp;ndash;repo-type dataset &amp;ndash;resume-download [3] &amp;ndash;local-dir [4] &amp;ndash;local-dir-use-symlinks False &amp;ndash;token hf_***&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;格式为：[1]和[3]表示项目的路径，格式为用户名/项目，比如mistralai/Mistral-7B-Instruct-v0.2表示的是mistralai下的7B instruct v0.2权重。[2]和[4]表示的是本地的保存地址。&lt;/p&gt;
+&lt;p&gt;需要的注意的是有些仓库需要登录才可以下载，形如–token hf_***为huggingface的token配置。token的生成需要在huggingface个人页面生成.&lt;/p&gt;
+</description>
         </item>
         <item>
         <title>ray.init()初始化挂起/失败问题的解决</title>
@@ -50,10 +98,10 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;h3 id=&#34;versionsdependencies&#34;&gt;Versions/Dependencies
-&lt;/h3&gt;&lt;p&gt;Python 3.10
-Ray 1.44.0
-grpcio 1.48.2
-OS: CentOS Linux 7&lt;/p&gt;
+&lt;/h3&gt;&lt;p&gt;Python 3.10.18&lt;br&gt;
+Ray 2.49.1&lt;br&gt;
+grpcio 1.75.0&lt;br&gt;
+Ubuntu 24.04.2 LTS&lt;/p&gt;
 &lt;h3 id=&#34;reproduction-script&#34;&gt;Reproduction script
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
