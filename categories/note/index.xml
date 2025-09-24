@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Note on DaYang</title>
+        <link>http://localhost:1313/categories/note/</link>
+        <description>Recent content in Note on DaYang</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en</language>
+        <copyright>DaYang</copyright>
+        <lastBuildDate>Wed, 24 Sep 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/categories/note/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>大型推理模型的强化学习综述个人解读</title>
+        <link>http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/</link>
+        <pubDate>Wed, 24 Sep 2025 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/</guid>
+        <description>&lt;img src="http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/sky.jpg" alt="Featured image of post 大型推理模型的强化学习综述个人解读" /&gt;</description>
+        </item>
+        
+    </channel>
+</rss>

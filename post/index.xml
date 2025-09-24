@@ -7,7 +7,229 @@
         <generator>Hugo -- gohugo.io</generator>
         <language>en</language>
         <copyright>DaYang</copyright>
-        <lastBuildDate>Sun, 21 Sep 2025 16:00:00 +0800</lastBuildDate><atom:link href="http://localhost:1313/post/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Wed, 24 Sep 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/post/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>大型推理模型的强化学习综述个人解读</title>
+        <link>http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/</link>
+        <pubDate>Wed, 24 Sep 2025 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/</guid>
+        <description>&lt;img src="http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/sky.jpg" alt="Featured image of post 大型推理模型的强化学习综述个人解读" /&gt;&lt;h1 id=&#34;a-survey-of-reinforcement-learning-for-large-reasoning-models&#34;&gt;A Survey of Reinforcement Learning for Large Reasoning Models
+&lt;/h1&gt;&lt;h2 id=&#34;background&#34;&gt;Background
+&lt;/h2&gt;&lt;p&gt;RL在推进LLM能力的前沿方面取得了显著成功，特别是在解决数学和编码等复杂逻辑任务方面。因此，RL已成为将LLM转化为LRM的基础方法。&lt;/p&gt;
+&lt;p&gt;需要探索提高强化学习向人工超级智能（ASI）的可扩展性的策略。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/history.jpg&#34;
+	width=&#34;1313&#34;
+	height=&#34;621&#34;
+	srcset=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/history_hu_fd91b4e2f759ffa.jpg 480w, http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/history_hu_493c3c9057a75b6c.jpg 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;这两年的发展&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;211&#34;
+		data-flex-basis=&#34;507px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/overview.jpg&#34;
+	width=&#34;1304&#34;
+	height=&#34;615&#34;
+	srcset=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/overview_hu_5f42649c3469429c.jpg 480w, http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/overview_hu_9c488682e473c029.jpg 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;具体包含的模块&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;212&#34;
+		data-flex-basis=&#34;508px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;回顾一下大致流程吧！&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/agentProgress.jpg&#34;
+	width=&#34;762&#34;
+	height=&#34;339&#34;
+	srcset=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/agentProgress_hu_4d7c597a2ebaeebd.jpg 480w, http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/agentProgress_hu_b9f415b03c60b5a9.jpg 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;agentProgress&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;224&#34;
+		data-flex-basis=&#34;539px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/LMProgress.jpg&#34;
+	width=&#34;479&#34;
+	height=&#34;394&#34;
+	srcset=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/LMProgress_hu_1f5e4f08ac92e4f2.jpg 480w, http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/LMProgress_hu_7cd98ff41913c5e4.jpg 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;LMProgress&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;121&#34;
+		data-flex-basis=&#34;291px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;h2 id=&#34;简单讲解一下rl应用到语言模型的时候这些概念映射到了哪里&#34;&gt;简单讲解一下RL应用到语言模型的时候，这些概念映射到了哪里
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Prompt/Task（x）：对应于初始状态或环境上下文，从数据分布中提取，对应于数据集D。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Policy (πθ):表示语言模型，它根据提示生成一个长度为T的序列，表示为y=（y1，…，yT）。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;State (st):定义为提示以及到目前为止生成的令牌，即st=（x，a1:t−1）。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Action (at):在步骤t从动作空间A中选择的单元。根据粒度，动作可以是整个序列y（序列级）、∈V处的令牌（令牌级）或 片段&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Transition Dynamics (P):在LLM的上下文中，状态转换通常是确定的，因为st+1=[st，at]，其中[·，·]表示字符串连接。当状态包含EOS令牌时，策略将转换为终端状态，这意味着轨迹结束。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Reward (R(x, y) or rt):基于动作粒度进行分配，例如，轨迹末端的序列级别R（x，y），每个令牌的令牌级别rt=R（x、a1:t），或每个分段的步长级别rk=R（x、y（1:k））。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Return (G):提示x的整个轨迹y的累积奖励（通常在有限时间内γ=1）。它通过序列级奖励简化为单个标量R（x，y），否则按每个令牌/步骤聚合奖励&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;frontier-models&#34;&gt;Frontier Models
+&lt;/h2&gt;&lt;p&gt;按时间顺序排列在三个主要方向上：LRM、agentic LRMs和多模态LRM。&lt;br&gt;
+一个大型推理模型，OpenAI的o1[2024]系列，建立了将训练时间RL和测试时间计算扩展到更强大的推理能力的有效性，在数学、编码和科学基准测试方面取得了领先成果。&lt;br&gt;
+DeepSeek的旗舰模型R1[2025a]是第一个在基准测试中与o1性能相匹配的开源模型。它采用多阶段训练管道来确保全面的模型能力，并探索了没有监督微调的纯RL路线（即Zero RL）。&lt;br&gt;
+其他专有模型发布紧随其后：Claude-3.7-Sonnet[2025a]以混合推理为特色，Gemini 2.0和2.5[2025]引入了更长的上下文长度，Seed Thinking 1.5[2025b]以跨领域的泛化为特色，o3[2025a]系列展示了越来越先进的推理能力。最近，OpenAI推出了他们的第一个开源推理模型gpt-oss-120b[2025a]，随后推出了GPT5[2025a]，这是他们迄今为止最强大的人工智能系统，可以在高效模型和更深入的推理模型gpt-5思维之间灵活切换。并行的开源努力继续扩大了格局。在Qwen家族中，QwQ-32B[2025g]与R1的表现相匹配，其次是Qwen3[2025a]系列，代表性型号Qwen3-235B进一步提高了基准分数。Skywork-OR1[2025d]模型套件基于R1蒸馏模型，并通过有效的数据混合和算法创新实现了可扩展的RL训练。Minimax-M1[2025a]是第一个有效地将混合注意力引入尺度RL的模型。其他作品包括Llama Nemotron Ultra[2025]，旨在平衡准确性和效率；Magistral 24B[2025]，通过RL从头开始训练，而不是从先前的模型中提炼；以及种子OSS[2025a]，强调长上下文推理能力。等等&amp;hellip;&lt;/p&gt;
+&lt;p&gt;过去的一年发展迅速啊！&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/models.jpg&#34;
+	width=&#34;1297&#34;
+	height=&#34;677&#34;
+	srcset=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/models_hu_8b9f390b6a5af111.jpg 480w, http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/models_hu_2544bbbdc362202a.jpg 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;models&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;191&#34;
+		data-flex-basis=&#34;459px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;1-foundational-components&#34;&gt;1. Foundational Components
+&lt;/h2&gt;&lt;h3 id=&#34;11-reward-design&#34;&gt;1.1 Reward Design
+&lt;/h3&gt;&lt;p&gt;在1.1中，我们对LRM RL中的奖励设计进行了全面的考察。从可验证的奖励开始，DeepSeek-R1的成功就是例证，它通过可验证的奖励机制证明了RL的可扩展性。&lt;/p&gt;
+&lt;p&gt;在1.2中，我们考察生成性奖励，其中模型用于验证或直接生成奖励信号。&lt;/p&gt;
+&lt;p&gt;然而，可验证和生成性奖励通常都表示为稀疏的数值反馈。一个重要的互补维度在于奖励信号的密度。&lt;/p&gt;
+&lt;p&gt;1.3相应地考察了包含密集奖励的方法。另一个分类轴涉及奖励是根据外部真实情况计算的，还是由模型直接估计的。&lt;/p&gt;
+&lt;p&gt;这一区别促使我们在1.4中讨论无监督奖励。&lt;/p&gt;
+&lt;p&gt;在这四个类别的基础上，我们在1.5中转向奖励塑造，在那里我们分析了组合或转换不同奖励信号以促进学习的策略。&lt;/p&gt;
+&lt;h3 id=&#34;111verifiable-rewards&#34;&gt;1.1.1Verifiable Rewards
+&lt;/h3&gt;&lt;p&gt;基于规则的奖励通过利用准确性和格式检查，为RL提供可扩展和可靠的训练信号，特别是在数学和代码任务中。&lt;/p&gt;
+&lt;p&gt;Verifier定律强调，具有清晰和自动验证的任务可以实现高效的RL优化，而主观任务仍然具有挑战性。&lt;/p&gt;
+&lt;h3 id=&#34;rule-based-rewards&#34;&gt;Rule-based Rewards
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Accuracy rewards:对于具有确定性结果的任务（例如数学），策略必须在规定的分隔符（通常为\boxed{…}）内产生最终解决方案。然后，自动检查器将此输出与地面实况进行比较。对于编码任务，单元测试或编译器提供通过/失败信号&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Format rewards:这些奖励施加了一个结构约束，要求模型将其私有思想链放置在&lt;think&gt;和&lt;/inthink&gt;之间，并在单独的字段中输出最终答案（例如&lt;answer&gt;…&lt;/answer&gt;）。这提高了大规模RL中的可靠解析和验证&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;rule-based-verifier&#34;&gt;Rule-based Verifier
+&lt;/h3&gt;&lt;p&gt;基于规则的奖励通常来自基于规则的验证器。这些依赖于大量手动编写的等价规则来确定预测的答案是否与基本事实相匹配。目前，广泛使用的数学验证器主要基于Python库Math-Verify1和SymPy2构建。此外，一些作品，如DAPO[2025d]和DeepScaleR[2025c]，也提供了开源和成熟的验证器。最近，Huang等人[2025e]强调了与基于规则和基于模型的验证器相关的独特局限性，为设计更可靠的奖励系统提供了信息。&lt;/p&gt;
+&lt;h4 id=&#34;训练人工智能系统执行任务的难易程度与任务的可验证程度成正比&#34;&gt;训练人工智能系统执行任务的难易程度与任务的可验证程度成正比
+&lt;/h4&gt;&lt;h3 id=&#34;112generative-rewards&#34;&gt;1.1.2Generative Rewards
+&lt;/h3&gt;&lt;p&gt;写于2025/9/24晚21点56分，教学楼关门故回寝室。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;2.Generative Rewards&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;3.Dense Rewards&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;4.Unsupervised Rewards&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;5.Rewards Shaping&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Policy Optimization&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;1.Policy Gradient&lt;/li&gt;
+&lt;li&gt;2.Critic-Based Algorithms&lt;/li&gt;
+&lt;li&gt;3.Critic-Free Algorithms&lt;/li&gt;
+&lt;li&gt;4.Off-Policy Optimization&lt;/li&gt;
+&lt;li&gt;5.Regularization Objectives&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Sampling Strategy&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;1.Dynamic Sampling&lt;/li&gt;
+&lt;li&gt;2.Sampling Hyper-Parameters&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Foundational Problems&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;1.RL&amp;rsquo;s Role&lt;br&gt;
+Sharpening vs Discovery&lt;/li&gt;
+&lt;li&gt;2.Model Prior&lt;br&gt;
+Weak vs Strong&lt;/li&gt;
+&lt;li&gt;3.Training Recipes&lt;br&gt;
+Tricks vs Traps&lt;/li&gt;
+&lt;li&gt;4.RL vs. SFT&lt;br&gt;
+Generalize vs Memorize&lt;/li&gt;
+&lt;li&gt;5.Reward Type&lt;br&gt;
+Process vs Outcome&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Training Resource&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;1.Static Corpus
+&lt;ul&gt;
+&lt;li&gt;Math&lt;/li&gt;
+&lt;li&gt;Code&lt;/li&gt;
+&lt;li&gt;STEM&lt;/li&gt;
+&lt;li&gt;Agent&lt;/li&gt;
+&lt;li&gt;Mixture&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;2.RL Infrastructure &amp;amp; Framework&lt;br&gt;
+e.g.OpenRLHF/veRL/AReaL/slime/TRL&lt;/li&gt;
+&lt;li&gt;3.Dynamic Environment
+&lt;ul&gt;
+&lt;li&gt;Rule&lt;/li&gt;
+&lt;li&gt;Code&lt;/li&gt;
+&lt;li&gt;Game&lt;/li&gt;
+&lt;li&gt;Model&lt;/li&gt;
+&lt;li&gt;Ensemble&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Applications&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;1.Agentic Tasks&lt;/li&gt;
+&lt;li&gt;2.Coding Tasks&lt;/li&gt;
+&lt;li&gt;3.Multimodal Tasks&lt;/li&gt;
+&lt;li&gt;4.Robotics Tasks&lt;/li&gt;
+&lt;li&gt;5.Multi-Agent Systems&lt;/li&gt;
+&lt;li&gt;6.Medical Tasks&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+</description>
+        </item>
+        <item>
         <title>Pass@k论文复现</title>
         <link>http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E5%A4%8D%E7%8E%B0/</link>
         <pubDate>Sun, 21 Sep 2025 16:00:00 +0800</pubDate>
