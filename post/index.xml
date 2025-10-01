@@ -7,7 +7,34 @@
         <generator>Hugo -- gohugo.io</generator>
         <language>en</language>
         <copyright>DaYang</copyright>
-        <lastBuildDate>Wed, 24 Sep 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/post/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Wed, 01 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/post/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>veRL沉淀（暂未想好名字）</title>
+        <link>http://localhost:1313/p/verl%E6%B2%89%E6%B7%80%E6%9A%82%E6%9C%AA%E6%83%B3%E5%A5%BD%E5%90%8D%E5%AD%97/</link>
+        <pubDate>Wed, 01 Oct 2025 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/p/verl%E6%B2%89%E6%B7%80%E6%9A%82%E6%9C%AA%E6%83%B3%E5%A5%BD%E5%90%8D%E5%AD%97/</guid>
+        <description>&lt;img src="http://localhost:1313/sky.jpg" alt="Featured image of post veRL沉淀（暂未想好名字）" /&gt;&lt;h1 id=&#34;强化学习的流程&#34;&gt;强化学习的流程
+&lt;/h1&gt;&lt;ul&gt;
+&lt;li&gt;加载模型（无需修改）&lt;br&gt;
+veRL使用Ray框架进行模型的调度&lt;br&gt;
+init_workers 初始化策略模型、参考模型、价值模型、奖励模型。这里面有些模型不会用到。很多都不会使用价值模型，奖励模型也都是基于规则的&lt;/li&gt;
+&lt;li&gt;训练过程&lt;br&gt;
+get_data_batch(无需修改)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h5 id=&#34;generate_sequencesnormal-rl和agent-rl&#34;&gt;generate_sequences(normal-rl和agent-rl)
+&lt;/h5&gt;&lt;p&gt;normal-rl：单轮的交互（prompt&amp;ndash;&amp;gt;model&amp;ndash;&amp;gt;response），这个流程就结束了&lt;br&gt;
+agent-rl：多轮的交互（prompt&amp;ndash;&amp;gt;model&amp;ndash;&amp;gt;response&amp;ndash;&amp;gt;env（tool call,code exec ,etc）&amp;ndash;&amp;gt;model&amp;ndash;&amp;gt;response&amp;ndash;&amp;gt;&amp;hellip;）&lt;br&gt;
+reward（通过自定义的奖励函数控制，一般无需修改）不用去修改veRL框架，通过配置文件进行修改&lt;br&gt;
+log_probs（计算策略模型和参考模型输出token的概率，一般无需修改）&lt;br&gt;
+values(目前主流的rl算法基本上都在舍弃价值模型，一般无需修改)&lt;/p&gt;
+&lt;h5 id=&#34;adv各rl算法之间的差异主要体现在adv的计算方式此处需要针对不同的算法进行修改&#34;&gt;adv(各rl算法之间的差异主要体现在adv的计算方式，此处需要针对不同的算法进行修改)
+&lt;/h5&gt;&lt;h5 id=&#34;compute_lossnormal-rl和agent-rl&#34;&gt;compute_loss（normal-rl和agent-rl）
+&lt;/h5&gt;&lt;p&gt;normal-rl：无需和环境交互，response中token全部由模型生成，均参与损失计算&lt;br&gt;
+agent-rl：需要获取观测结果，观测结果部分不是模型生成，计算损失时需要对其进行mask&lt;br&gt;
+update actor（无需修改）&lt;/p&gt;
+</description>
+        </item>
+        <item>
         <title>大型推理模型的强化学习综述个人解读</title>
         <link>http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/</link>
         <pubDate>Wed, 24 Sep 2025 00:00:00 +0000</pubDate>
