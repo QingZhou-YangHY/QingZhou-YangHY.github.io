@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="Pass@k">
+<title>Pass@k论文精读及其复现</title>
+
+<link rel='canonical' href='http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/'>
+
+<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="Pass@k论文精读及其复现">
+<meta property='og:description' content="Pass@k">
+<meta property='og:url' content='http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/'>
+<meta property='og:site_name' content='DaYang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2025-09-21T16:00:00&#43;08:00'/><meta property='article:modified_time' content='2025-09-21T16:00:00&#43;08:00'/><meta property='og:image' content='http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/ByteDance.jpg' />
+<meta name="twitter:title" content="Pass@k论文精读及其复现">
+<meta name="twitter:description" content="Pass@k"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/ByteDance.jpg' />
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/KOBE_hu_898ca0c48cea256c.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">DaYang</a></h1>
+            <h2 class="site-description">Welcome to my blog!</h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/QingZhou-YangHY'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+                    
+                        <li id="i18n-switch">  
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                            <select name="language" title="language" onchange="window.location.href = this.selectedOptions[0].value">
+                                
+                                    <option value="http://localhost:1313/" selected>English</option>
+                                
+                                    <option value="http://localhost:1313/zh-cn/" >中文</option>
+                                
+                            </select>
+                        </li>
+                    
+                
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#passk论文解读">Pass@k论文解读</a>
+      <ol>
+        <li>
+          <ol>
+            <li><a href="#探索能力">探索能力:</a></li>
+          </ol>
+        </li>
+        <li><a href="#k值影响passk训练">k值影响Pass@k训练</a>
+          <ol>
+            <li><a href="#k值越大训练效率越慢k值越大优势值越小导致优化步骤越短训练效率越低">k值越大，训练效率越慢（k值越大，优势值越小，导致优化步骤越短，训练效率越低）</a></li>
+          </ol>
+        </li>
+        <li><a href="#训练效率的影响因素">训练效率的影响因素</a>
+          <ol>
+            <li><a href="#随着学习率的提高拐点出现得更早表明训练效率更高">随着学习率的提高，拐点出现得更早，表明训练效率更高</a></li>
+            <li><a href="#最大优势值不是帮助模型表现优异的关键性因素">最大优势值不是帮助模型表现优异的关键性因素</a></li>
+            <li><a href="#为更难的问题分配更大的优化强度可以有效地提高训练效率">为更难的问题分配更大的优化强度可以有效地提高训练效率</a></li>
+            <li><a href="#implicit-reward-design隐式奖励设计可以控制优化过程">Implicit reward design（隐式奖励设计）可以控制优化过程</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#passk论文复现">Pass@k论文复现</a>
+      <ol>
+        <li><a href="#maze">Maze</a></li>
+        <li><a href="#implementation-details">Implementation Details</a>
+          <ol>
+            <li><a href="#training">Training</a></li>
+          </ol>
+        </li>
+        <li><a href="#versionsdependencies">Versions/Dependencies</a></li>
+        <li><a href="#如何从huggingface上下载数据集和模型">如何从huggingface上下载数据集和模型</a></li>
+        <li><a href="#安装">安装</a>
+          <ol>
+            <li><a href="#模型">模型</a></li>
+            <li><a href="#数据集">数据集</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/pass@k%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/">
+                <img src="/p/pass@k%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/ByteDance_hu_916c166217ff6305.jpg"
+                        srcset="/p/pass@k%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/ByteDance_hu_916c166217ff6305.jpg 800w, /p/pass@k%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/ByteDance_hu_95f8dbdf6256598b.jpg 1600w"
+                        width="800" 
+                        height="605" 
+                        loading="lazy"
+                        alt="Featured image of post Pass@k论文精读及其复现" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/notes/" style="background-color: #457b9d; color: #fff;">
+                Notes
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/pass@k%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/">Pass@k论文精读及其复现</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            Pass@k
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Sep 21, 2025</time>
+            </div>
+        
+
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p><img src="/p/pass@k%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/Seed.jpg"
+	width="400"
+	height="400"
+	srcset="/p/pass@k%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/Seed_hu_2d5c39b72441c640.jpg 480w, /p/pass@k%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/Seed_hu_e08f665f0403ee6b.jpg 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="100"
+		data-flex-basis="240px"
+	
+></p>
+<h1 id="passk-training-for-adptively-balancing-eplortion-and-exploitation-of-lrms">Pass@k Training for Adptively Balancing Eplortion and Exploitation of LRMs
+</h1><h2 id="passk论文解读">Pass@k论文解读
+</h2><p>policy探索能力的指标：the natural prevention of the decrease in the entropy of policy distribution</p>
+<p>Pass@1和Pass@k之间的主要区别在于奖励计算和优势估计过程。</p>
+<p>vanilla：原来的<br>
+Ground Truth是正确答案（标准答案）</p>
+<h4 id="探索能力">探索能力:
+</h4><ul>
+<li>
+<p>the entropy of policy distribution处在一个较高的水平</p>
+</li>
+<li>
+<p>the answer diversity of the negative response处在一个较高的水平<br>
+Pass@k的entropy在RLVR procedure的200step左右开始上升</p>
+</li>
+</ul>
+<h3 id="k值影响passk训练">k值影响Pass@k训练
+</h3><p>实验中从4，8，16中调整k值</p>
+<p>无论k的值是多少，随着训练的进行，训练奖励都可以提高到相对较高的水平，这表明k的值不是帮助LLMs逃脱局部最优解的关键性因素</p>
+<h4 id="k值越大训练效率越慢k值越大优势值越小导致优化步骤越短训练效率越低">k值越大，训练效率越慢（k值越大，优势值越小，导致优化步骤越短，训练效率越低）
+</h4><h3 id="训练效率的影响因素">训练效率的影响因素
+</h3><p>实验在N = 32 和 k = 8的设置下使用{1 x 10-6,2 x 10-6,4 x 10-6}learning rate</p>
+<h4 id="随着学习率的提高拐点出现得更早表明训练效率更高">随着学习率的提高，拐点出现得更早，表明训练效率更高
+</h4><h4 id="最大优势值不是帮助模型表现优异的关键性因素">最大优势值不是帮助模型表现优异的关键性因素
+</h4><h4 id="为更难的问题分配更大的优化强度可以有效地提高训练效率">为更难的问题分配更大的优化强度可以有效地提高训练效率
+</h4><p>根据the entropy of policy distribution的高低，区分high-exploration和low-exploration。</p>
+<p>high-exploration使用Pass@1 advantage fuction来exploit prior exploration，low-exploration使用Pass@k advantage function来encourage further exploration。</p>
+<h4 id="implicit-reward-design隐式奖励设计可以控制优化过程">Implicit reward design（隐式奖励设计）可以控制优化过程
+</h4><p>具体地说，结合或动态调整不同形式的优势估计，可以同时提高exploration and exploitation能力</p>
+<hr>
+<h2 id="passk论文复现">Pass@k论文复现
+</h2><p><a class="link" href="https://arxiv.org/abs/2508.10751"  target="_blank" rel="noopener"
+    >arxiv文章</a>👈<br>
+<a class="link" href="https://github.com/RUCAIBox/Passk_Training"  target="_blank" rel="noopener"
+    >github仓库</a>👈<br>
+<a class="link" href="https://huggingface.co/datasets/RUC-AIBOX/Passk_Training_Maze"  target="_blank" rel="noopener"
+    >Datasets</a>👈</p>
+<h3 id="maze">Maze
+</h3><p>每个迷宫由文本表示，包含n行和n列，总共n∗n个字符</p>
+<p>四个字符“S”、“E”、“.”和“*”中的一个，分别表示起点、目的地、可用地点和不可用地点</p>
+<p>给定迷宫，LLM可以首先生成思维或推理过程，然后生成最终答案，其中包括四个动作“U”、“D”、“L”和“R”中的一个，分别表示向上、向下、向左和向右移动</p>
+<p>对于训练数据，我们构建了大小为9×9、11×11、13×13和15×15的迷宫，以增加训练数据的多样性</p>
+<p>对于测试数据，为了评估RLVR过程的泛化能力，我们不仅使用训练数据集进行相同大小的迷宫，还收集了大小为7×7、17×17、19×19和21×21的迷宫</p>
+<p>为了确保实验的有效性，我们在生成训练和测试数据后进行了严格的重复数据删除操作</p>
+<p>Training Set 都是10,000;Test Set除了7 * 7,剩下的都是100</p>
+<h3 id="implementation-details">Implementation Details
+</h3><h4 id="training">Training
+</h4><p>backbone model:Qwen2.5-7B-Instruct和Qwen2.5-32B Instruct</p>
+<p>DAPO</p>
+<p>εlow=0.2和εhigh=0.28</p>
+<p>token-level policy gradient loss</p>
+<p>remove other optimizations</p>
+<p>learning rate:1 × 10−6</p>
+<p>warmup:10</p>
+<p>prompt batch size(BS prompt):128</p>
+<ul>
+<li>Prompt Batch Size：是模型推理生成的粒度。它决定在一次性并行处理多少个独立的提示词（例如，多少个用户问题），并同时为它们生成文本</li>
+</ul>
+<p>mini-batch size(BS mini):32</p>
+<ul>
+<li>Mini-batch Size：是模型权重更新的粒度。它决定在计算一次梯度下降时，使用多少条训练数据</li>
+</ul>
+<p>rollout times:32</p>
+<p>positive reward Rpos = 1</p>
+<p>negative reward Rneg = 0</p>
+<p>do not employ any regularization methods, such as KL or Entropy regularization<br>
+temperature:1.0</p>
+<p>Top_P:0.95</p>
+<p>For each question,we sample 32responses for Maze task and sample 8 responses for other tasks</p>
+<h3 id="versionsdependencies">Versions/Dependencies
+</h3><p>Python 3.10.18<br>
+Ray 2.49.1<br>
+grpcio 1.75.0<br>
+Ubuntu 24.04.2 LTS</p>
+<h3 id="如何从huggingface上下载数据集和模型">如何从huggingface上下载数据集和模型
+</h3><p>从huggingface上下载文件有2种方式，一种是直接登录后在网页上下载；一种是通过huggingface-cli命令下载。</p>
+<p>本文介绍的是第二种下载方式。</p>
+<h3 id="安装">安装
+</h3><p>对于huggingface-cli命令的下载直接通过pip命令安装即可：</p>
+<blockquote>
+<p>pip install -U huggingface_hub[hub_transfer]</p></blockquote>
+<p>对于国内用户还可以通过设置镜像网站的方式加速下载：</p>
+<blockquote>
+<p>#linux
+export HF_ENDPOINT=https://hf-mirror.com<br>
+#windows<br>
+set HF_ENDPOINT=https://hf-mirror.com</p></blockquote>
+<p>使用命令行下载</p>
+<h4 id="模型">模型
+</h4><blockquote>
+<p>huggingface-cli download &ndash;resume-download [1] &ndash;local-dir [2] &ndash;local-dir-use-symlinks False</p></blockquote>
+<h4 id="数据集">数据集
+</h4><blockquote>
+<p>huggingface-cli download &ndash;repo-type dataset &ndash;resume-download [3] &ndash;local-dir [4] &ndash;local-dir-use-symlinks False &ndash;token hf_***</p></blockquote>
+<p>格式为：[1]和[3]表示项目的路径，格式为用户名/项目，比如mistralai/Mistral-7B-Instruct-v0.2表示的是mistralai下的7B instruct v0.2权重。[2]和[4]表示的是本地的保存地址。</p>
+<p>需要的注意的是有些仓库需要登录才可以下载，形如–token hf_***为huggingface的token配置。token的生成需要在huggingface个人页面生成.</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/p/still3%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">STILL3论文精读</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/verl%E6%B2%89%E6%B7%80%E6%9A%82%E6%9C%AA%E6%83%B3%E5%A5%BD%E5%90%8D%E5%AD%97/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="/sky.jpg" loading="lazy" data-key="" data-hash="/sky.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">veRL沉淀（暂未想好名字）</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/">
+        
+        
+            <div class="article-image">
+                <img src="/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/sky.4d4f57a94652582b13e95c39a8361402_hu_1ffe5d9fa2732f7b.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post 大型推理模型的强化学习综述个人解读"
+                        
+                        data-hash="md5-TU9XqUZSWCsT6Vw5qDYUAg==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">大型推理模型的强化学习综述个人解读</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/ray.init%E5%88%9D%E5%A7%8B%E5%8C%96%E6%8C%82%E8%B5%B7/%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98%E7%9A%84%E8%A7%A3%E5%86%B3/">
+        
+        
+            <div class="article-image">
+                <img src="/p/ray.init%E5%88%9D%E5%A7%8B%E5%8C%96%E6%8C%82%E8%B5%B7/%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98%E7%9A%84%E8%A7%A3%E5%86%B3/Ray.c64a43cfcd8e30845b7034d2be973cdf_hu_39e0cf0a02b216da.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post ray.init()初始化挂起/失败问题的解决"
+                        
+                        data-hash="md5-xkpDz82OMIRbcDTSvpc83w==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">ray.init()初始化挂起/失败问题的解决</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/ruc-study-framework/">
+        
+        
+            <div class="article-image">
+                <img src="/p/ruc-study-framework/RUC.328e8b172986eb21c4664f1f72f9ff8d_hu_8a72e864ae58e09.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post RUC科研之旅"
+                        data-key="ruc-study-framework" 
+                        data-hash="md5-Mo6LFymG6yHEZk8fcvn/jQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">RUC科研之旅</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2025 DaYang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.31.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.8c084058b40befe06689a879f198241d129be0572f9b5a66862385dd362c5e22.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>
