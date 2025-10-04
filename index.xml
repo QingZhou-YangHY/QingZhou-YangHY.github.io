@@ -364,15 +364,15 @@ e.g.OpenRLHF/veRL/AReaL/slime/TRL&lt;/li&gt;
 </description>
         </item>
         <item>
-        <title>Pass@k论文复现</title>
-        <link>http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E5%A4%8D%E7%8E%B0/</link>
+        <title>Pass@k论文解读及其复现</title>
+        <link>http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/</link>
         <pubDate>Sun, 21 Sep 2025 16:00:00 +0800</pubDate>
         
-        <guid>http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E5%A4%8D%E7%8E%B0/</guid>
-        <description>&lt;img src="http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E5%A4%8D%E7%8E%B0/ByteDance.jpg" alt="Featured image of post Pass@k论文复现" /&gt;&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E5%A4%8D%E7%8E%B0/Seed.jpg&#34;
+        <guid>http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/</guid>
+        <description>&lt;img src="http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/ByteDance.jpg" alt="Featured image of post Pass@k论文解读及其复现" /&gt;&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/Seed.jpg&#34;
 	width=&#34;400&#34;
 	height=&#34;400&#34;
-	srcset=&#34;http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E5%A4%8D%E7%8E%B0/Seed_hu_2d5c39b72441c640.jpg 480w, http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E5%A4%8D%E7%8E%B0/Seed_hu_e08f665f0403ee6b.jpg 1024w&#34;
+	srcset=&#34;http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/Seed_hu_2d5c39b72441c640.jpg 480w, http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/Seed_hu_e08f665f0403ee6b.jpg 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 	
@@ -381,8 +381,36 @@ e.g.OpenRLHF/veRL/AReaL/slime/TRL&lt;/li&gt;
 		data-flex-basis=&#34;240px&#34;
 	
 &gt;&lt;/p&gt;
-&lt;h1 id=&#34;passk论文复现&#34;&gt;Pass@k论文复现
-&lt;/h1&gt;&lt;h2 id=&#34;passk-training-for-adptively-balancing-eplortion-and-exploitation-of-lrms&#34;&gt;Pass@k Training for Adptively Balancing Eplortion and Exploitation of LRMs
+&lt;h1 id=&#34;passk-training-for-adptively-balancing-eplortion-and-exploitation-of-lrms&#34;&gt;Pass@k Training for Adptively Balancing Eplortion and Exploitation of LRMs
+&lt;/h1&gt;&lt;h2 id=&#34;passk论文解读&#34;&gt;Pass@k论文解读
+&lt;/h2&gt;&lt;p&gt;policy探索能力的指标：the natural prevention of the decrease in the entropy of policy distribution&lt;/p&gt;
+&lt;p&gt;Pass@1和Pass@k之间的主要区别在于奖励计算和优势估计过程。&lt;/p&gt;
+&lt;p&gt;vanilla：原来的&lt;/p&gt;
+&lt;h4 id=&#34;探索能力&#34;&gt;探索能力:
+&lt;/h4&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;the entropy of policy distribution处在一个较高的水平&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;the answer diversity of the negative response处在一个较高的水平&lt;br&gt;
+Pass@k的entropy在RLVR procedure的200step左右开始上升&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;k值影响passk训练&#34;&gt;k值影响Pass@k训练
+&lt;/h3&gt;&lt;p&gt;实验中从4，8，16中调整k值&lt;/p&gt;
+&lt;p&gt;无论k的值是多少，随着训练的进行，训练奖励都可以提高到相对较高的水平，这表明k的值不是帮助LLMs逃脱局部最优解的关键性因素&lt;/p&gt;
+&lt;h4 id=&#34;k值越大训练效率越慢k值越大优势值越小导致优化步骤越短训练效率越低&#34;&gt;k值越大，训练效率越慢（k值越大，优势值越小，导致优化步骤越短，训练效率越低）
+&lt;/h4&gt;&lt;h3 id=&#34;训练效率的影响因素&#34;&gt;训练效率的影响因素
+&lt;/h3&gt;&lt;p&gt;实验在N = 32 和 k = 8的设置下使用{1 x 10-6,2 x 10-6,4 x 10-6}learning rate&lt;/p&gt;
+&lt;h4 id=&#34;随着学习率的提高拐点出现得更早表明训练效率更高&#34;&gt;随着学习率的提高，拐点出现得更早，表明训练效率更高
+&lt;/h4&gt;&lt;h4 id=&#34;最大优势值不是帮助模型表现优异的关键性因素&#34;&gt;最大优势值不是帮助模型表现优异的关键性因素
+&lt;/h4&gt;&lt;h4 id=&#34;为更难的问题分配更大的优化强度可以有效地提高训练效率&#34;&gt;为更难的问题分配更大的优化强度可以有效地提高训练效率
+&lt;/h4&gt;&lt;p&gt;根据the entropy of policy distribution的高低，区分high-exploration和low-exploration。&lt;/p&gt;
+&lt;p&gt;high-exploration使用Pass@1 advantage fuction来exploit prior exploration，low-exploration使用Pass@k advantage function来encourage further exploration。&lt;/p&gt;
+&lt;h4 id=&#34;implicit-reward-design隐式奖励设计可以控制优化过程&#34;&gt;Implicit reward design（隐式奖励设计）可以控制优化过程
+&lt;/h4&gt;&lt;p&gt;具体地说，结合或动态调整不同形式的优势估计，可以同时提高exploration and exploitation能力&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;passk论文复现&#34;&gt;Pass@k论文复现
 &lt;/h2&gt;&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/abs/2508.10751&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;arxiv文章&lt;/a&gt;👈&lt;br&gt;
 &lt;a class=&#34;link&#34; href=&#34;https://github.com/RUCAIBox/Passk_Training&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
