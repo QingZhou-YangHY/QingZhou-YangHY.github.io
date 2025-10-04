@@ -1,19 +1,18 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
     <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="Pass@k">
-<title>Pass@k论文精读及其复现</title>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="强化学习的流程 加载模型（无需修改）\nveRL使用Ray框架进行模型的调度\ninit_workers 初始化策略模型、参考模型、价值模型、奖励模型。这里面有些模型不会用到。很多都不会使用价值模型，奖励模型也都是基于规则的 训练过程\nget_data_batch(无需修改) generate_sequences(normal-rl和agent-rl) normal-rl：单轮的交互（prompt&ndash;&gt;model&ndash;&gt;response），这个流程就结束了\nagent-rl：多轮的交互（prompt&ndash;&gt;model&ndash;&gt;response&ndash;&gt;env（tool call,code exec ,etc）&ndash;&gt;model&ndash;&gt;response&ndash;&gt;&hellip;）\nreward（通过自定义的奖励函数控制，一般无需修改）不用去修改veRL框架，通过配置文件进行修改\nlog_probs（计算策略模型和参考模型输出token的概率，一般无需修改）\nvalues(目前主流的rl算法基本上都在舍弃价值模型，一般无需修改)\nadv(各rl算法之间的差异主要体现在adv的计算方式，此处需要针对不同的算法进行修改) compute_loss（normal-rl和agent-rl） normal-rl：无需和环境交互，response中token全部由模型生成，均参与损失计算\nagent-rl：需要获取观测结果，观测结果部分不是模型生成，计算损失时需要对其进行mask\nupdate actor（无需修改）\n">
+<title>veRL沉淀</title>
 
-<link rel='canonical' href='http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/'>
+<link rel='canonical' href='http://localhost:1313/p/verl%E6%B2%89%E6%B7%80/'>
 
-<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="Pass@k论文精读及其复现">
-<meta property='og:description' content="Pass@k">
-<meta property='og:url' content='http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/'>
+<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="veRL沉淀">
+<meta property='og:description' content="强化学习的流程 加载模型（无需修改）\nveRL使用Ray框架进行模型的调度\ninit_workers 初始化策略模型、参考模型、价值模型、奖励模型。这里面有些模型不会用到。很多都不会使用价值模型，奖励模型也都是基于规则的 训练过程\nget_data_batch(无需修改) generate_sequences(normal-rl和agent-rl) normal-rl：单轮的交互（prompt&ndash;&gt;model&ndash;&gt;response），这个流程就结束了\nagent-rl：多轮的交互（prompt&ndash;&gt;model&ndash;&gt;response&ndash;&gt;env（tool call,code exec ,etc）&ndash;&gt;model&ndash;&gt;response&ndash;&gt;&hellip;）\nreward（通过自定义的奖励函数控制，一般无需修改）不用去修改veRL框架，通过配置文件进行修改\nlog_probs（计算策略模型和参考模型输出token的概率，一般无需修改）\nvalues(目前主流的rl算法基本上都在舍弃价值模型，一般无需修改)\nadv(各rl算法之间的差异主要体现在adv的计算方式，此处需要针对不同的算法进行修改) compute_loss（normal-rl和agent-rl） normal-rl：无需和环境交互，response中token全部由模型生成，均参与损失计算\nagent-rl：需要获取观测结果，观测结果部分不是模型生成，计算损失时需要对其进行mask\nupdate actor（无需修改）\n">
+<meta property='og:url' content='http://localhost:1313/p/verl%E6%B2%89%E6%B7%80/'>
 <meta property='og:site_name' content='DaYang'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2025-09-21T16:00:00&#43;08:00'/><meta property='article:modified_time' content='2025-09-21T16:00:00&#43;08:00'/><meta property='og:image' content='http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/ByteDance.jpg' />
-<meta name="twitter:title" content="Pass@k论文精读及其复现">
-<meta name="twitter:description" content="Pass@k"><meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content='http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/ByteDance.jpg' />
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2025-10-01T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2025-10-01T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="veRL沉淀">
+<meta name="twitter:description" content="强化学习的流程 加载模型（无需修改）\nveRL使用Ray框架进行模型的调度\ninit_workers 初始化策略模型、参考模型、价值模型、奖励模型。这里面有些模型不会用到。很多都不会使用价值模型，奖励模型也都是基于规则的 训练过程\nget_data_batch(无需修改) generate_sequences(normal-rl和agent-rl) normal-rl：单轮的交互（prompt&ndash;&gt;model&ndash;&gt;response），这个流程就结束了\nagent-rl：多轮的交互（prompt&ndash;&gt;model&ndash;&gt;response&ndash;&gt;env（tool call,code exec ,etc）&ndash;&gt;model&ndash;&gt;response&ndash;&gt;&hellip;）\nreward（通过自定义的奖励函数控制，一般无需修改）不用去修改veRL框架，通过配置文件进行修改\nlog_probs（计算策略模型和参考模型输出token的概率，一般无需修改）\nvalues(目前主流的rl算法基本上都在舍弃价值模型，一般无需修改)\nadv(各rl算法之间的差异主要体现在adv的计算方式，此处需要针对不同的算法进行修改) compute_loss（normal-rl和agent-rl） normal-rl：无需和环境交互，response中token全部由模型生成，均参与损失计算\nagent-rl：需要获取观测结果，观测结果部分不是模型生成，计算损失时需要对其进行mask\nupdate actor（无需修改）\n">
     </head>
     <body class="
     article-page
@@ -267,42 +266,11 @@
         <div class="widget--toc">
             <nav id="TableOfContents">
   <ol>
-    <li><a href="#passk论文解读">Pass@k论文解读</a>
+    <li>
       <ol>
         <li>
           <ol>
-            <li><a href="#探索能力">探索能力:</a></li>
-          </ol>
-        </li>
-        <li><a href="#k值影响passk训练">k值影响Pass@k训练</a>
-          <ol>
-            <li><a href="#k值越大训练效率越慢k值越大优势值越小导致优化步骤越短训练效率越低">k值越大，训练效率越慢（k值越大，优势值越小，导致优化步骤越短，训练效率越低）</a></li>
-          </ol>
-        </li>
-        <li><a href="#训练效率的影响因素">训练效率的影响因素</a>
-          <ol>
-            <li><a href="#随着学习率的提高拐点出现得更早表明训练效率更高">随着学习率的提高，拐点出现得更早，表明训练效率更高</a></li>
-            <li><a href="#最大优势值不是帮助模型表现优异的关键性因素">最大优势值不是帮助模型表现优异的关键性因素</a></li>
-            <li><a href="#为更难的问题分配更大的优化强度可以有效地提高训练效率">为更难的问题分配更大的优化强度可以有效地提高训练效率</a></li>
-            <li><a href="#implicit-reward-design隐式奖励设计可以控制优化过程">Implicit reward design（隐式奖励设计）可以控制优化过程</a></li>
-          </ol>
-        </li>
-      </ol>
-    </li>
-    <li><a href="#passk论文复现">Pass@k论文复现</a>
-      <ol>
-        <li><a href="#maze">Maze</a></li>
-        <li><a href="#implementation-details">Implementation Details</a>
-          <ol>
-            <li><a href="#training">Training</a></li>
-          </ol>
-        </li>
-        <li><a href="#versionsdependencies">Versions/Dependencies</a></li>
-        <li><a href="#如何从huggingface上下载数据集和模型">如何从huggingface上下载数据集和模型</a></li>
-        <li><a href="#安装">安装</a>
-          <ol>
-            <li><a href="#模型">模型</a></li>
-            <li><a href="#数据集">数据集</a></li>
+            <li></li>
           </ol>
         </li>
       </ol>
@@ -318,20 +286,8 @@
 
 
             <main class="main full-width">
-    <article class="has-image main-article">
+    <article class="main-article">
     <header class="article-header">
-        <div class="article-image">
-            <a href="/p/pass@k%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/">
-                <img src="/p/pass@k%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/ByteDance_hu_916c166217ff6305.jpg"
-                        srcset="/p/pass@k%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/ByteDance_hu_916c166217ff6305.jpg 800w, /p/pass@k%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/ByteDance_hu_95f8dbdf6256598b.jpg 1600w"
-                        width="800" 
-                        height="605" 
-                        loading="lazy"
-                        alt="Featured image of post Pass@k论文精读及其复现" />
-                
-            </a>
-        </div>
-    
 
     <div class="article-details">
     
@@ -346,13 +302,9 @@
 
     <div class="article-title-wrapper">
         <h2 class="article-title">
-            <a href="/p/pass@k%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/">Pass@k论文精读及其复现</a>
+            <a href="/p/verl%E6%B2%89%E6%B7%80/">veRL沉淀</a>
         </h2>
     
-        
-        <h3 class="article-subtitle">
-            Pass@k
-        </h3>
         
     </div>
 
@@ -372,7 +324,7 @@
   <path d="M3 11h16" />
   <path d="M18 16.496v1.504l1 1" />
 </svg>
-                <time class="article-time--published">Sep 21, 2025</time>
+                <time class="article-time--published">Oct 01, 2025</time>
             </div>
         
 
@@ -388,117 +340,25 @@
     <section class="article-content">
     
     
-    <p><img src="/p/pass@k%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/Seed.jpg"
-	width="400"
-	height="400"
-	srcset="/p/pass@k%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/Seed_hu_2d5c39b72441c640.jpg 480w, /p/pass@k%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/Seed_hu_e08f665f0403ee6b.jpg 1024w"
-	loading="lazy"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="100"
-		data-flex-basis="240px"
-	
-></p>
-<h1 id="passk-training-for-adptively-balancing-eplortion-and-exploitation-of-lrms">Pass@k Training for Adptively Balancing Eplortion and Exploitation of LRMs
-</h1><h2 id="passk论文解读">Pass@k论文解读
-</h2><p>policy探索能力的指标：the natural prevention of the decrease in the entropy of policy distribution</p>
-<p>Pass@1和Pass@k之间的主要区别在于奖励计算和优势估计过程。</p>
-<p>vanilla：原来的<br>
-Ground Truth是正确答案（标准答案）</p>
-<h4 id="探索能力">探索能力:
-</h4><ul>
-<li>
-<p>the entropy of policy distribution处在一个较高的水平</p>
-</li>
-<li>
-<p>the answer diversity of the negative response处在一个较高的水平<br>
-Pass@k的entropy在RLVR procedure的200step左右开始上升</p>
-</li>
+    <h1 id="强化学习的流程">强化学习的流程
+</h1><ul>
+<li>加载模型（无需修改）<br>
+veRL使用Ray框架进行模型的调度<br>
+init_workers 初始化策略模型、参考模型、价值模型、奖励模型。这里面有些模型不会用到。很多都不会使用价值模型，奖励模型也都是基于规则的</li>
+<li>训练过程<br>
+get_data_batch(无需修改)</li>
 </ul>
-<h3 id="k值影响passk训练">k值影响Pass@k训练
-</h3><p>实验中从4，8，16中调整k值</p>
-<p>无论k的值是多少，随着训练的进行，训练奖励都可以提高到相对较高的水平，这表明k的值不是帮助LLMs逃脱局部最优解的关键性因素</p>
-<h4 id="k值越大训练效率越慢k值越大优势值越小导致优化步骤越短训练效率越低">k值越大，训练效率越慢（k值越大，优势值越小，导致优化步骤越短，训练效率越低）
-</h4><h3 id="训练效率的影响因素">训练效率的影响因素
-</h3><p>实验在N = 32 和 k = 8的设置下使用{1 x 10-6,2 x 10-6,4 x 10-6}learning rate</p>
-<h4 id="随着学习率的提高拐点出现得更早表明训练效率更高">随着学习率的提高，拐点出现得更早，表明训练效率更高
-</h4><h4 id="最大优势值不是帮助模型表现优异的关键性因素">最大优势值不是帮助模型表现优异的关键性因素
-</h4><h4 id="为更难的问题分配更大的优化强度可以有效地提高训练效率">为更难的问题分配更大的优化强度可以有效地提高训练效率
-</h4><p>根据the entropy of policy distribution的高低，区分high-exploration和low-exploration。</p>
-<p>high-exploration使用Pass@1 advantage fuction来exploit prior exploration，low-exploration使用Pass@k advantage function来encourage further exploration。</p>
-<h4 id="implicit-reward-design隐式奖励设计可以控制优化过程">Implicit reward design（隐式奖励设计）可以控制优化过程
-</h4><p>具体地说，结合或动态调整不同形式的优势估计，可以同时提高exploration and exploitation能力</p>
-<hr>
-<h2 id="passk论文复现">Pass@k论文复现
-</h2><p><a class="link" href="https://arxiv.org/abs/2508.10751"  target="_blank" rel="noopener"
-    >arxiv文章</a>👈<br>
-<a class="link" href="https://github.com/RUCAIBox/Passk_Training"  target="_blank" rel="noopener"
-    >github仓库</a>👈<br>
-<a class="link" href="https://huggingface.co/datasets/RUC-AIBOX/Passk_Training_Maze"  target="_blank" rel="noopener"
-    >Datasets</a>👈</p>
-<h3 id="maze">Maze
-</h3><p>每个迷宫由文本表示，包含n行和n列，总共n∗n个字符</p>
-<p>四个字符“S”、“E”、“.”和“*”中的一个，分别表示起点、目的地、可用地点和不可用地点</p>
-<p>给定迷宫，LLM可以首先生成思维或推理过程，然后生成最终答案，其中包括四个动作“U”、“D”、“L”和“R”中的一个，分别表示向上、向下、向左和向右移动</p>
-<p>对于训练数据，我们构建了大小为9×9、11×11、13×13和15×15的迷宫，以增加训练数据的多样性</p>
-<p>对于测试数据，为了评估RLVR过程的泛化能力，我们不仅使用训练数据集进行相同大小的迷宫，还收集了大小为7×7、17×17、19×19和21×21的迷宫</p>
-<p>为了确保实验的有效性，我们在生成训练和测试数据后进行了严格的重复数据删除操作</p>
-<p>Training Set 都是10,000;Test Set除了7 * 7,剩下的都是100</p>
-<h3 id="implementation-details">Implementation Details
-</h3><h4 id="training">Training
-</h4><p>backbone model:Qwen2.5-7B-Instruct和Qwen2.5-32B Instruct</p>
-<p>DAPO</p>
-<p>εlow=0.2和εhigh=0.28</p>
-<p>token-level policy gradient loss</p>
-<p>remove other optimizations</p>
-<p>learning rate:1 × 10−6</p>
-<p>warmup:10</p>
-<p>prompt batch size(BS prompt):128</p>
-<ul>
-<li>Prompt Batch Size：是模型推理生成的粒度。它决定在一次性并行处理多少个独立的提示词（例如，多少个用户问题），并同时为它们生成文本</li>
-</ul>
-<p>mini-batch size(BS mini):32</p>
-<ul>
-<li>Mini-batch Size：是模型权重更新的粒度。它决定在计算一次梯度下降时，使用多少条训练数据</li>
-</ul>
-<p>rollout times:32</p>
-<p>positive reward Rpos = 1</p>
-<p>negative reward Rneg = 0</p>
-<p>do not employ any regularization methods, such as KL or Entropy regularization<br>
-temperature:1.0</p>
-<p>Top_P:0.95</p>
-<ul>
-<li>从概率最高的词开始累加它们的概率，直到累积概率达到或刚刚超过你设定的 top_p 值</li>
-</ul>
-<p>For each question,we sample 32responses for Maze task and sample 8 responses for other tasks</p>
-<h3 id="versionsdependencies">Versions/Dependencies
-</h3><p>Python 3.10.18<br>
-Ray 2.49.1<br>
-grpcio 1.75.0<br>
-Ubuntu 24.04.2 LTS</p>
-<h3 id="如何从huggingface上下载数据集和模型">如何从huggingface上下载数据集和模型
-</h3><p>从huggingface上下载文件有2种方式，一种是直接登录后在网页上下载；一种是通过huggingface-cli命令下载。</p>
-<p>本文介绍的是第二种下载方式。</p>
-<h3 id="安装">安装
-</h3><p>对于huggingface-cli命令的下载直接通过pip命令安装即可：</p>
-<blockquote>
-<p>pip install -U huggingface_hub[hub_transfer]</p></blockquote>
-<p>对于国内用户还可以通过设置镜像网站的方式加速下载：</p>
-<blockquote>
-<p>#linux
-export HF_ENDPOINT=https://hf-mirror.com<br>
-#windows<br>
-set HF_ENDPOINT=https://hf-mirror.com</p></blockquote>
-<p>使用命令行下载</p>
-<h4 id="模型">模型
-</h4><blockquote>
-<p>huggingface-cli download &ndash;resume-download [1] &ndash;local-dir [2] &ndash;local-dir-use-symlinks False</p></blockquote>
-<h4 id="数据集">数据集
-</h4><blockquote>
-<p>huggingface-cli download &ndash;repo-type dataset &ndash;resume-download [3] &ndash;local-dir [4] &ndash;local-dir-use-symlinks False &ndash;token hf_***</p></blockquote>
-<p>格式为：[1]和[3]表示项目的路径，格式为用户名/项目，比如mistralai/Mistral-7B-Instruct-v0.2表示的是mistralai下的7B instruct v0.2权重。[2]和[4]表示的是本地的保存地址。</p>
-<p>需要的注意的是有些仓库需要登录才可以下载，形如–token hf_***为huggingface的token配置。token的生成需要在huggingface个人页面生成.</p>
+<h5 id="generate_sequencesnormal-rl和agent-rl">generate_sequences(normal-rl和agent-rl)
+</h5><p>normal-rl：单轮的交互（prompt&ndash;&gt;model&ndash;&gt;response），这个流程就结束了<br>
+agent-rl：多轮的交互（prompt&ndash;&gt;model&ndash;&gt;response&ndash;&gt;env（tool call,code exec ,etc）&ndash;&gt;model&ndash;&gt;response&ndash;&gt;&hellip;）<br>
+reward（通过自定义的奖励函数控制，一般无需修改）不用去修改veRL框架，通过配置文件进行修改<br>
+log_probs（计算策略模型和参考模型输出token的概率，一般无需修改）<br>
+values(目前主流的rl算法基本上都在舍弃价值模型，一般无需修改)</p>
+<h5 id="adv各rl算法之间的差异主要体现在adv的计算方式此处需要针对不同的算法进行修改">adv(各rl算法之间的差异主要体现在adv的计算方式，此处需要针对不同的算法进行修改)
+</h5><h5 id="compute_lossnormal-rl和agent-rl">compute_loss（normal-rl和agent-rl）
+</h5><p>normal-rl：无需和环境交互，response中token全部由模型生成，均参与损失计算<br>
+agent-rl：需要获取观测结果，观测结果部分不是模型生成，计算损失时需要对其进行mask<br>
+update actor（无需修改）</p>
 
 </section>
 
@@ -535,19 +395,6 @@ set HF_ENDPOINT=https://hf-mirror.com</p></blockquote>
 
             
                 
-<article class="">
-    <a href="/p/verl%E6%B2%89%E6%B7%80/">
-        
-        
-
-        <div class="article-details">
-            <h2 class="article-title">veRL沉淀</h2>
-        </div>
-    </a>
-</article>
-
-            
-                
 <article class="has-image">
     <a href="/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/">
         
@@ -566,6 +413,30 @@ set HF_ENDPOINT=https://hf-mirror.com</p></blockquote>
 
         <div class="article-details">
             <h2 class="article-title">大型推理模型的强化学习综述个人解读</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/pass@k%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/">
+        
+        
+            <div class="article-image">
+                <img src="/p/pass@k%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/ByteDance.6da9e1b9aa6df50ac5367b6073754ad5_hu_1b7bcd98cfe762af.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post Pass@k论文精读及其复现"
+                        
+                        data-hash="md5-banhuapt9QrFNntgc3VK1Q==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Pass@k论文精读及其复现</h2>
         </div>
     </a>
 </article>

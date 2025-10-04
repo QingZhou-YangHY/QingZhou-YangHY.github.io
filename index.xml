@@ -115,12 +115,12 @@ iveAOP利用AoPS论坛的帖子创建了一个由3863个示例组成的抗污染
 </description>
         </item>
         <item>
-        <title>veRL沉淀（暂未想好名字）</title>
-        <link>http://localhost:1313/p/verl%E6%B2%89%E6%B7%80%E6%9A%82%E6%9C%AA%E6%83%B3%E5%A5%BD%E5%90%8D%E5%AD%97/</link>
+        <title>veRL沉淀</title>
+        <link>http://localhost:1313/p/verl%E6%B2%89%E6%B7%80/</link>
         <pubDate>Wed, 01 Oct 2025 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/p/verl%E6%B2%89%E6%B7%80%E6%9A%82%E6%9C%AA%E6%83%B3%E5%A5%BD%E5%90%8D%E5%AD%97/</guid>
-        <description>&lt;img src="http://localhost:1313/sky.jpg" alt="Featured image of post veRL沉淀（暂未想好名字）" /&gt;&lt;h1 id=&#34;强化学习的流程&#34;&gt;强化学习的流程
+        <guid>http://localhost:1313/p/verl%E6%B2%89%E6%B7%80/</guid>
+        <description>&lt;h1 id=&#34;强化学习的流程&#34;&gt;强化学习的流程
 &lt;/h1&gt;&lt;ul&gt;
 &lt;li&gt;加载模型（无需修改）&lt;br&gt;
 veRL使用Ray框架进行模型的调度&lt;br&gt;
@@ -449,6 +449,9 @@ Pass@k的entropy在RLVR procedure的200step左右开始上升&lt;/p&gt;
 &lt;p&gt;do not employ any regularization methods, such as KL or Entropy regularization&lt;br&gt;
 temperature:1.0&lt;/p&gt;
 &lt;p&gt;Top_P:0.95&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;从概率最高的词开始累加它们的概率，直到累积概率达到或刚刚超过你设定的 top_p 值&lt;/li&gt;
+&lt;/ul&gt;
 &lt;p&gt;For each question,we sample 32responses for Maze task and sample 8 responses for other tasks&lt;/p&gt;
 &lt;h3 id=&#34;versionsdependencies&#34;&gt;Versions/Dependencies
 &lt;/h3&gt;&lt;p&gt;Python 3.10.18&lt;br&gt;
