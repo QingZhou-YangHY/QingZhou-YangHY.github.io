@@ -291,6 +291,12 @@
     </li>
     <li><a href="#passk论文复现">Pass@k论文复现</a>
       <ol>
+        <li><a href="#maze">Maze</a></li>
+        <li><a href="#implementation-details">Implementation Details</a>
+          <ol>
+            <li><a href="#training">Training</a></li>
+          </ol>
+        </li>
         <li><a href="#versionsdependencies">Versions/Dependencies</a></li>
         <li><a href="#如何从huggingface上下载数据集和模型">如何从huggingface上下载数据集和模型</a></li>
         <li><a href="#安装">安装</a>
@@ -398,7 +404,8 @@
 </h1><h2 id="passk论文解读">Pass@k论文解读
 </h2><p>policy探索能力的指标：the natural prevention of the decrease in the entropy of policy distribution</p>
 <p>Pass@1和Pass@k之间的主要区别在于奖励计算和优势估计过程。</p>
-<p>vanilla：原来的</p>
+<p>vanilla：原来的<br>
+Ground Truth是正确答案（标准答案）</p>
 <h4 id="探索能力">探索能力:
 </h4><ul>
 <li>
@@ -430,12 +437,43 @@ Pass@k的entropy在RLVR procedure的200step左右开始上升</p>
     >github仓库</a>👈<br>
 <a class="link" href="https://huggingface.co/datasets/RUC-AIBOX/Passk_Training_Maze"  target="_blank" rel="noopener"
     >Datasets</a>👈</p>
+<h3 id="maze">Maze
+</h3><p>每个迷宫由文本表示，包含n行和n列，总共n∗n个字符</p>
+<p>四个字符“S”、“E”、“.”和“*”中的一个，分别表示起点、目的地、可用地点和不可用地点</p>
+<p>给定迷宫，LLM可以首先生成思维或推理过程，然后生成最终答案，其中包括四个动作“U”、“D”、“L”和“R”中的一个，分别表示向上、向下、向左和向右移动</p>
+<p>对于训练数据，我们构建了大小为9×9、11×11、13×13和15×15的迷宫，以增加训练数据的多样性</p>
+<p>对于测试数据，为了评估RLVR过程的泛化能力，我们不仅使用训练数据集进行相同大小的迷宫，还收集了大小为7×7、17×17、19×19和21×21的迷宫</p>
+<p>为了确保实验的有效性，我们在生成训练和测试数据后进行了严格的重复数据删除操作</p>
+<p>Training Set 都是10,000;Test Set除了7 * 7,剩下的都是100</p>
+<h3 id="implementation-details">Implementation Details
+</h3><h4 id="training">Training
+</h4><p>backbone model:Qwen2.5-7B-Instruct和Qwen2.5-32B Instruct</p>
+<p>DAPO</p>
+<p>εlow=0.2和εhigh=0.28</p>
+<p>token-level policy gradient loss</p>
+<p>remove other optimizations</p>
+<p>learning rate:1 × 10−6</p>
+<p>warmup:10</p>
+<p>prompt batch size(BS prompt):128</p>
+<ul>
+<li>Prompt Batch Size：是模型推理生成的粒度。它决定在一次性并行处理多少个独立的提示词（例如，多少个用户问题），并同时为它们生成文本</li>
+</ul>
+<p>mini-batch size(BS mini):32</p>
+<ul>
+<li>Mini-batch Size：是模型权重更新的粒度。它决定在计算一次梯度下降时，使用多少条训练数据</li>
+</ul>
+<p>rollout times:32</p>
+<p>positive reward Rpos = 1</p>
+<p>negative reward Rneg = 0</p>
+<p>do not employ any regularization methods, such as KL or Entropy regularization<br>
+temperature:1.0</p>
+<p>Top_P:0.95</p>
+<p>For each question,we sample 32responses for Maze task and sample 8 responses for other tasks</p>
 <h3 id="versionsdependencies">Versions/Dependencies
 </h3><p>Python 3.10.18<br>
 Ray 2.49.1<br>
 grpcio 1.75.0<br>
 Ubuntu 24.04.2 LTS</p>
-<hr>
 <h3 id="如何从huggingface上下载数据集和模型">如何从huggingface上下载数据集和模型
 </h3><p>从huggingface上下载文件有2种方式，一种是直接登录后在网页上下载；一种是通过huggingface-cli命令下载。</p>
 <p>本文介绍的是第二种下载方式。</p>
