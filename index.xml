@@ -142,19 +142,19 @@ update actor（无需修改）&lt;/p&gt;
 </description>
         </item>
         <item>
-        <title>大型推理模型的强化学习综述个人解读</title>
-        <link>http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/</link>
+        <title>大型推理模型的强化学习综述精读</title>
+        <link>http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/</link>
         <pubDate>Wed, 24 Sep 2025 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/</guid>
-        <description>&lt;img src="http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/sky.jpg" alt="Featured image of post 大型推理模型的强化学习综述个人解读" /&gt;&lt;h1 id=&#34;a-survey-of-reinforcement-learning-for-large-reasoning-models&#34;&gt;A Survey of Reinforcement Learning for Large Reasoning Models
+        <guid>http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/</guid>
+        <description>&lt;img src="http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/sky.jpg" alt="Featured image of post 大型推理模型的强化学习综述精读" /&gt;&lt;h1 id=&#34;a-survey-of-reinforcement-learning-for-large-reasoning-models&#34;&gt;A Survey of Reinforcement Learning for Large Reasoning Models
 &lt;/h1&gt;&lt;h2 id=&#34;background&#34;&gt;Background
 &lt;/h2&gt;&lt;p&gt;RL在推进LLM能力的前沿方面取得了显著成功，特别是在解决数学和编码等复杂逻辑任务方面。因此，RL已成为将LLM转化为LRM的基础方法。&lt;/p&gt;
 &lt;p&gt;需要探索提高强化学习向人工超级智能（ASI）的可扩展性的策略。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/history.jpg&#34;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/history.jpg&#34;
 	width=&#34;1313&#34;
 	height=&#34;621&#34;
-	srcset=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/history_hu_fd91b4e2f759ffa.jpg 480w, http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/history_hu_493c3c9057a75b6c.jpg 1024w&#34;
+	srcset=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/history_hu_fd91b4e2f759ffa.jpg 480w, http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/history_hu_493c3c9057a75b6c.jpg 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;这两年的发展&#34;
@@ -165,10 +165,10 @@ update actor（无需修改）&lt;/p&gt;
 		data-flex-basis=&#34;507px&#34;
 	
 &gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/overview.jpg&#34;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/overview.jpg&#34;
 	width=&#34;1304&#34;
 	height=&#34;615&#34;
-	srcset=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/overview_hu_5f42649c3469429c.jpg 480w, http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/overview_hu_9c488682e473c029.jpg 1024w&#34;
+	srcset=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/overview_hu_5f42649c3469429c.jpg 480w, http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/overview_hu_9c488682e473c029.jpg 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;具体包含的模块&#34;
@@ -180,10 +180,10 @@ update actor（无需修改）&lt;/p&gt;
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;回顾一下大致流程吧！&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/agentProgress.jpg&#34;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/agentProgress.jpg&#34;
 	width=&#34;762&#34;
 	height=&#34;339&#34;
-	srcset=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/agentProgress_hu_4d7c597a2ebaeebd.jpg 480w, http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/agentProgress_hu_b9f415b03c60b5a9.jpg 1024w&#34;
+	srcset=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/agentProgress_hu_4d7c597a2ebaeebd.jpg 480w, http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/agentProgress_hu_b9f415b03c60b5a9.jpg 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;agentProgress&#34;
@@ -194,10 +194,10 @@ update actor（无需修改）&lt;/p&gt;
 		data-flex-basis=&#34;539px&#34;
 	
 &gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/LMProgress.jpg&#34;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/LMProgress.jpg&#34;
 	width=&#34;479&#34;
 	height=&#34;394&#34;
-	srcset=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/LMProgress_hu_1f5e4f08ac92e4f2.jpg 480w, http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/LMProgress_hu_7cd98ff41913c5e4.jpg 1024w&#34;
+	srcset=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/LMProgress_hu_1f5e4f08ac92e4f2.jpg 480w, http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/LMProgress_hu_7cd98ff41913c5e4.jpg 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;LMProgress&#34;
@@ -238,10 +238,10 @@ update actor（无需修改）&lt;/p&gt;
 DeepSeek的旗舰模型R1[2025a]是第一个在基准测试中与o1性能相匹配的开源模型。它采用多阶段训练管道来确保全面的模型能力，并探索了没有监督微调的纯RL路线（即Zero RL）。&lt;br&gt;
 其他专有模型发布紧随其后：Claude-3.7-Sonnet[2025a]以混合推理为特色，Gemini 2.0和2.5[2025]引入了更长的上下文长度，Seed Thinking 1.5[2025b]以跨领域的泛化为特色，o3[2025a]系列展示了越来越先进的推理能力。最近，OpenAI推出了他们的第一个开源推理模型gpt-oss-120b[2025a]，随后推出了GPT5[2025a]，这是他们迄今为止最强大的人工智能系统，可以在高效模型和更深入的推理模型gpt-5思维之间灵活切换。并行的开源努力继续扩大了格局。在Qwen家族中，QwQ-32B[2025g]与R1的表现相匹配，其次是Qwen3[2025a]系列，代表性型号Qwen3-235B进一步提高了基准分数。Skywork-OR1[2025d]模型套件基于R1蒸馏模型，并通过有效的数据混合和算法创新实现了可扩展的RL训练。Minimax-M1[2025a]是第一个有效地将混合注意力引入尺度RL的模型。其他作品包括Llama Nemotron Ultra[2025]，旨在平衡准确性和效率；Magistral 24B[2025]，通过RL从头开始训练，而不是从先前的模型中提炼；以及种子OSS[2025a]，强调长上下文推理能力。等等&amp;hellip;&lt;/p&gt;
 &lt;p&gt;过去的一年发展迅速啊！&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/models.jpg&#34;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/models.jpg&#34;
 	width=&#34;1297&#34;
 	height=&#34;677&#34;
-	srcset=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/models_hu_8b9f390b6a5af111.jpg 480w, http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E4%B8%AA%E4%BA%BA%E8%A7%A3%E8%AF%BB/models_hu_2544bbbdc362202a.jpg 1024w&#34;
+	srcset=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/models_hu_8b9f390b6a5af111.jpg 480w, http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/models_hu_2544bbbdc362202a.jpg 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;models&#34;
@@ -278,29 +278,97 @@ DeepSeek的旗舰模型R1[2025a]是第一个在基准测试中与o1性能相匹�
 &lt;h4 id=&#34;训练人工智能系统执行任务的难易程度与任务的可验证程度成正比&#34;&gt;训练人工智能系统执行任务的难易程度与任务的可验证程度成正比
 &lt;/h4&gt;&lt;h3 id=&#34;112generative-rewards&#34;&gt;1.1.2Generative Rewards
 &lt;/h3&gt;&lt;p&gt;写于2025/9/24晚21点56分，教学楼关门故回寝室。&lt;/p&gt;
+&lt;p&gt;2025/10/5，11点19分，闲来无事，继续读文章&lt;/p&gt;
+&lt;h4 id=&#34;这里着重说明-generative-rewards-for-non-verifiable-tasks&#34;&gt;这里着重说明 Generative Rewards for Non-Verifiable Tasks
+&lt;/h4&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Reasoning Reward Models (Learning to Think)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Rubric-based Rewards (Structuring Subjectivity)：强调细粒度奖励&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Co-Evolving Systems (Unifying Policy and Reward):&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;
-&lt;p&gt;2.Generative Rewards&lt;/p&gt;
+&lt;p&gt;Self-Rewarding：自我奖励，一个模型既充当policy model，也充当reward model&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
-&lt;p&gt;3.Dense Rewards&lt;/p&gt;
+&lt;p&gt;Co-Optimization：policy和reward模型共同训练&lt;/p&gt;
 &lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;4.Unsupervised Rewards&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;5.Rewards Shaping&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Policy Optimization&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;1.Policy Gradient&lt;/li&gt;
-&lt;li&gt;2.Critic-Based Algorithms&lt;/li&gt;
-&lt;li&gt;3.Critic-Free Algorithms&lt;/li&gt;
-&lt;li&gt;4.Off-Policy Optimization&lt;/li&gt;
-&lt;li&gt;5.Regularization Objectives&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;dense-rewards&#34;&gt;Dense Rewards
+&lt;/h3&gt;&lt;p&gt;dense rewards 和 verifiers对于open-domain还是太难了&lt;/p&gt;
+&lt;p&gt;Scaling remains challenging for tasks like open-domain text generation due to the difficulty of defining dense rewards or using verifiers.&lt;/p&gt;
+&lt;p&gt;Granularity细粒度分为：Trajectory（整个序列），Token，Step，Turn（Agent）&lt;br&gt;
+这几个信号可以相互转换，比如把globa returns 转换成 localized signals，奖励的重新分配&lt;br&gt;
+可以理解为从每次交互中直接分配和从结果中分解得出的回合级别奖励&lt;/p&gt;
+&lt;h3 id=&#34;unsupervised-rewards&#34;&gt;Unsupervised Rewards
+&lt;/h3&gt;&lt;p&gt;cluster：聚类（也有集群的意思）&lt;/p&gt;
+&lt;p&gt;majority vote：多数投票&lt;/p&gt;
+&lt;p&gt;Heuristic Rewards（启发式奖励）：这种方法构成了另一种基于规则的奖励形式，采用基于输出属性（如长度或格式）的简单预定义规则作为质量的代理。由DeepSeek-R1开创。不会提高模型真正能力？（质疑）&lt;/p&gt;
+&lt;h3 id=&#34;rewards-shaping&#34;&gt;Rewards Shaping
+&lt;/h3&gt;&lt;p&gt;Rewards Shaping将稀疏信号丰富为稳定的、信息丰富的梯度，用于LLM训练&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Rule-based Reward Shaping&lt;br&gt;
+最简单的：把rule-based verifier和reward model组合起来生成overall reward signal。通常有一个constant coefficient平衡the contributions of the reward model and the rule-based component，不是所有正确的responses都是同样的scores，这样可以把所有的responses重新排序，避免无效的学习梯度&lt;/p&gt;
+&lt;p&gt;这种启发式组合策略在开放域任务中得到了广泛的应用，提供了更多的信息和有效的奖励信号。&lt;/p&gt;
+&lt;p&gt;另一种方法是DeepSeek-R1中实现结果级奖励和格式奖励，能让LLM学习长思维链推理，用于解决LLM输出中的各种异常。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Structure-based Reward Shaping
+Pass@k在推导和分析优势和有效近似值时，将集合级目标分解回单个样本信用分配。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;policy-optimization&#34;&gt;Policy Optimization
+&lt;/h3&gt;&lt;p&gt;最近的研究把on-policy RL和offline datasets结合在一起来进行optimization同时使用各种regularization techniques（正则化技术）比如entropy和KL防止overfitting&lt;/p&gt;
+&lt;h4 id=&#34;environmentthe-context-in-rl-for-llms&#34;&gt;environment:the context in RL for LLMs
+&lt;/h4&gt;&lt;h4 id=&#34;policythe-distribution-of-the-next-level-prediction&#34;&gt;policy:the distribution of the next-level prediction
+&lt;/h4&gt;&lt;h4 id=&#34;由于llm中的大量参数llm的rl策略优化算法大多是基于一阶梯度的算法&#34;&gt;由于LLM中的大量参数，LLM的RL策略优化算法大多是基于一阶梯度的算法
+&lt;/h4&gt;&lt;h3 id=&#34;notations符号&#34;&gt;Notations（符号）
+&lt;/h3&gt;&lt;h4 id=&#34;当前状态s的预期积累奖励表示为vvalue函数&#34;&gt;当前状态s的预期积累奖励表示为V（value）函数
+&lt;/h4&gt;&lt;h4 id=&#34;当前状态动作对应的预期积累表示为qquality函数&#34;&gt;当前状态动作对应的预期积累表示为Q（quality）函数
+&lt;/h4&gt;&lt;h4 id=&#34;优势函数as-a--qs-a--v-s该优势衡量的是与现有政策相比当前行动在预期总回报方面有多大改进&#34;&gt;优势函数：A(s, a) = Q(s, a) − V (s).该优势衡量的是与现有政策相比，当前行动在预期总回报方面有多大改进。
+&lt;/h4&gt;&lt;h3 id=&#34;优化算法的历程&#34;&gt;优化算法的历程
+&lt;/h3&gt;&lt;p&gt;PPO算法[Schulman等人，2017b]首次被提出作为TRPO算法[Schurman等人，2015a]的计算高效近似。&lt;br&gt;
+&lt;img src=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/algorithm.jpg&#34;
+	width=&#34;1161&#34;
+	height=&#34;795&#34;
+	srcset=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/algorithm_hu_ab70d2da1d0a05a6.jpg 480w, http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/algorithm_hu_bddcdd47c9c7c11e.jpg 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;algorithm&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;146&#34;
+		data-flex-basis=&#34;350px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;h3 id=&#34;critic-based-algorithms&#34;&gt;Critic-based Algorithms
+&lt;/h3&gt;&lt;p&gt;critic需要和LLM一起run和update，这样会导致巨大的计算开销，而且对于复杂的任务来说，扩展性不好&lt;/p&gt;
+&lt;h3 id=&#34;critic-free-algorithms&#34;&gt;Critic-Free Algorithms
+&lt;/h3&gt;&lt;p&gt;只需要sequence-level rewards for training&lt;/p&gt;
+&lt;p&gt;对于RLVR任务可以防止reward hacking等问题，这使得Critic-Free Algorithms更具有可扩展性&lt;/p&gt;
+&lt;p&gt;最近的研究表明response-level足以用于RL的可扩展推理任务&lt;/p&gt;
+&lt;p&gt;最受欢迎的critic-free approach是GRPO，新推出的GSPO[Zheng等人，2025a]，用序列级剪切代替了逐符号剪切的重要性采样率&lt;/p&gt;
+&lt;p&gt;SPO引入了一种无组、单流策略优化，用持久的KL自适应值跟踪器和全局优势归一化来替换每组基线，从而产生比GRPO更平滑的收敛和更高的精度&lt;/p&gt;
+&lt;h4 id=&#34;importance-sampling-for-policy-optimization&#34;&gt;Importance Sampling for Policy Optimization
+&lt;/h4&gt;&lt;p&gt;TRPO引入了RL中重要性抽样的第一个版本，其中在目标中引入了令牌式重要性比wi，t&lt;br&gt;
+这种方法在最近的工作中被广泛采用，如GRPO。由于无法在CoT的长上下文中有效计算实际分布比率，因此这种方法仅限于token-level重要性比率&lt;/p&gt;
+&lt;p&gt;token-level重要性采样在RL算法中引入了另一种偏差，因为实际采样分布给定的策略是针对状态-动作对定义的，而token-level方法只考虑当前动作。GMPO[赵等人，2025f]通过引入几何平均来寻求缓解，以提高具有极端重要性采样率的token的训练鲁棒性&lt;/p&gt;
+&lt;p&gt;在GSPO的最新工作中[Zheng等人，2025a]，计算了序列级重要性抽样因子。GSPO添加了一个唯一的归一化因子，以确保可以计算概率比，但这种方法也是对实际重要性抽样因子的有偏估计&lt;/p&gt;
+&lt;h3 id=&#34;off-policy-optimization&#34;&gt;Off-policy Optimization
+&lt;/h3&gt;&lt;p&gt;Off-policy RL通过把data collection 和 policy learning解耦，实现了从历史、异步或离线数据集进行训练，从而提高了样本效率
+- 1.Policy Gradient
+- 2.Critic-Based Algorithms
+- 3.Critic-Free Algorithms
+- 4.Off-Policy Optimization
+- 5.Regularization Objectives&lt;/p&gt;
+&lt;ul&gt;
 &lt;li&gt;
 &lt;p&gt;Sampling Strategy&lt;/p&gt;
 &lt;ul&gt;
@@ -369,10 +437,10 @@ e.g.OpenRLHF/veRL/AReaL/slime/TRL&lt;/li&gt;
         <pubDate>Sun, 21 Sep 2025 16:00:00 +0800</pubDate>
         
         <guid>http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/</guid>
-        <description>&lt;img src="http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/ByteDance.jpg" alt="Featured image of post Pass@k论文精读及其复现" /&gt;&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/Seed.jpg&#34;
+        <description>&lt;img src="http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/ByteDance.jpg" alt="Featured image of post Pass@k论文精读及其复现" /&gt;&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/Seed.jpg&#34;
 	width=&#34;400&#34;
 	height=&#34;400&#34;
-	srcset=&#34;http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/Seed_hu_2d5c39b72441c640.jpg 480w, http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/Seed_hu_e08f665f0403ee6b.jpg 1024w&#34;
+	srcset=&#34;http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/Seed_hu_2d5c39b72441c640.jpg 480w, http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/Seed_hu_e08f665f0403ee6b.jpg 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 	
