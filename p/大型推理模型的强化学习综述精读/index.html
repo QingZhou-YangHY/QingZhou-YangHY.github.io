@@ -270,17 +270,17 @@
     <li><a href="#background">Background</a></li>
     <li><a href="#简单讲解一下rl应用到语言模型的时候这些概念映射到了哪里">简单讲解一下RL应用到语言模型的时候，这些概念映射到了哪里</a></li>
     <li><a href="#frontier-models">Frontier Models</a></li>
-    <li><a href="#1-foundational-components">1. Foundational Components</a>
+    <li><a href="#foundational-components">Foundational Components</a>
       <ol>
-        <li><a href="#11-reward-design">1.1 Reward Design</a></li>
-        <li><a href="#111verifiable-rewards">1.1.1Verifiable Rewards</a></li>
+        <li><a href="#reward-design">Reward Design</a></li>
+        <li><a href="#verifiable-rewards">Verifiable Rewards</a></li>
         <li><a href="#rule-based-rewards">Rule-based Rewards</a></li>
         <li><a href="#rule-based-verifier">Rule-based Verifier</a>
           <ol>
             <li><a href="#训练人工智能系统执行任务的难易程度与任务的可验证程度成正比">训练人工智能系统执行任务的难易程度与任务的可验证程度成正比</a></li>
           </ol>
         </li>
-        <li><a href="#112generative-rewards">1.1.2Generative Rewards</a>
+        <li><a href="#generative-rewards">Generative Rewards</a>
           <ol>
             <li><a href="#这里着重说明-generative-rewards-for-non-verifiable-tasks">这里着重说明 Generative Rewards for Non-Verifiable Tasks</a></li>
           </ol>
@@ -310,6 +310,33 @@
           </ol>
         </li>
         <li><a href="#off-policy-optimization">Off-policy Optimization</a></li>
+        <li><a href="#regularization-objectives">Regularization Objectives</a></li>
+        <li><a href="#sampling-hyper-parameters">Sampling Hyper-parameters</a>
+          <ol>
+            <li><a href="#exploration-and-exploitation-dynamics">Exploration and Exploitation Dynamics</a></li>
+            <li><a href="#length-budgeting-and-sequence-management">Length Budgeting and Sequence Management</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#foundational-problems">Foundational Problems</a>
+      <ol>
+        <li><a href="#rls-role-sharpening-or-discovery">RL’s Role: Sharpening or Discovery</a></li>
+        <li><a href="#rl-vs-sft-generalize-or-memorize">RL vs. SFT: Generalize or Memorize</a></li>
+        <li><a href="#model-prior-weak-and-strong">Model Prior: Weak and Strong</a>
+          <ol>
+            <li><a href="#model-family-differences">Model Family Differences</a></li>
+          </ol>
+        </li>
+        <li><a href="#reward-type-process-or-outcome">Reward Type: Process or Outcome</a></li>
+      </ol>
+    </li>
+    <li><a href="#training-resources">Training Resources</a>
+      <ol>
+        <li><a href="#static-corpus">Static Corpus</a></li>
+        <li><a href="#rl-infrastructure--framework">RL Infrastructure &amp; Framework</a></li>
+        <li><a href="#dynamic-environment">Dynamic Environment</a></li>
+        <li><a href="#applications">Applications</a></li>
       </ol>
     </li>
   </ol>
@@ -495,15 +522,15 @@ DeepSeek的旗舰模型R1[2025a]是第一个在基准测试中与o1性能相匹�
 	
 ></p>
 <hr>
-<h2 id="1-foundational-components">1. Foundational Components
-</h2><h3 id="11-reward-design">1.1 Reward Design
+<h2 id="foundational-components">Foundational Components
+</h2><h3 id="reward-design">Reward Design
 </h3><p>在1.1中，我们对LRM RL中的奖励设计进行了全面的考察。从可验证的奖励开始，DeepSeek-R1的成功就是例证，它通过可验证的奖励机制证明了RL的可扩展性。</p>
 <p>在1.2中，我们考察生成性奖励，其中模型用于验证或直接生成奖励信号。</p>
 <p>然而，可验证和生成性奖励通常都表示为稀疏的数值反馈。一个重要的互补维度在于奖励信号的密度。</p>
 <p>1.3相应地考察了包含密集奖励的方法。另一个分类轴涉及奖励是根据外部真实情况计算的，还是由模型直接估计的。</p>
 <p>这一区别促使我们在1.4中讨论无监督奖励。</p>
 <p>在这四个类别的基础上，我们在1.5中转向奖励塑造，在那里我们分析了组合或转换不同奖励信号以促进学习的策略。</p>
-<h3 id="111verifiable-rewards">1.1.1Verifiable Rewards
+<h3 id="verifiable-rewards">Verifiable Rewards
 </h3><p>基于规则的奖励通过利用准确性和格式检查，为RL提供可扩展和可靠的训练信号，特别是在数学和代码任务中。</p>
 <p>Verifier定律强调，具有清晰和自动验证的任务可以实现高效的RL优化，而主观任务仍然具有挑战性。</p>
 <h3 id="rule-based-rewards">Rule-based Rewards
@@ -518,10 +545,8 @@ DeepSeek的旗舰模型R1[2025a]是第一个在基准测试中与o1性能相匹�
 <h3 id="rule-based-verifier">Rule-based Verifier
 </h3><p>基于规则的奖励通常来自基于规则的验证器。这些依赖于大量手动编写的等价规则来确定预测的答案是否与基本事实相匹配。目前，广泛使用的数学验证器主要基于Python库Math-Verify1和SymPy2构建。此外，一些作品，如DAPO[2025d]和DeepScaleR[2025c]，也提供了开源和成熟的验证器。最近，Huang等人[2025e]强调了与基于规则和基于模型的验证器相关的独特局限性，为设计更可靠的奖励系统提供了信息。</p>
 <h4 id="训练人工智能系统执行任务的难易程度与任务的可验证程度成正比">训练人工智能系统执行任务的难易程度与任务的可验证程度成正比
-</h4><h3 id="112generative-rewards">1.1.2Generative Rewards
-</h3><p>写于2025/9/24晚21点56分，教学楼关门故回寝室。</p>
-<p>2025/10/5，11点19分，闲来无事，继续读文章</p>
-<h4 id="这里着重说明-generative-rewards-for-non-verifiable-tasks">这里着重说明 Generative Rewards for Non-Verifiable Tasks
+</h4><h3 id="generative-rewards">Generative Rewards
+</h3><h4 id="这里着重说明-generative-rewards-for-non-verifiable-tasks">这里着重说明 Generative Rewards for Non-Verifiable Tasks
 </h4><ul>
 <li>
 <p>Reasoning Reward Models (Learning to Think)</p>
@@ -604,70 +629,98 @@ Pass@k在推导和分析优势和有效近似值时，将集合级目标分解�
 <p>token-level重要性采样在RL算法中引入了另一种偏差，因为实际采样分布给定的策略是针对状态-动作对定义的，而token-level方法只考虑当前动作。GMPO[赵等人，2025f]通过引入几何平均来寻求缓解，以提高具有极端重要性采样率的token的训练鲁棒性</p>
 <p>在GSPO的最新工作中[Zheng等人，2025a]，计算了序列级重要性抽样因子。GSPO添加了一个唯一的归一化因子，以确保可以计算概率比，但这种方法也是对实际重要性抽样因子的有偏估计</p>
 <h3 id="off-policy-optimization">Off-policy Optimization
-</h3><p>Off-policy RL通过把data collection 和 policy learning解耦，实现了从历史、异步或离线数据集进行训练，从而提高了样本效率
-- 1.Policy Gradient
-- 2.Critic-Based Algorithms
-- 3.Critic-Free Algorithms
-- 4.Off-Policy Optimization
-- 5.Regularization Objectives</p>
+</h3><p>Off-policy RL通过把data collection 和 policy learning解耦，实现了从历史、异步或离线数据集进行训练，从而提高了样本效率</p>
+<p>选择性地replay 早期的推理traces可以提高exploration for LLM reasoning</p>
+<p>现在很多都在对数据进行处理来提升exploration</p>
+<h3 id="regularization-objectives">Regularization Objectives
+</h3><p>Objective-specific regularization helps balance explration and exploitation,boosting RL effiency and policy performance.</p>
+<p>KL,entropy and length regularization remain open questions,each affects policy optimization and scalability</p>
+<p>Length Penalty建议应用基于问题难度的自适应长度惩罚来保持模型的能力</p>
+<h3 id="sampling-hyper-parameters">Sampling Hyper-parameters
+</h3><h4 id="exploration-and-exploitation-dynamics">Exploration and Exploitation Dynamics
+</h4><p>一些工作提出了一种动态方法，例如分阶段提高温度(e.g., 1.40 → 1.45 → 1.50 for a 4B model, 0.7 → 1.0 → 1.1 for a 7B model)</p>
+<p>entropy 在0.3被发现是最佳平衡</p>
+<p>其他的工作只是倡导提高一个固定的温度（例如1.0或1.2）来鼓励初步探索，同时指出它本身不足以防止长期的熵下降</p>
+<h4 id="length-budgeting-and-sequence-management">Length Budgeting and Sequence Management
+</h4><p>几乎所有的work都在努力管理生成响应的长度，以平衡性能和成本。</p>
 <ul>
-<li>
-<p>Sampling Strategy</p>
-<ul>
-<li>1.Dynamic Sampling</li>
-<li>2.Sampling Hyper-Parameters</li>
+<li>This involves starting RL with a short context window (e.g., 8k) before progressively increasing it to 16k, 24k, or 32k in later stages</li>
 </ul>
-</li>
+<p>初始的短上下文阶段被认为是必不可少的，因为它迫使模型学习更简洁、更具令牌效率的推理模式</p>
+<h2 id="foundational-problems">Foundational Problems
+</h2><h3 id="rls-role-sharpening-or-discovery">RL’s Role: Sharpening or Discovery
+</h3><h3 id="rl-vs-sft-generalize-or-memorize">RL vs. SFT: Generalize or Memorize
+</h3><p>发现RL擅长巩固和增强现有能力，而SFT在引入新知识或新模型能力方面更有效</p>
+<h3 id="model-prior-weak-and-strong">Model Prior: Weak and Strong
+</h3><ul>
 <li>
-<p>Foundational Problems</p>
-<ul>
-<li>1.RL&rsquo;s Role<br>
-Sharpening vs Discovery</li>
-<li>2.Model Prior<br>
-Weak vs Strong</li>
-<li>3.Training Recipes<br>
-Tricks vs Traps</li>
-<li>4.RL vs. SFT<br>
-Generalize vs Memorize</li>
-<li>5.Reward Type<br>
-Process vs Outcome</li>
-</ul>
+<p>R1-Zero：直接将大规模基于规则的RL应用于基本模型，产生新兴的长期推理</p>
 </li>
 <li>
-<p>Training Resource</p>
-<ul>
-<li>1.Static Corpus
-<ul>
-<li>Math</li>
-<li>Code</li>
-<li>STEM</li>
-<li>Agent</li>
-<li>Mixture</li>
-</ul>
-</li>
-<li>2.RL Infrastructure &amp; Framework<br>
-e.g.OpenRLHF/veRL/AReaL/slime/TRL</li>
-<li>3.Dynamic Environment
-<ul>
-<li>Rule</li>
-<li>Code</li>
-<li>Game</li>
-<li>Model</li>
-<li>Ensemble</li>
-</ul>
+<p>R1：包含冷启动</p>
 </li>
 </ul>
+<p>基础模型先验比指导模型更适合强化学习，通常会产生比从高度一致的指导模型开始时观察到的更平滑的改进轨迹，其中根深蒂固的格式和服从先验可能会干扰奖励的形成</p>
+<h4 id="model-family-differences">Model Family Differences
+</h4><h3 id="reward-type-process-or-outcome">Reward Type: Process or Outcome
+</h3><h2 id="training-resources">Training Resources
+</h2><h3 id="static-corpus">Static Corpus
+</h3><ul>
+<li>
+<p>Math</p>
 </li>
 <li>
-<p>Applications</p>
-<ul>
-<li>1.Agentic Tasks</li>
-<li>2.Coding Tasks</li>
-<li>3.Multimodal Tasks</li>
-<li>4.Robotics Tasks</li>
-<li>5.Multi-Agent Systems</li>
-<li>6.Medical Tasks</li>
+<p>Code</p>
+</li>
+<li>
+<p>STEM</p>
+</li>
+<li>
+<p>Agent</p>
+</li>
+<li>
+<p>Mixture</p>
+</li>
 </ul>
+<h3 id="rl-infrastructure--framework">RL Infrastructure &amp; Framework
+</h3><p>e.g.OpenRLHF/veRL/AReaL/slime/TRL</p>
+<h3 id="dynamic-environment">Dynamic Environment
+</h3><ul>
+<li>
+<p>Rule</p>
+</li>
+<li>
+<p>Code</p>
+</li>
+<li>
+<p>Game</p>
+</li>
+<li>
+<p>Model</p>
+</li>
+<li>
+<p>Ensemble</p>
+</li>
+</ul>
+<h3 id="applications">Applications
+</h3><ul>
+<li>
+<p>1.Agentic Tasks</p>
+</li>
+<li>
+<p>2.Coding Tasks</p>
+</li>
+<li>
+<p>3.Multimodal Tasks</p>
+</li>
+<li>
+<p>4.Robotics Tasks</p>
+</li>
+<li>
+<p>5.Multi-Agent Systems</p>
+</li>
+<li>
+<p>6.Medical Tasks</p>
 </li>
 </ul>
 <hr>
