@@ -275,15 +275,15 @@ DeepSeek的旗舰模型R1[2025a]是第一个在基准测试中与o1性能相匹�
 	
 &gt;&lt;/p&gt;
 &lt;hr&gt;
-&lt;h2 id=&#34;1-foundational-components&#34;&gt;1. Foundational Components
-&lt;/h2&gt;&lt;h3 id=&#34;11-reward-design&#34;&gt;1.1 Reward Design
+&lt;h2 id=&#34;foundational-components&#34;&gt;Foundational Components
+&lt;/h2&gt;&lt;h3 id=&#34;reward-design&#34;&gt;Reward Design
 &lt;/h3&gt;&lt;p&gt;在1.1中，我们对LRM RL中的奖励设计进行了全面的考察。从可验证的奖励开始，DeepSeek-R1的成功就是例证，它通过可验证的奖励机制证明了RL的可扩展性。&lt;/p&gt;
 &lt;p&gt;在1.2中，我们考察生成性奖励，其中模型用于验证或直接生成奖励信号。&lt;/p&gt;
 &lt;p&gt;然而，可验证和生成性奖励通常都表示为稀疏的数值反馈。一个重要的互补维度在于奖励信号的密度。&lt;/p&gt;
 &lt;p&gt;1.3相应地考察了包含密集奖励的方法。另一个分类轴涉及奖励是根据外部真实情况计算的，还是由模型直接估计的。&lt;/p&gt;
 &lt;p&gt;这一区别促使我们在1.4中讨论无监督奖励。&lt;/p&gt;
 &lt;p&gt;在这四个类别的基础上，我们在1.5中转向奖励塑造，在那里我们分析了组合或转换不同奖励信号以促进学习的策略。&lt;/p&gt;
-&lt;h3 id=&#34;111verifiable-rewards&#34;&gt;1.1.1Verifiable Rewards
+&lt;h3 id=&#34;verifiable-rewards&#34;&gt;Verifiable Rewards
 &lt;/h3&gt;&lt;p&gt;基于规则的奖励通过利用准确性和格式检查，为RL提供可扩展和可靠的训练信号，特别是在数学和代码任务中。&lt;/p&gt;
 &lt;p&gt;Verifier定律强调，具有清晰和自动验证的任务可以实现高效的RL优化，而主观任务仍然具有挑战性。&lt;/p&gt;
 &lt;h3 id=&#34;rule-based-rewards&#34;&gt;Rule-based Rewards
@@ -298,10 +298,8 @@ DeepSeek的旗舰模型R1[2025a]是第一个在基准测试中与o1性能相匹�
 &lt;h3 id=&#34;rule-based-verifier&#34;&gt;Rule-based Verifier
 &lt;/h3&gt;&lt;p&gt;基于规则的奖励通常来自基于规则的验证器。这些依赖于大量手动编写的等价规则来确定预测的答案是否与基本事实相匹配。目前，广泛使用的数学验证器主要基于Python库Math-Verify1和SymPy2构建。此外，一些作品，如DAPO[2025d]和DeepScaleR[2025c]，也提供了开源和成熟的验证器。最近，Huang等人[2025e]强调了与基于规则和基于模型的验证器相关的独特局限性，为设计更可靠的奖励系统提供了信息。&lt;/p&gt;
 &lt;h4 id=&#34;训练人工智能系统执行任务的难易程度与任务的可验证程度成正比&#34;&gt;训练人工智能系统执行任务的难易程度与任务的可验证程度成正比
-&lt;/h4&gt;&lt;h3 id=&#34;112generative-rewards&#34;&gt;1.1.2Generative Rewards
-&lt;/h3&gt;&lt;p&gt;写于2025/9/24晚21点56分，教学楼关门故回寝室。&lt;/p&gt;
-&lt;p&gt;2025/10/5，11点19分，闲来无事，继续读文章&lt;/p&gt;
-&lt;h4 id=&#34;这里着重说明-generative-rewards-for-non-verifiable-tasks&#34;&gt;这里着重说明 Generative Rewards for Non-Verifiable Tasks
+&lt;/h4&gt;&lt;h3 id=&#34;generative-rewards&#34;&gt;Generative Rewards
+&lt;/h3&gt;&lt;h4 id=&#34;这里着重说明-generative-rewards-for-non-verifiable-tasks&#34;&gt;这里着重说明 Generative Rewards for Non-Verifiable Tasks
 &lt;/h4&gt;&lt;ul&gt;
 &lt;li&gt;
 &lt;p&gt;Reasoning Reward Models (Learning to Think)&lt;/p&gt;
@@ -384,70 +382,98 @@ Pass@k在推导和分析优势和有效近似值时，将集合级目标分解�
 &lt;p&gt;token-level重要性采样在RL算法中引入了另一种偏差，因为实际采样分布给定的策略是针对状态-动作对定义的，而token-level方法只考虑当前动作。GMPO[赵等人，2025f]通过引入几何平均来寻求缓解，以提高具有极端重要性采样率的token的训练鲁棒性&lt;/p&gt;
 &lt;p&gt;在GSPO的最新工作中[Zheng等人，2025a]，计算了序列级重要性抽样因子。GSPO添加了一个唯一的归一化因子，以确保可以计算概率比，但这种方法也是对实际重要性抽样因子的有偏估计&lt;/p&gt;
 &lt;h3 id=&#34;off-policy-optimization&#34;&gt;Off-policy Optimization
-&lt;/h3&gt;&lt;p&gt;Off-policy RL通过把data collection 和 policy learning解耦，实现了从历史、异步或离线数据集进行训练，从而提高了样本效率
-- 1.Policy Gradient
-- 2.Critic-Based Algorithms
-- 3.Critic-Free Algorithms
-- 4.Off-Policy Optimization
-- 5.Regularization Objectives&lt;/p&gt;
+&lt;/h3&gt;&lt;p&gt;Off-policy RL通过把data collection 和 policy learning解耦，实现了从历史、异步或离线数据集进行训练，从而提高了样本效率&lt;/p&gt;
+&lt;p&gt;选择性地replay 早期的推理traces可以提高exploration for LLM reasoning&lt;/p&gt;
+&lt;p&gt;现在很多都在对数据进行处理来提升exploration&lt;/p&gt;
+&lt;h3 id=&#34;regularization-objectives&#34;&gt;Regularization Objectives
+&lt;/h3&gt;&lt;p&gt;Objective-specific regularization helps balance explration and exploitation,boosting RL effiency and policy performance.&lt;/p&gt;
+&lt;p&gt;KL,entropy and length regularization remain open questions,each affects policy optimization and scalability&lt;/p&gt;
+&lt;p&gt;Length Penalty建议应用基于问题难度的自适应长度惩罚来保持模型的能力&lt;/p&gt;
+&lt;h3 id=&#34;sampling-hyper-parameters&#34;&gt;Sampling Hyper-parameters
+&lt;/h3&gt;&lt;h4 id=&#34;exploration-and-exploitation-dynamics&#34;&gt;Exploration and Exploitation Dynamics
+&lt;/h4&gt;&lt;p&gt;一些工作提出了一种动态方法，例如分阶段提高温度(e.g., 1.40 → 1.45 → 1.50 for a 4B model, 0.7 → 1.0 → 1.1 for a 7B model)&lt;/p&gt;
+&lt;p&gt;entropy 在0.3被发现是最佳平衡&lt;/p&gt;
+&lt;p&gt;其他的工作只是倡导提高一个固定的温度（例如1.0或1.2）来鼓励初步探索，同时指出它本身不足以防止长期的熵下降&lt;/p&gt;
+&lt;h4 id=&#34;length-budgeting-and-sequence-management&#34;&gt;Length Budgeting and Sequence Management
+&lt;/h4&gt;&lt;p&gt;几乎所有的work都在努力管理生成响应的长度，以平衡性能和成本。&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;Sampling Strategy&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;1.Dynamic Sampling&lt;/li&gt;
-&lt;li&gt;2.Sampling Hyper-Parameters&lt;/li&gt;
+&lt;li&gt;This involves starting RL with a short context window (e.g., 8k) before progressively increasing it to 16k, 24k, or 32k in later stages&lt;/li&gt;
 &lt;/ul&gt;
-&lt;/li&gt;
+&lt;p&gt;初始的短上下文阶段被认为是必不可少的，因为它迫使模型学习更简洁、更具令牌效率的推理模式&lt;/p&gt;
+&lt;h2 id=&#34;foundational-problems&#34;&gt;Foundational Problems
+&lt;/h2&gt;&lt;h3 id=&#34;rls-role-sharpening-or-discovery&#34;&gt;RL’s Role: Sharpening or Discovery
+&lt;/h3&gt;&lt;h3 id=&#34;rl-vs-sft-generalize-or-memorize&#34;&gt;RL vs. SFT: Generalize or Memorize
+&lt;/h3&gt;&lt;p&gt;发现RL擅长巩固和增强现有能力，而SFT在引入新知识或新模型能力方面更有效&lt;/p&gt;
+&lt;h3 id=&#34;model-prior-weak-and-strong&#34;&gt;Model Prior: Weak and Strong
+&lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;
-&lt;p&gt;Foundational Problems&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;1.RL&amp;rsquo;s Role&lt;br&gt;
-Sharpening vs Discovery&lt;/li&gt;
-&lt;li&gt;2.Model Prior&lt;br&gt;
-Weak vs Strong&lt;/li&gt;
-&lt;li&gt;3.Training Recipes&lt;br&gt;
-Tricks vs Traps&lt;/li&gt;
-&lt;li&gt;4.RL vs. SFT&lt;br&gt;
-Generalize vs Memorize&lt;/li&gt;
-&lt;li&gt;5.Reward Type&lt;br&gt;
-Process vs Outcome&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;R1-Zero：直接将大规模基于规则的RL应用于基本模型，产生新兴的长期推理&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
-&lt;p&gt;Training Resource&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;1.Static Corpus
-&lt;ul&gt;
-&lt;li&gt;Math&lt;/li&gt;
-&lt;li&gt;Code&lt;/li&gt;
-&lt;li&gt;STEM&lt;/li&gt;
-&lt;li&gt;Agent&lt;/li&gt;
-&lt;li&gt;Mixture&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;2.RL Infrastructure &amp;amp; Framework&lt;br&gt;
-e.g.OpenRLHF/veRL/AReaL/slime/TRL&lt;/li&gt;
-&lt;li&gt;3.Dynamic Environment
-&lt;ul&gt;
-&lt;li&gt;Rule&lt;/li&gt;
-&lt;li&gt;Code&lt;/li&gt;
-&lt;li&gt;Game&lt;/li&gt;
-&lt;li&gt;Model&lt;/li&gt;
-&lt;li&gt;Ensemble&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;R1：包含冷启动&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
+&lt;p&gt;基础模型先验比指导模型更适合强化学习，通常会产生比从高度一致的指导模型开始时观察到的更平滑的改进轨迹，其中根深蒂固的格式和服从先验可能会干扰奖励的形成&lt;/p&gt;
+&lt;h4 id=&#34;model-family-differences&#34;&gt;Model Family Differences
+&lt;/h4&gt;&lt;h3 id=&#34;reward-type-process-or-outcome&#34;&gt;Reward Type: Process or Outcome
+&lt;/h3&gt;&lt;h2 id=&#34;training-resources&#34;&gt;Training Resources
+&lt;/h2&gt;&lt;h3 id=&#34;static-corpus&#34;&gt;Static Corpus
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Math&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
-&lt;p&gt;Applications&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;1.Agentic Tasks&lt;/li&gt;
-&lt;li&gt;2.Coding Tasks&lt;/li&gt;
-&lt;li&gt;3.Multimodal Tasks&lt;/li&gt;
-&lt;li&gt;4.Robotics Tasks&lt;/li&gt;
-&lt;li&gt;5.Multi-Agent Systems&lt;/li&gt;
-&lt;li&gt;6.Medical Tasks&lt;/li&gt;
+&lt;p&gt;Code&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;STEM&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Agent&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Mixture&lt;/p&gt;
+&lt;/li&gt;
 &lt;/ul&gt;
+&lt;h3 id=&#34;rl-infrastructure--framework&#34;&gt;RL Infrastructure &amp;amp; Framework
+&lt;/h3&gt;&lt;p&gt;e.g.OpenRLHF/veRL/AReaL/slime/TRL&lt;/p&gt;
+&lt;h3 id=&#34;dynamic-environment&#34;&gt;Dynamic Environment
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Rule&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Code&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Game&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Model&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Ensemble&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;applications&#34;&gt;Applications
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;1.Agentic Tasks&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;2.Coding Tasks&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;3.Multimodal Tasks&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;4.Robotics Tasks&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;5.Multi-Agent Systems&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;6.Medical Tasks&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
 &lt;hr&gt;

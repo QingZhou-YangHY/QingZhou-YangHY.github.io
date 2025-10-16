@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
     <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="强化学习使用veRL框架的深度讲解 加载模型（无需修改）\nveRL使用Ray框架进行模型的调度\ninit_workers 初始化策略模型、参考模型、价值模型、奖励模型。这里面有些模型不会用到。很多都不会使用价值模型，奖励模型也都是基于规则的 训练过程\nget_data_batch(无需修改) generate_sequences(normal-rl和agent-rl) normal-rl：单轮的交互（prompt&ndash;&gt;model&ndash;&gt;response），这个流程就结束了\nagent-rl：多轮的交互（prompt&ndash;&gt;model&ndash;&gt;response&ndash;&gt;env（tool call,code exec ,etc）&ndash;&gt;model&ndash;&gt;response&ndash;&gt;&hellip;）\nreward（通过自定义的奖励函数控制，一般无需修改）不用去修改veRL框架，通过配置文件进行修改\nlog_probs（计算策略模型和参考模型输出token的概率，一般无需修改）\nvalues(目前主流的rl算法基本上都在舍弃价值模型，一般无需修改)\nadv(各rl算法之间的差异主要体现在adv的计算方式，此处需要针对不同的算法进行修改) compute_loss（normal-rl和agent-rl） normal-rl：无需和环境交互，response中token全部由模型生成，均参与损失计算\nagent-rl：需要获取观测结果，观测结果部分不是模型生成，计算损失时需要对其进行mask\nupdate actor（无需修改）\n">
-<title>veRL沉淀</title>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="基于veRL框架并行训练的深入探究 overview 加载模型\nveRL使用Ray框架进行模型的调度\ninit_workers 初始化策略模型、参考模型、价值模型、奖励模型。这里面有些模型不会用到。很多都不会使用价值模型，奖励模型也都是基于规则的 训练过程\nget_data_batch generate_sequences(normal-rl和agent-rl) normal-rl：单轮的交互（prompt&ndash;&gt;model&ndash;&gt;response），这个流程就结束了\nagent-rl：多轮的交互（prompt&ndash;&gt;model&ndash;&gt;response&ndash;&gt;env（tool call,code exec ,etc）&ndash;&gt;model&ndash;&gt;response&ndash;&gt;&hellip;）\nreward（通过自定义的奖励函数控制）不用去修改veRL框架，通过配置文件进行修改\nlog_probs（计算策略模型和参考模型输出token的概率）\nvalues(目前主流的rl算法基本上都在舍弃价值模型)\nadv(各rl算法之间的差异主要体现在adv的计算方式，此处需要针对不同的算法进行修改) compute_loss（normal-rl和agent-rl） normal-rl：无需和环境交互，response中token全部由模型生成，均参与损失计算\nagent-rl：需要获取观测结果，观测结果部分不是模型生成，计算损失时需要对其进行mask\nupdate actor\nDeepSpeed DeepSpeed官方文档👈官方文档\nDeepSpeed配置JSON👈使用只需要JSON配置文件\n【利用多張GPU訓練大型語言模型】 - YouTube👈李宏毅老师YouTube视频讲解（约一个小时）\nThe Ultra-Scale Playbook:Training LLMs on GPU Clusters👈并行训练高质参考资料\nhugging face经常有高质量实验总结，可以多关注一下 Batch Size Related Parameters train_batch_size = train_micro_batch_size_per_gpu * gradient_accumulation_steps * number of GPUs\ntrain_batch_size: [integer] 代表着one step.Example:32\ntrain_micro_batch_size_per_gpu: [integer] 一次更新的batch_size，所以叫micro_batch_size.\ngradient_accumulation_steps: [integer] 积累几次\n一开始会有batch-size个prompt去做rollout，每个prompt rollout出n个response，之后每mini-batch-size个prompt及其rollout出来的response会去做一次梯度下降，batch-size / mini-batch-size次梯度下降之后一个step结束\nMonitoring Module 可以使用TensorBoard,andb,Comet等，因为个人使用所以只介绍wandb\n注册登录，设置 project_name 和 experiment_name 就可以在电脑上/手机上看了\n很好用的监控平台！\n">
+<title>veRL框架深度讲解</title>
 
-<link rel='canonical' href='http://localhost:1313/p/verl%E6%B2%89%E6%B7%80/'>
+<link rel='canonical' href='http://localhost:1313/p/verl%E6%A1%86%E6%9E%B6%E6%B7%B1%E5%BA%A6%E8%AE%B2%E8%A7%A3/'>
 
-<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="veRL沉淀">
-<meta property='og:description' content="强化学习使用veRL框架的深度讲解 加载模型（无需修改）\nveRL使用Ray框架进行模型的调度\ninit_workers 初始化策略模型、参考模型、价值模型、奖励模型。这里面有些模型不会用到。很多都不会使用价值模型，奖励模型也都是基于规则的 训练过程\nget_data_batch(无需修改) generate_sequences(normal-rl和agent-rl) normal-rl：单轮的交互（prompt&ndash;&gt;model&ndash;&gt;response），这个流程就结束了\nagent-rl：多轮的交互（prompt&ndash;&gt;model&ndash;&gt;response&ndash;&gt;env（tool call,code exec ,etc）&ndash;&gt;model&ndash;&gt;response&ndash;&gt;&hellip;）\nreward（通过自定义的奖励函数控制，一般无需修改）不用去修改veRL框架，通过配置文件进行修改\nlog_probs（计算策略模型和参考模型输出token的概率，一般无需修改）\nvalues(目前主流的rl算法基本上都在舍弃价值模型，一般无需修改)\nadv(各rl算法之间的差异主要体现在adv的计算方式，此处需要针对不同的算法进行修改) compute_loss（normal-rl和agent-rl） normal-rl：无需和环境交互，response中token全部由模型生成，均参与损失计算\nagent-rl：需要获取观测结果，观测结果部分不是模型生成，计算损失时需要对其进行mask\nupdate actor（无需修改）\n">
-<meta property='og:url' content='http://localhost:1313/p/verl%E6%B2%89%E6%B7%80/'>
+<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="veRL框架深度讲解">
+<meta property='og:description' content="基于veRL框架并行训练的深入探究 overview 加载模型\nveRL使用Ray框架进行模型的调度\ninit_workers 初始化策略模型、参考模型、价值模型、奖励模型。这里面有些模型不会用到。很多都不会使用价值模型，奖励模型也都是基于规则的 训练过程\nget_data_batch generate_sequences(normal-rl和agent-rl) normal-rl：单轮的交互（prompt&ndash;&gt;model&ndash;&gt;response），这个流程就结束了\nagent-rl：多轮的交互（prompt&ndash;&gt;model&ndash;&gt;response&ndash;&gt;env（tool call,code exec ,etc）&ndash;&gt;model&ndash;&gt;response&ndash;&gt;&hellip;）\nreward（通过自定义的奖励函数控制）不用去修改veRL框架，通过配置文件进行修改\nlog_probs（计算策略模型和参考模型输出token的概率）\nvalues(目前主流的rl算法基本上都在舍弃价值模型)\nadv(各rl算法之间的差异主要体现在adv的计算方式，此处需要针对不同的算法进行修改) compute_loss（normal-rl和agent-rl） normal-rl：无需和环境交互，response中token全部由模型生成，均参与损失计算\nagent-rl：需要获取观测结果，观测结果部分不是模型生成，计算损失时需要对其进行mask\nupdate actor\nDeepSpeed DeepSpeed官方文档👈官方文档\nDeepSpeed配置JSON👈使用只需要JSON配置文件\n【利用多張GPU訓練大型語言模型】 - YouTube👈李宏毅老师YouTube视频讲解（约一个小时）\nThe Ultra-Scale Playbook:Training LLMs on GPU Clusters👈并行训练高质参考资料\nhugging face经常有高质量实验总结，可以多关注一下 Batch Size Related Parameters train_batch_size = train_micro_batch_size_per_gpu * gradient_accumulation_steps * number of GPUs\ntrain_batch_size: [integer] 代表着one step.Example:32\ntrain_micro_batch_size_per_gpu: [integer] 一次更新的batch_size，所以叫micro_batch_size.\ngradient_accumulation_steps: [integer] 积累几次\n一开始会有batch-size个prompt去做rollout，每个prompt rollout出n个response，之后每mini-batch-size个prompt及其rollout出来的response会去做一次梯度下降，batch-size / mini-batch-size次梯度下降之后一个step结束\nMonitoring Module 可以使用TensorBoard,andb,Comet等，因为个人使用所以只介绍wandb\n注册登录，设置 project_name 和 experiment_name 就可以在电脑上/手机上看了\n很好用的监控平台！\n">
+<meta property='og:url' content='http://localhost:1313/p/verl%E6%A1%86%E6%9E%B6%E6%B7%B1%E5%BA%A6%E8%AE%B2%E8%A7%A3/'>
 <meta property='og:site_name' content='DaYang'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2025-10-16T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2025-10-16T00:00:00&#43;00:00'/>
-<meta name="twitter:title" content="veRL沉淀">
-<meta name="twitter:description" content="强化学习使用veRL框架的深度讲解 加载模型（无需修改）\nveRL使用Ray框架进行模型的调度\ninit_workers 初始化策略模型、参考模型、价值模型、奖励模型。这里面有些模型不会用到。很多都不会使用价值模型，奖励模型也都是基于规则的 训练过程\nget_data_batch(无需修改) generate_sequences(normal-rl和agent-rl) normal-rl：单轮的交互（prompt&ndash;&gt;model&ndash;&gt;response），这个流程就结束了\nagent-rl：多轮的交互（prompt&ndash;&gt;model&ndash;&gt;response&ndash;&gt;env（tool call,code exec ,etc）&ndash;&gt;model&ndash;&gt;response&ndash;&gt;&hellip;）\nreward（通过自定义的奖励函数控制，一般无需修改）不用去修改veRL框架，通过配置文件进行修改\nlog_probs（计算策略模型和参考模型输出token的概率，一般无需修改）\nvalues(目前主流的rl算法基本上都在舍弃价值模型，一般无需修改)\nadv(各rl算法之间的差异主要体现在adv的计算方式，此处需要针对不同的算法进行修改) compute_loss（normal-rl和agent-rl） normal-rl：无需和环境交互，response中token全部由模型生成，均参与损失计算\nagent-rl：需要获取观测结果，观测结果部分不是模型生成，计算损失时需要对其进行mask\nupdate actor（无需修改）\n">
+<meta name="twitter:title" content="veRL框架深度讲解">
+<meta name="twitter:description" content="基于veRL框架并行训练的深入探究 overview 加载模型\nveRL使用Ray框架进行模型的调度\ninit_workers 初始化策略模型、参考模型、价值模型、奖励模型。这里面有些模型不会用到。很多都不会使用价值模型，奖励模型也都是基于规则的 训练过程\nget_data_batch generate_sequences(normal-rl和agent-rl) normal-rl：单轮的交互（prompt&ndash;&gt;model&ndash;&gt;response），这个流程就结束了\nagent-rl：多轮的交互（prompt&ndash;&gt;model&ndash;&gt;response&ndash;&gt;env（tool call,code exec ,etc）&ndash;&gt;model&ndash;&gt;response&ndash;&gt;&hellip;）\nreward（通过自定义的奖励函数控制）不用去修改veRL框架，通过配置文件进行修改\nlog_probs（计算策略模型和参考模型输出token的概率）\nvalues(目前主流的rl算法基本上都在舍弃价值模型)\nadv(各rl算法之间的差异主要体现在adv的计算方式，此处需要针对不同的算法进行修改) compute_loss（normal-rl和agent-rl） normal-rl：无需和环境交互，response中token全部由模型生成，均参与损失计算\nagent-rl：需要获取观测结果，观测结果部分不是模型生成，计算损失时需要对其进行mask\nupdate actor\nDeepSpeed DeepSpeed官方文档👈官方文档\nDeepSpeed配置JSON👈使用只需要JSON配置文件\n【利用多張GPU訓練大型語言模型】 - YouTube👈李宏毅老师YouTube视频讲解（约一个小时）\nThe Ultra-Scale Playbook:Training LLMs on GPU Clusters👈并行训练高质参考资料\nhugging face经常有高质量实验总结，可以多关注一下 Batch Size Related Parameters train_batch_size = train_micro_batch_size_per_gpu * gradient_accumulation_steps * number of GPUs\ntrain_batch_size: [integer] 代表着one step.Example:32\ntrain_micro_batch_size_per_gpu: [integer] 一次更新的batch_size，所以叫micro_batch_size.\ngradient_accumulation_steps: [integer] 积累几次\n一开始会有batch-size个prompt去做rollout，每个prompt rollout出n个response，之后每mini-batch-size个prompt及其rollout出来的response会去做一次梯度下降，batch-size / mini-batch-size次梯度下降之后一个step结束\nMonitoring Module 可以使用TensorBoard,andb,Comet等，因为个人使用所以只介绍wandb\n注册登录，设置 project_name 和 experiment_name 就可以在电脑上/手机上看了\n很好用的监控平台！\n">
     </head>
     <body class="
     article-page
@@ -268,11 +268,23 @@
   <ol>
     <li>
       <ol>
-        <li>
+        <li><a href="#overview">overview</a>
           <ol>
-            <li></li>
+            <li><a href="#generate_sequencesnormal-rl和agent-rl">generate_sequences(normal-rl和agent-rl)</a></li>
+            <li><a href="#adv各rl算法之间的差异主要体现在adv的计算方式此处需要针对不同的算法进行修改">adv(各rl算法之间的差异主要体现在adv的计算方式，此处需要针对不同的算法进行修改)</a></li>
+            <li><a href="#compute_lossnormal-rl和agent-rl">compute_loss（normal-rl和agent-rl）</a></li>
           </ol>
         </li>
+        <li><a href="#deepspeed">DeepSpeed</a>
+          <ol>
+            <li></li>
+            <li><a href="#batch-size-related-parameters">Batch Size Related Parameters</a></li>
+            <li><a href="#train_batch_size-integer">train_batch_size: [integer]</a></li>
+            <li><a href="#train_micro_batch_size_per_gpu-integer">train_micro_batch_size_per_gpu: [integer]</a></li>
+            <li><a href="#gradient_accumulation_steps-integer">gradient_accumulation_steps: [integer]</a></li>
+          </ol>
+        </li>
+        <li><a href="#monitoring-module">Monitoring Module</a></li>
       </ol>
     </li>
   </ol>
@@ -302,7 +314,7 @@
 
     <div class="article-title-wrapper">
         <h2 class="article-title">
-            <a href="/p/verl%E6%B2%89%E6%B7%80/">veRL沉淀</a>
+            <a href="/p/verl%E6%A1%86%E6%9E%B6%E6%B7%B1%E5%BA%A6%E8%AE%B2%E8%A7%A3/">veRL框架深度讲解</a>
         </h2>
     
         
@@ -340,25 +352,49 @@
     <section class="article-content">
     
     
-    <h1 id="强化学习使用verl框架的深度讲解">强化学习使用veRL框架的深度讲解
-</h1><ul>
-<li>加载模型（无需修改）<br>
-veRL使用Ray框架进行模型的调度<br>
+    <h1 id="基于verl框架并行训练的深入探究">基于veRL框架并行训练的深入探究
+</h1><h3 id="overview">overview
+</h3><ul>
+<li>加载模型<br>
+veRL使用<strong>Ray框架</strong>进行模型的调度<br>
 init_workers 初始化策略模型、参考模型、价值模型、奖励模型。这里面有些模型不会用到。很多都不会使用价值模型，奖励模型也都是基于规则的</li>
 <li>训练过程<br>
-get_data_batch(无需修改)</li>
+get_data_batch</li>
 </ul>
-<h5 id="generate_sequencesnormal-rl和agent-rl">generate_sequences(normal-rl和agent-rl)
-</h5><p>normal-rl：单轮的交互（prompt&ndash;&gt;model&ndash;&gt;response），这个流程就结束了<br>
+<h4 id="generate_sequencesnormal-rl和agent-rl">generate_sequences(normal-rl和agent-rl)
+</h4><p>normal-rl：单轮的交互（prompt&ndash;&gt;model&ndash;&gt;response），这个流程就结束了<br>
 agent-rl：多轮的交互（prompt&ndash;&gt;model&ndash;&gt;response&ndash;&gt;env（tool call,code exec ,etc）&ndash;&gt;model&ndash;&gt;response&ndash;&gt;&hellip;）<br>
-reward（通过自定义的奖励函数控制，一般无需修改）不用去修改veRL框架，通过配置文件进行修改<br>
-log_probs（计算策略模型和参考模型输出token的概率，一般无需修改）<br>
-values(目前主流的rl算法基本上都在舍弃价值模型，一般无需修改)</p>
-<h5 id="adv各rl算法之间的差异主要体现在adv的计算方式此处需要针对不同的算法进行修改">adv(各rl算法之间的差异主要体现在adv的计算方式，此处需要针对不同的算法进行修改)
-</h5><h5 id="compute_lossnormal-rl和agent-rl">compute_loss（normal-rl和agent-rl）
-</h5><p>normal-rl：无需和环境交互，response中token全部由模型生成，均参与损失计算<br>
+reward（通过自定义的奖励函数控制）不用去修改veRL框架，通过配置文件进行修改<br>
+log_probs（计算策略模型和参考模型输出token的概率）<br>
+values(目前主流的rl算法基本上都在舍弃价值模型)</p>
+<h4 id="adv各rl算法之间的差异主要体现在adv的计算方式此处需要针对不同的算法进行修改">adv(各rl算法之间的差异主要体现在adv的计算方式，此处需要针对不同的算法进行修改)
+</h4><h4 id="compute_lossnormal-rl和agent-rl">compute_loss（normal-rl和agent-rl）
+</h4><p>normal-rl：无需和环境交互，response中token全部由模型生成，均参与损失计算<br>
 agent-rl：需要获取观测结果，观测结果部分不是模型生成，计算损失时需要对其进行mask<br>
-update actor（无需修改）</p>
+update actor</p>
+<h3 id="deepspeed">DeepSpeed
+</h3><p><a class="link" href="https://huggingface.co/docs/transformers/deepspeed"  target="_blank" rel="noopener"
+    >DeepSpeed官方文档</a>👈官方文档<br>
+<a class="link" href="https://www.deepspeed.ai/docs/config-json/"  target="_blank" rel="noopener"
+    >DeepSpeed配置JSON</a>👈使用只需要JSON配置文件<br>
+<a class="link" href="https://www.youtube.com/watch?v=mpuRca2UZtI&amp;t=2925s"  target="_blank" rel="noopener"
+    >【利用多張GPU訓練大型語言模型】 - YouTube</a>👈李宏毅老师YouTube视频讲解（约一个小时）<br>
+<a class="link" href="https://huggingface.co/spaces/nanotron/ultrascale-playbook"  target="_blank" rel="noopener"
+    >The Ultra-Scale Playbook:Training LLMs on GPU Clusters</a>👈并行训练高质参考资料</p>
+<h5 id="hugging-face经常有高质量实验总结可以多关注一下">hugging face经常有高质量实验总结，可以多关注一下
+</h5><h4 id="batch-size-related-parameters">Batch Size Related Parameters
+</h4><p><strong>train_batch_size</strong> = <strong>train_micro_batch_size_per_gpu</strong> * <strong>gradient_accumulation_steps</strong> * <strong>number of GPUs</strong></p>
+<h4 id="train_batch_size-integer">train_batch_size: [integer]
+</h4><p>代表着one step.Example:32</p>
+<h4 id="train_micro_batch_size_per_gpu-integer">train_micro_batch_size_per_gpu: [integer]
+</h4><p>一次更新的batch_size，所以叫micro_batch_size.</p>
+<h4 id="gradient_accumulation_steps-integer">gradient_accumulation_steps: [integer]
+</h4><p>积累几次</p>
+<p>一开始会有batch-size个prompt去做rollout，每个prompt rollout出n个response，之后每mini-batch-size个prompt及其rollout出来的response会去做一次梯度下降，batch-size / mini-batch-size次梯度下降之后一个step结束</p>
+<h3 id="monitoring-module">Monitoring Module
+</h3><p>可以使用TensorBoard,andb,Comet等，因为个人使用所以只介绍wandb<br>
+注册登录，设置 project_name 和 experiment_name 就可以在电脑上/手机上看了<br>
+很好用的监控平台！</p>
 
 </section>
 
