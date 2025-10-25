@@ -933,6 +933,10 @@ python3 -m verl.trainer.main_ppo &amp;hellip;&lt;/p&gt;&lt;/blockquote&gt;
 &lt;p&gt;15点左右,/yhy/verl/trainer/config/ppo_trainer.yaml配置文件中进行修改&lt;/p&gt;
 &lt;h5 id=&#34;问题已解决在import-ray后添加-rayinitnum_cpus56-num_gpus2&#34;&gt;问题已解决！在import ray后添加 ray.init(num_cpus=56, num_gpus=2)
 &lt;/h5&gt;&lt;p&gt;今天最开心的事情，自己成功看issue，扒仓库源码等等解决了这个问题&lt;/p&gt;
+&lt;h4 id=&#34;20251022&#34;&gt;2025.10.22
+&lt;/h4&gt;&lt;p&gt;结束了第一段实习，收获满满！&lt;br&gt;
+谢谢师兄！谢谢赵老师！&lt;br&gt;
+期待后续再合作！&lt;/p&gt;
 </description>
         </item>
         <item>
