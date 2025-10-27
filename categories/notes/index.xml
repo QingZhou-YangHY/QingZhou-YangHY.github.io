@@ -7,7 +7,23 @@
         <generator>Hugo -- gohugo.io</generator>
         <language>en</language>
         <copyright>DaYang</copyright>
-        <lastBuildDate>Thu, 16 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/categories/notes/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Thu, 23 Oct 2025 10:00:00 +0800</lastBuildDate><atom:link href="http://localhost:1313/categories/notes/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>SJTU-Intern</title>
+        <link>http://localhost:1313/p/sjtu-intern/</link>
+        <pubDate>Thu, 23 Oct 2025 10:00:00 +0800</pubDate>
+        
+        <guid>http://localhost:1313/p/sjtu-intern/</guid>
+        <description>&lt;img src="http://localhost:1313/p/sjtu-intern/SJTU.jpg" alt="Featured image of post SJTU-Intern" /&gt;&lt;h4 id=&#34;20251023&#34;&gt;2025/10/23
+&lt;/h4&gt;&lt;p&gt;实习第一天&lt;/p&gt;
+&lt;h4 id=&#34;20251027&#34;&gt;2025/10/27
+&lt;/h4&gt;&lt;p&gt;周六凌晨开始跑的论文复现，当时为了图速度就没有顾虑太多。今天学姐问我一些实验过程中的指标变化等等来对比idea的实验是否正常工作，只能回去手动复制tmux里面的内容。&lt;/p&gt;
+&lt;p&gt;每跑一次实验都要记得能留日志就留日志，能上wandb/Swanlab就上，跑完的实验数据等等都要保存，留着。后续可能会用到。&lt;/p&gt;
+&lt;p&gt;千万不要一味地追求速度，图省事！&lt;/p&gt;
+&lt;p&gt;与此同时解决了submodule问题，具体的流程大致为删掉子仓库中的.git，移除本地缓存（觉得他是子module），从.gitmodule中移除（当然我本地没有）。&lt;/p&gt;
+&lt;p&gt;之前也解决了关于代码冲突的问题（需要手动进行修改），比如在git pull中是常见问题，大致进一步又了解了，准备后面有时间写一个关于这种多人协作常出现的问题，要注意的事项以及如何解决，最近太忙了，而且有很多优先级更高的事情等着我去做！&lt;/p&gt;
+</description>
+        </item>
+        <item>
         <title>基于veRL框架并行训练的深入探究</title>
         <link>http://localhost:1313/p/%E5%9F%BA%E4%BA%8Everl%E6%A1%86%E6%9E%B6%E5%B9%B6%E8%A1%8C%E8%AE%AD%E7%BB%83%E7%9A%84%E6%B7%B1%E5%85%A5%E6%8E%A2%E7%A9%B6/</link>
         <pubDate>Thu, 16 Oct 2025 00:00:00 +0000</pubDate>
@@ -923,6 +939,10 @@ python3 -m verl.trainer.main_ppo &amp;hellip;&lt;/p&gt;&lt;/blockquote&gt;
 &lt;p&gt;15点左右,/yhy/verl/trainer/config/ppo_trainer.yaml配置文件中进行修改&lt;/p&gt;
 &lt;h5 id=&#34;问题已解决在import-ray后添加-rayinitnum_cpus56-num_gpus2&#34;&gt;问题已解决！在import ray后添加 ray.init(num_cpus=56, num_gpus=2)
 &lt;/h5&gt;&lt;p&gt;今天最开心的事情，自己成功看issue，扒仓库源码等等解决了这个问题&lt;/p&gt;
+&lt;h4 id=&#34;20251022&#34;&gt;2025.10.22
+&lt;/h4&gt;&lt;p&gt;结束了第一段实习，收获满满！&lt;br&gt;
+谢谢师兄！谢谢赵老师！&lt;br&gt;
+期待后续再合作！&lt;/p&gt;
 </description>
         </item>
         
