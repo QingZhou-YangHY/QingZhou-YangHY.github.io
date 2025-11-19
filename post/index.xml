@@ -7,7 +7,16 @@
         <generator>Hugo -- gohugo.io</generator>
         <language>en</language>
         <copyright>DaYang</copyright>
-        <lastBuildDate>Thu, 23 Oct 2025 10:00:00 +0800</lastBuildDate><atom:link href="http://localhost:1313/post/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Wed, 19 Nov 2025 10:00:00 +0800</lastBuildDate><atom:link href="http://localhost:1313/post/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>解剖大型语言模型</title>
+        <link>http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/</link>
+        <pubDate>Wed, 19 Nov 2025 10:00:00 +0800</pubDate>
+        
+        <guid>http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/</guid>
+        <description>&lt;h2 id=&#34;生成式人工智慧與機器學習導論2025第3講解剖大型語言模型&#34;&gt;【生成式人工智慧與機器學習導論2025】第3講：解剖大型語言模型
+&lt;/h2&gt;</description>
+        </item>
+        <item>
         <title>SJTU-Intern</title>
         <link>http://localhost:1313/p/sjtu-intern/</link>
         <pubDate>Thu, 23 Oct 2025 10:00:00 +0800</pubDate>

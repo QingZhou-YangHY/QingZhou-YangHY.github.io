@@ -7,7 +7,81 @@
         <generator>Hugo -- gohugo.io</generator>
         <language>en</language>
         <copyright>DaYang</copyright>
-        <lastBuildDate>Thu, 23 Oct 2025 10:00:00 +0800</lastBuildDate><atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Wed, 19 Nov 2025 10:00:00 +0800</lastBuildDate><atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>解剖大型语言模型</title>
+        <link>http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/</link>
+        <pubDate>Wed, 19 Nov 2025 10:00:00 +0800</pubDate>
+        
+        <guid>http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/</guid>
+        <description>&lt;h2 id=&#34;生成式人工智慧與機器學習導論2025第3講解剖大型語言模型representation&#34;&gt;【生成式人工智慧與機器學習導論2025】第3講：解剖大型語言模型representation
+&lt;/h2&gt;&lt;p&gt;Token Embedding 是在Layer 1输入的那个， Contextualized Embedding(也就是我们说的representation表征) 指的是经过Layer 1输出的那个.&lt;/p&gt;
+&lt;p&gt;Representation Engineering, Activation Engineering, Activating Steering&amp;hellip;&lt;/p&gt;
+&lt;h3 id=&#34;logit-lens&#34;&gt;Logit Lens
+&lt;/h3&gt;&lt;p&gt;对每一层进行 Unembedding ,可以看每一层的思考所对应的文字，窥探语言模型的思考过程&lt;/p&gt;
+&lt;h3 id=&#34;patchscopes&#34;&gt;Patchscopes
+&lt;/h3&gt;&lt;p&gt;把一个向量（一个token/字）替换成一句话&lt;/p&gt;
+&lt;h2 id=&#34;layer解读使用transformer架构的解读&#34;&gt;Layer解读（使用Transformer架构的解读）
+&lt;/h2&gt;&lt;p&gt;Layer 中还有 Layer.&lt;/p&gt;
+&lt;p&gt;首先过 Self-attention Layer (attention layer), 考虑上下文就是因为 attention layer, 输出经过几个 Feed Forward Layer&lt;/p&gt;
+&lt;p&gt;典中典，要求手撕 Attention Layer ,&lt;/p&gt;
+&lt;p&gt;自己跟自己也要进行dot product&lt;/p&gt;
+&lt;p&gt;dot product 叫 Attention weight, 要所有的 weight 过 Softmax&lt;/p&gt;
+&lt;h3 id=&#34;positional-embedding&#34;&gt;Positional Embedding
+&lt;/h3&gt;&lt;p&gt;Llama 用 Rope , 旋转位置编码, 为了把位置的咨询加入到计算中&lt;/p&gt;
+&lt;h3 id=&#34;multi-head-attention&#34;&gt;Multi-head Attention
+&lt;/h3&gt;&lt;p&gt;每一个 head 的作用不一样
+&lt;img src=&#34;http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head1.png&#34;
+	width=&#34;1920&#34;
+	height=&#34;1080&#34;
+	srcset=&#34;http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head1_hu_5c2f61de8fa1895a.png 480w, http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head1_hu_7082b3b93c16b72d.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;177&#34;
+		data-flex-basis=&#34;426px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head2.png&#34;
+	width=&#34;1920&#34;
+	height=&#34;1080&#34;
+	srcset=&#34;http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head2_hu_83133a53ace293d4.png 480w, http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head2_hu_55132687d139d9b4.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;177&#34;
+		data-flex-basis=&#34;426px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head_sum.png&#34;
+	width=&#34;1920&#34;
+	height=&#34;1080&#34;
+	srcset=&#34;http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head_sum_hu_e51fd46eca1988c9.png 480w, http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head_sum_hu_4be7b5a6e054e9f4.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;177&#34;
+		data-flex-basis=&#34;426px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;目前的语言模型大多数都是 Causal Attention, 这样计算方便(Autogressive)&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/neuron.png&#34;
+	width=&#34;1920&#34;
+	height=&#34;1080&#34;
+	srcset=&#34;http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/neuron_hu_4bcc0684b5ad4793.png 480w, http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/neuron_hu_3fd78a0647b41cb5.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;177&#34;
+		data-flex-basis=&#34;426px&#34;
+	
+&gt;&lt;/p&gt;
+</description>
+        </item>
+        <item>
         <title>SJTU-Intern</title>
         <link>http://localhost:1313/p/sjtu-intern/</link>
         <pubDate>Thu, 23 Oct 2025 10:00:00 +0800</pubDate>
