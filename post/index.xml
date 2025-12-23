@@ -13,8 +13,92 @@
         <pubDate>Wed, 19 Nov 2025 10:00:00 +0800</pubDate>
         
         <guid>http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/</guid>
-        <description>&lt;h2 id=&#34;生成式人工智慧與機器學習導論2025第3講解剖大型語言模型&#34;&gt;【生成式人工智慧與機器學習導論2025】第3講：解剖大型語言模型
-&lt;/h2&gt;</description>
+        <description>&lt;h2 id=&#34;生成式人工智慧與機器學習導論2025第3講解剖大型語言模型representation&#34;&gt;【生成式人工智慧與機器學習導論2025】第3講：解剖大型語言模型representation
+&lt;/h2&gt;&lt;p&gt;Token Embedding 是在Layer 1输入的那个， Contextualized Embedding(也就是我们说的representation表征) 指的是经过Layer 1输出的那个.&lt;/p&gt;
+&lt;p&gt;Representation Engineering, Activation Engineering, Activating Steering&amp;hellip;&lt;/p&gt;
+&lt;h3 id=&#34;logit-lens&#34;&gt;Logit Lens
+&lt;/h3&gt;&lt;p&gt;对每一层进行 Unembedding ,可以看每一层的思考所对应的文字，窥探语言模型的思考过程&lt;/p&gt;
+&lt;h3 id=&#34;patchscopes&#34;&gt;Patchscopes
+&lt;/h3&gt;&lt;p&gt;把一个向量（一个token/字）替换成一句话&lt;/p&gt;
+&lt;h2 id=&#34;layer解读使用transformer架构的解读&#34;&gt;Layer解读（使用Transformer架构的解读）
+&lt;/h2&gt;&lt;p&gt;Layer 中还有 Layer.&lt;/p&gt;
+&lt;p&gt;首先过 Self-attention Layer (attention layer), 考虑上下文就是因为 attention layer, 输出经过几个 Feed Forward Layer&lt;/p&gt;
+&lt;p&gt;典中典，要求手撕 Attention Layer ,&lt;/p&gt;
+&lt;p&gt;自己跟自己也要进行dot product&lt;/p&gt;
+&lt;p&gt;dot product 叫 Attention weight, 要所有的 weight 过 Softmax&lt;/p&gt;
+&lt;h3 id=&#34;positional-embedding&#34;&gt;Positional Embedding
+&lt;/h3&gt;&lt;p&gt;Llama 用 Rope , 旋转位置编码, 为了把位置的咨询加入到计算中&lt;/p&gt;
+&lt;h3 id=&#34;multi-head-attention&#34;&gt;Multi-head Attention
+&lt;/h3&gt;&lt;p&gt;每一个 head 的作用不一样
+&lt;img src=&#34;http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head1.png&#34;
+	width=&#34;1920&#34;
+	height=&#34;1080&#34;
+	srcset=&#34;http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head1_hu_5c2f61de8fa1895a.png 480w, http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head1_hu_7082b3b93c16b72d.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;177&#34;
+		data-flex-basis=&#34;426px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head2.png&#34;
+	width=&#34;1920&#34;
+	height=&#34;1080&#34;
+	srcset=&#34;http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head2_hu_83133a53ace293d4.png 480w, http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head2_hu_55132687d139d9b4.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;177&#34;
+		data-flex-basis=&#34;426px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head_sum.png&#34;
+	width=&#34;1920&#34;
+	height=&#34;1080&#34;
+	srcset=&#34;http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head_sum_hu_e51fd46eca1988c9.png 480w, http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head_sum_hu_4be7b5a6e054e9f4.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;177&#34;
+		data-flex-basis=&#34;426px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;目前的语言模型大多数都是 Causal Attention, 这样计算方便(Autogressive)&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/neuron.png&#34;
+	width=&#34;1920&#34;
+	height=&#34;1080&#34;
+	srcset=&#34;http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/neuron_hu_4bcc0684b5ad4793.png 480w, http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/neuron_hu_3fd78a0647b41cb5.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;177&#34;
+		data-flex-basis=&#34;426px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;h2 id=&#34;实做环节&#34;&gt;实做环节
+&lt;/h2&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;model.num_parameters()会告诉我们 model 的参数量
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;深度学习模型的参数通常以多个矩阵 (Matrix) 和向量 (Vector) 的形式存储。向量、矩阵等统称为张量(Tensor)&lt;/p&gt;
+&lt;p&gt;Llama3 有28层，Gemma4B 有44层&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;model.state_dict() 可以实际把参数拿出来看看
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description>
         </item>
         <item>
         <title>SJTU-Intern</title>
@@ -29,7 +113,7 @@
 &lt;p&gt;每跑一次实验都要记得能留日志就留日志，能上wandb/Swanlab就上，跑完的实验数据等等都要保存，留着。后续可能会用到。&lt;/p&gt;
 &lt;p&gt;千万不要一味地追求速度，图省事！&lt;/p&gt;
 &lt;p&gt;与此同时解决了submodule问题，具体的流程大致为删掉子仓库中的.git，移除本地缓存（觉得他是子module），从.gitmodule中移除（当然我本地没有）。&lt;/p&gt;
-&lt;p&gt;之前也解决了关于代码冲突的问题（需要手动进行修改），比如在git pull中是常见问题，大致进一步又了解了，准备后面有时间写一个关于这种多人协作常出现的问题，要注意的事项以及如何解决，最近太忙了，而且有很多优先级更高的事情等着我去做！&lt;/p&gt;
+&lt;p&gt;之前也解决了关于代码冲突的问题（需要手动进行修改），比如在git pull中是常见问题，大致进一步又了解了，准备后面有时间写一个关于这种多人协作常出现的问题，要注意的事项以及如何解决&lt;/p&gt;
 </description>
         </item>
         <item>
@@ -947,7 +1031,7 @@ python3 -m verl.trainer.main_ppo &amp;hellip;&lt;/p&gt;&lt;/blockquote&gt;
 &lt;p&gt;2024.4.14，2024.4.17，2024.7.11等等太多人遇到同样的问题了&lt;/p&gt;
 &lt;p&gt;15点左右,/yhy/verl/trainer/config/ppo_trainer.yaml配置文件中进行修改&lt;/p&gt;
 &lt;h5 id=&#34;问题已解决在import-ray后添加-rayinitnum_cpus56-num_gpus2&#34;&gt;问题已解决！在import ray后添加 ray.init(num_cpus=56, num_gpus=2)
-&lt;/h5&gt;&lt;p&gt;今天最开心的事情，自己成功看issue，扒仓库源码等等解决了这个问题&lt;/p&gt;
+&lt;/h5&gt;&lt;p&gt;自己看issue，扒仓库源码等等解决了这个问题&lt;/p&gt;
 &lt;h4 id=&#34;20251022&#34;&gt;2025.10.22
 &lt;/h4&gt;&lt;p&gt;结束了第一段实习，收获满满！&lt;br&gt;
 谢谢师兄！谢谢赵老师！&lt;br&gt;
@@ -986,6 +1070,18 @@ python3 -m verl.trainer.main_ppo &amp;hellip;&lt;/p&gt;&lt;/blockquote&gt;
 &lt;h2 id=&#34;结语&#34;&gt;结语
 &lt;/h2&gt;&lt;p&gt;写博客是一个长期的过程，也应该是一个很开心的过程！&lt;/p&gt;
 &lt;p&gt;&lt;em&gt;这篇文章写于 2025年9月15日，是我博客的第一篇文章。希望它能成为一个美好的开始。&lt;/em&gt;&lt;/p&gt;</description>
+        </item>
+        <item>
+        <title>沉淀期</title>
+        <link>http://localhost:1313/p/%E6%B2%89%E6%B7%80%E6%9C%9F/</link>
+        <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/p/%E6%B2%89%E6%B7%80%E6%9C%9F/</guid>
+        <description>&lt;h4 id=&#34;20251223&#34;&gt;2025/12/23
+&lt;/h4&gt;&lt;p&gt;孩子们别怕，你们的老大最近在准备考试 + 补基础（专注theroy）&lt;/p&gt;
+&lt;p&gt;所有的前沿热点基本上第二天都知道，从GLA, MiniMax, GLM4.7等等这些一直紧跟前沿&lt;/p&gt;
+&lt;p&gt;欢迎和期待研究员们能与我一块进行研究，拒绝短平快，长期目标是ICML, Nips, ICLR, 故事会就算了哈!&lt;/p&gt;
+</description>
         </item>
         
     </channel>

@@ -121,6 +121,8 @@
   </url><url>
     <loc>http://localhost:1313/categories/math/</loc>
   </url><url>
+    <loc>http://localhost:1313/p/%E6%B2%89%E6%B7%80%E6%9C%9F/</loc>
+  </url><url>
     <loc>http://localhost:1313/categories/computer-science/</loc>
   </url>
 </urlset>
