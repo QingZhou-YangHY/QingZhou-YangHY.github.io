@@ -1,19 +1,18 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
     <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="启动就和服务器断开连接，可能导致短时无法登录">
-<title>Ray分布式训练因进程耗尽导致SSH断开连接</title>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="How LLMs Work">
+<title>NLPer</title>
 
-<link rel='canonical' href='http://localhost:1313/p/ray%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%AD%E7%BB%83%E5%9B%A0%E8%BF%9B%E7%A8%8B%E8%80%97%E5%B0%BD%E5%AF%BC%E8%87%B4ssh%E6%96%AD%E5%BC%80%E8%BF%9E%E6%8E%A5/'>
+<link rel='canonical' href='http://localhost:1313/p/nlper/'>
 
-<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="Ray分布式训练因进程耗尽导致SSH断开连接">
-<meta property='og:description' content="启动就和服务器断开连接，可能导致短时无法登录">
-<meta property='og:url' content='http://localhost:1313/p/ray%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%AD%E7%BB%83%E5%9B%A0%E8%BF%9B%E7%A8%8B%E8%80%97%E5%B0%BD%E5%AF%BC%E8%87%B4ssh%E6%96%AD%E5%BC%80%E8%BF%9E%E6%8E%A5/'>
+<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="NLPer">
+<meta property='og:description' content="How LLMs Work">
+<meta property='og:url' content='http://localhost:1313/p/nlper/'>
 <meta property='og:site_name' content='DaYang'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2025-10-09T10:00:00&#43;08:00'/><meta property='article:modified_time' content='2025-10-09T10:00:00&#43;08:00'/><meta property='og:image' content='http://localhost:1313/p/ray%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%AD%E7%BB%83%E5%9B%A0%E8%BF%9B%E7%A8%8B%E8%80%97%E5%B0%BD%E5%AF%BC%E8%87%B4ssh%E6%96%AD%E5%BC%80%E8%BF%9E%E6%8E%A5/Ray.jpg' />
-<meta name="twitter:title" content="Ray分布式训练因进程耗尽导致SSH断开连接">
-<meta name="twitter:description" content="启动就和服务器断开连接，可能导致短时无法登录"><meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content='http://localhost:1313/p/ray%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%AD%E7%BB%83%E5%9B%A0%E8%BF%9B%E7%A8%8B%E8%80%97%E5%B0%BD%E5%AF%BC%E8%87%B4ssh%E6%96%AD%E5%BC%80%E8%BF%9E%E6%8E%A5/Ray.jpg' />
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2026-01-19T10:00:00&#43;08:00'/><meta property='article:modified_time' content='2026-01-19T10:00:00&#43;08:00'/>
+<meta name="twitter:title" content="NLPer">
+<meta name="twitter:description" content="How LLMs Work">
     </head>
     <body class="
     article-page
@@ -245,23 +244,54 @@
     </ol>
 </aside>
 
-    
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#生成式人工智慧與機器學習導論2025第3講解剖大型語言模型representation">【生成式人工智慧與機器學習導論2025】第3講：解剖大型語言模型representation</a>
+      <ol>
+        <li><a href="#logit-lens">Logit Lens</a></li>
+        <li><a href="#patchscopes">Patchscopes</a></li>
+      </ol>
+    </li>
+    <li><a href="#layer解读使用transformer架构的解读">Layer解读（使用Transformer架构的解读）</a>
+      <ol>
+        <li><a href="#positional-embedding">Positional Embedding</a></li>
+        <li><a href="#multi-head-attention">Multi-head Attention</a></li>
+      </ol>
+    </li>
+    <li><a href="#实做环节">实做环节</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
 
             <main class="main full-width">
-    <article class="has-image main-article">
+    <article class="main-article">
     <header class="article-header">
-        <div class="article-image">
-            <a href="/p/ray%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%AD%E7%BB%83%E5%9B%A0%E8%BF%9B%E7%A8%8B%E8%80%97%E5%B0%BD%E5%AF%BC%E8%87%B4ssh%E6%96%AD%E5%BC%80%E8%BF%9E%E6%8E%A5/">
-                <img src="/p/ray%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%AD%E7%BB%83%E5%9B%A0%E8%BF%9B%E7%A8%8B%E8%80%97%E5%B0%BD%E5%AF%BC%E8%87%B4ssh%E6%96%AD%E5%BC%80%E8%BF%9E%E6%8E%A5/Ray_hu_f9a884ef480b86ed.jpg"
-                        srcset="/p/ray%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%AD%E7%BB%83%E5%9B%A0%E8%BF%9B%E7%A8%8B%E8%80%97%E5%B0%BD%E5%AF%BC%E8%87%B4ssh%E6%96%AD%E5%BC%80%E8%BF%9E%E6%8E%A5/Ray_hu_f9a884ef480b86ed.jpg 800w, /p/ray%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%AD%E7%BB%83%E5%9B%A0%E8%BF%9B%E7%A8%8B%E8%80%97%E5%B0%BD%E5%AF%BC%E8%87%B4ssh%E6%96%AD%E5%BC%80%E8%BF%9E%E6%8E%A5/Ray_hu_3e1ddb69e933a47c.jpg 1600w"
-                        width="800" 
-                        height="250" 
-                        loading="lazy"
-                        alt="Featured image of post Ray分布式训练因进程耗尽导致SSH断开连接" />
-                
-            </a>
-        </div>
-    
 
     <div class="article-details">
     
@@ -276,12 +306,12 @@
 
     <div class="article-title-wrapper">
         <h2 class="article-title">
-            <a href="/p/ray%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%AD%E7%BB%83%E5%9B%A0%E8%BF%9B%E7%A8%8B%E8%80%97%E5%B0%BD%E5%AF%BC%E8%87%B4ssh%E6%96%AD%E5%BC%80%E8%BF%9E%E6%8E%A5/">Ray分布式训练因进程耗尽导致SSH断开连接</a>
+            <a href="/p/nlper/">NLPer</a>
         </h2>
     
         
         <h3 class="article-subtitle">
-            启动就和服务器断开连接，可能导致短时无法登录
+            How LLMs Work
         </h3>
         
     </div>
@@ -302,7 +332,7 @@
   <path d="M3 11h16" />
   <path d="M18 16.496v1.504l1 1" />
 </svg>
-                <time class="article-time--published">Oct 09, 2025</time>
+                <time class="article-time--published">Jan 19, 2026</time>
             </div>
         
 
@@ -318,9 +348,92 @@
     <section class="article-content">
     
     
-    <h1 id="问题详情--解决方案"><a class="link" href="https://github.com/ray-project/ray/issues/57556"  target="_blank" rel="noopener"
-    >问题详情 + 解决方案</a>👈
-</h1>
+    <h2 id="生成式人工智慧與機器學習導論2025第3講解剖大型語言模型representation">【生成式人工智慧與機器學習導論2025】第3講：解剖大型語言模型representation
+</h2><p>Token Embedding 是在Layer 1输入的那个， Contextualized Embedding(也就是我们说的representation表征) 指的是经过Layer 1输出的那个.</p>
+<p>Representation Engineering, Activation Engineering, Activating Steering&hellip;</p>
+<h3 id="logit-lens">Logit Lens
+</h3><p>对每一层进行 Unembedding ,可以看每一层的思考所对应的文字，窥探语言模型的思考过程</p>
+<h3 id="patchscopes">Patchscopes
+</h3><p>把一个向量（一个token/字）替换成一句话</p>
+<h2 id="layer解读使用transformer架构的解读">Layer解读（使用Transformer架构的解读）
+</h2><p>Layer 中还有 Layer.</p>
+<p>首先过 Self-attention Layer (attention layer), 考虑上下文就是因为 attention layer, 输出经过几个 Feed Forward Layer</p>
+<p>典中典，要求手撕 Attention Layer ,</p>
+<p>自己跟自己也要进行dot product</p>
+<p>dot product 叫 Attention weight, 要所有的 weight 过 Softmax</p>
+<h3 id="positional-embedding">Positional Embedding
+</h3><p>Llama 用 Rope , 旋转位置编码, 为了把位置的咨询加入到计算中</p>
+<h3 id="multi-head-attention">Multi-head Attention
+</h3><p>每一个 head 的作用不一样
+<img src="/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head1.png"
+	width="1920"
+	height="1080"
+	srcset="/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head1_hu_5c2f61de8fa1895a.png 480w, /p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head1_hu_7082b3b93c16b72d.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="177"
+		data-flex-basis="426px"
+	
+></p>
+<p><img src="/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head2.png"
+	width="1920"
+	height="1080"
+	srcset="/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head2_hu_83133a53ace293d4.png 480w, /p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head2_hu_55132687d139d9b4.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="177"
+		data-flex-basis="426px"
+	
+></p>
+<p><img src="/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head_sum.png"
+	width="1920"
+	height="1080"
+	srcset="/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head_sum_hu_e51fd46eca1988c9.png 480w, /p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head_sum_hu_4be7b5a6e054e9f4.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="177"
+		data-flex-basis="426px"
+	
+></p>
+<p>目前的语言模型大多数都是 Causal Attention, 这样计算方便(Autogressive)</p>
+<p><img src="/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/neuron.png"
+	width="1920"
+	height="1080"
+	srcset="/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/neuron_hu_4bcc0684b5ad4793.png 480w, /p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/neuron_hu_3fd78a0647b41cb5.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="177"
+		data-flex-basis="426px"
+	
+></p>
+<h2 id="实做环节">实做环节
+</h2><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">model.num_parameters()会告诉我们 model 的参数量
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>深度学习模型的参数通常以多个矩阵 (Matrix) 和向量 (Vector) 的形式存储。向量、矩阵等统称为张量(Tensor)</p>
+<p>Llama3 有28层，Gemma4B 有44层</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">model.state_dict() 可以实际把参数拿出来看看
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
 </section>
 
 
@@ -341,19 +454,6 @@
     <h2 class="section-title">Related content</h2>
     <div class="related-content">
         <div class="flex article-list--tile">
-            
-                
-<article class="">
-    <a href="/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/">
-        
-        
-
-        <div class="article-details">
-            <h2 class="article-title">解剖大型语言模型</h2>
-        </div>
-    </a>
-</article>
-
             
                 
 <article class="has-image">
@@ -400,6 +500,30 @@
 
         <div class="article-details">
             <h2 class="article-title">Flash-Attention安装最速传说</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/ray%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%AD%E7%BB%83%E5%9B%A0%E8%BF%9B%E7%A8%8B%E8%80%97%E5%B0%BD%E5%AF%BC%E8%87%B4ssh%E6%96%AD%E5%BC%80%E8%BF%9E%E6%8E%A5/">
+        
+        
+            <div class="article-image">
+                <img src="/p/ray%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%AD%E7%BB%83%E5%9B%A0%E8%BF%9B%E7%A8%8B%E8%80%97%E5%B0%BD%E5%AF%BC%E8%87%B4ssh%E6%96%AD%E5%BC%80%E8%BF%9E%E6%8E%A5/Ray.c64a43cfcd8e30845b7034d2be973cdf_hu_39e0cf0a02b216da.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post Ray分布式训练因进程耗尽导致SSH断开连接"
+                        
+                        data-hash="md5-xkpDz82OMIRbcDTSvpc83w==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Ray分布式训练因进程耗尽导致SSH断开连接</h2>
         </div>
     </a>
 </article>

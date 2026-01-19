@@ -7,7 +7,21 @@
         <generator>Hugo -- gohugo.io</generator>
         <language>en</language>
         <copyright>DaYang</copyright>
-        <lastBuildDate>Wed, 19 Nov 2025 10:00:00 +0800</lastBuildDate><atom:link href="http://localhost:1313/post/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Tue, 23 Dec 2025 14:46:00 +0800</lastBuildDate><atom:link href="http://localhost:1313/post/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>沉淀期</title>
+        <link>http://localhost:1313/p/%E6%B2%89%E6%B7%80%E6%9C%9F/</link>
+        <pubDate>Tue, 23 Dec 2025 14:46:00 +0800</pubDate>
+        
+        <guid>http://localhost:1313/p/%E6%B2%89%E6%B7%80%E6%9C%9F/</guid>
+        <description>&lt;h4 id=&#34;20251223&#34;&gt;2025/12/23
+&lt;/h4&gt;&lt;p&gt;孩子们别怕，你们的老大最近在准备考试 + 补基础（专注theroy）&lt;/p&gt;
+&lt;p&gt;所有的前沿热点基本上都是第一时间能拿到信息，从GLA, MiniMax, GLM4.7（包括慢脚）等等这些一直紧跟前沿&lt;/p&gt;
+&lt;p&gt;欢迎和期待研究员们能与我一块进行研究，拒绝短平快，长期目标是ICML, NeurIPS, ICLR, 故事会就算了哈!&lt;/p&gt;
+&lt;h4 id=&#34;how-to-contact-with-me&#34;&gt;How to contact with me?
+&lt;/h4&gt;&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;mailto:yhy3868850350@gmail.com&#34; &gt;yhy3868850350@gmail.com&lt;/a&gt;&lt;/p&gt;
+</description>
+        </item>
+        <item>
         <title>解剖大型语言模型</title>
         <link>http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/</link>
         <pubDate>Wed, 19 Nov 2025 10:00:00 +0800</pubDate>
@@ -1070,18 +1084,6 @@ python3 -m verl.trainer.main_ppo &amp;hellip;&lt;/p&gt;&lt;/blockquote&gt;
 &lt;h2 id=&#34;结语&#34;&gt;结语
 &lt;/h2&gt;&lt;p&gt;写博客是一个长期的过程，也应该是一个很开心的过程！&lt;/p&gt;
 &lt;p&gt;&lt;em&gt;这篇文章写于 2025年9月15日，是我博客的第一篇文章。希望它能成为一个美好的开始。&lt;/em&gt;&lt;/p&gt;</description>
-        </item>
-        <item>
-        <title>沉淀期</title>
-        <link>http://localhost:1313/p/%E6%B2%89%E6%B7%80%E6%9C%9F/</link>
-        <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-        
-        <guid>http://localhost:1313/p/%E6%B2%89%E6%B7%80%E6%9C%9F/</guid>
-        <description>&lt;h4 id=&#34;20251223&#34;&gt;2025/12/23
-&lt;/h4&gt;&lt;p&gt;孩子们别怕，你们的老大最近在准备考试 + 补基础（专注theroy）&lt;/p&gt;
-&lt;p&gt;所有的前沿热点基本上第二天都知道，从GLA, MiniMax, GLM4.7等等这些一直紧跟前沿&lt;/p&gt;
-&lt;p&gt;欢迎和期待研究员们能与我一块进行研究，拒绝短平快，长期目标是ICML, Nips, ICLR, 故事会就算了哈!&lt;/p&gt;
-</description>
         </item>
         
     </channel>
