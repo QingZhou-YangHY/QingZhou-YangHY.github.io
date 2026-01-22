@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="基于veRL框架并行训练的深入探究 process-overview 加载模型\nveRL使用Ray框架进行模型的调度\ninit_workers 初始化策略模型、参考模型、价值模型、奖励模型。这里面有些模型不会用到。很多都不会使用价值模型，奖励模型也都是基于规则的 训练过程\nget_data_batch generate_sequences(normal-rl和agent-rl) normal-rl：单轮的交互（prompt&ndash;&gt;model&ndash;&gt;response），这个流程就结束了\nagent-rl：多轮的交互（prompt&ndash;&gt;model&ndash;&gt;response&ndash;&gt;env（tool call,code exec ,etc）&ndash;&gt;model&ndash;&gt;response&ndash;&gt;&hellip;）\nreward（通过自定义的奖励函数控制）不用去修改veRL框架，通过配置文件进行修改\nlog_probs（计算策略模型和参考模型输出token的概率）\nvalues(目前主流的rl算法基本上都在舍弃价值模型)\nadv(各rl算法之间的差异主要体现在adv的计算方式，此处需要针对不同的算法进行修改) compute_loss（normal-rl和agent-rl） normal-rl：无需和环境交互，response中token全部由模型生成，均参与损失计算\nagent-rl：需要获取观测结果，观测结果部分不是模型生成，计算损失时需要对其进行mask\nupdate actor\nDeepSpeed DeepSpeed官方文档👈官方文档\nDeepSpeed配置JSON👈使用只需要JSON配置文件\n【利用多張GPU訓練大型語言模型】 - YouTube👈李宏毅老师YouTube视频讲解（约一个小时）\nThe Ultra-Scale Playbook:Training LLMs on GPU Clusters👈并行训练高质参考资料\nhugging face经常有高质量实验总结，可以多关注一下 Batch Size Related Parameters train_batch_size = train_micro_batch_size_per_gpu * gradient_accumulation_steps * number of GPUs\ntrain_batch_size: [integer] 代表着one step.Example:32\ntrain_micro_batch_size_per_gpu: [integer] 一次更新的batch_size，所以叫micro_batch_size.\ngradient_accumulation_steps: [integer] 积累几次\n一开始会有batch-size个prompt去做rollout，每个prompt rollout出n个response，之后每mini-batch-size个prompt及其rollout出来的response会去做一次梯度下降，batch-size / mini-batch-size次梯度下降之后一个step结束\nMonitoring Module 可以使用TensorBoard,andb,Comet等，因为个人使用所以只介绍swanlab(wandb的国内镜像)\n注册登录，设置 project_name 和 experiment_name 就可以在电脑上/手机上看了\n很好用的监控平台！\nswanlab官方文档👈官方文档\n">
+<title>veRL学习</title>
+
+<link rel='canonical' href='http://localhost:1313/p/verl%E5%AD%A6%E4%B9%A0/'>
+
+<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="veRL学习">
+<meta property='og:description' content="基于veRL框架并行训练的深入探究 process-overview 加载模型\nveRL使用Ray框架进行模型的调度\ninit_workers 初始化策略模型、参考模型、价值模型、奖励模型。这里面有些模型不会用到。很多都不会使用价值模型，奖励模型也都是基于规则的 训练过程\nget_data_batch generate_sequences(normal-rl和agent-rl) normal-rl：单轮的交互（prompt&ndash;&gt;model&ndash;&gt;response），这个流程就结束了\nagent-rl：多轮的交互（prompt&ndash;&gt;model&ndash;&gt;response&ndash;&gt;env（tool call,code exec ,etc）&ndash;&gt;model&ndash;&gt;response&ndash;&gt;&hellip;）\nreward（通过自定义的奖励函数控制）不用去修改veRL框架，通过配置文件进行修改\nlog_probs（计算策略模型和参考模型输出token的概率）\nvalues(目前主流的rl算法基本上都在舍弃价值模型)\nadv(各rl算法之间的差异主要体现在adv的计算方式，此处需要针对不同的算法进行修改) compute_loss（normal-rl和agent-rl） normal-rl：无需和环境交互，response中token全部由模型生成，均参与损失计算\nagent-rl：需要获取观测结果，观测结果部分不是模型生成，计算损失时需要对其进行mask\nupdate actor\nDeepSpeed DeepSpeed官方文档👈官方文档\nDeepSpeed配置JSON👈使用只需要JSON配置文件\n【利用多張GPU訓練大型語言模型】 - YouTube👈李宏毅老师YouTube视频讲解（约一个小时）\nThe Ultra-Scale Playbook:Training LLMs on GPU Clusters👈并行训练高质参考资料\nhugging face经常有高质量实验总结，可以多关注一下 Batch Size Related Parameters train_batch_size = train_micro_batch_size_per_gpu * gradient_accumulation_steps * number of GPUs\ntrain_batch_size: [integer] 代表着one step.Example:32\ntrain_micro_batch_size_per_gpu: [integer] 一次更新的batch_size，所以叫micro_batch_size.\ngradient_accumulation_steps: [integer] 积累几次\n一开始会有batch-size个prompt去做rollout，每个prompt rollout出n个response，之后每mini-batch-size个prompt及其rollout出来的response会去做一次梯度下降，batch-size / mini-batch-size次梯度下降之后一个step结束\nMonitoring Module 可以使用TensorBoard,andb,Comet等，因为个人使用所以只介绍swanlab(wandb的国内镜像)\n注册登录，设置 project_name 和 experiment_name 就可以在电脑上/手机上看了\n很好用的监控平台！\nswanlab官方文档👈官方文档\n">
+<meta property='og:url' content='http://localhost:1313/p/verl%E5%AD%A6%E4%B9%A0/'>
+<meta property='og:site_name' content='DaYang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2025-10-16T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2025-10-16T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="veRL学习">
+<meta name="twitter:description" content="基于veRL框架并行训练的深入探究 process-overview 加载模型\nveRL使用Ray框架进行模型的调度\ninit_workers 初始化策略模型、参考模型、价值模型、奖励模型。这里面有些模型不会用到。很多都不会使用价值模型，奖励模型也都是基于规则的 训练过程\nget_data_batch generate_sequences(normal-rl和agent-rl) normal-rl：单轮的交互（prompt&ndash;&gt;model&ndash;&gt;response），这个流程就结束了\nagent-rl：多轮的交互（prompt&ndash;&gt;model&ndash;&gt;response&ndash;&gt;env（tool call,code exec ,etc）&ndash;&gt;model&ndash;&gt;response&ndash;&gt;&hellip;）\nreward（通过自定义的奖励函数控制）不用去修改veRL框架，通过配置文件进行修改\nlog_probs（计算策略模型和参考模型输出token的概率）\nvalues(目前主流的rl算法基本上都在舍弃价值模型)\nadv(各rl算法之间的差异主要体现在adv的计算方式，此处需要针对不同的算法进行修改) compute_loss（normal-rl和agent-rl） normal-rl：无需和环境交互，response中token全部由模型生成，均参与损失计算\nagent-rl：需要获取观测结果，观测结果部分不是模型生成，计算损失时需要对其进行mask\nupdate actor\nDeepSpeed DeepSpeed官方文档👈官方文档\nDeepSpeed配置JSON👈使用只需要JSON配置文件\n【利用多張GPU訓練大型語言模型】 - YouTube👈李宏毅老师YouTube视频讲解（约一个小时）\nThe Ultra-Scale Playbook:Training LLMs on GPU Clusters👈并行训练高质参考资料\nhugging face经常有高质量实验总结，可以多关注一下 Batch Size Related Parameters train_batch_size = train_micro_batch_size_per_gpu * gradient_accumulation_steps * number of GPUs\ntrain_batch_size: [integer] 代表着one step.Example:32\ntrain_micro_batch_size_per_gpu: [integer] 一次更新的batch_size，所以叫micro_batch_size.\ngradient_accumulation_steps: [integer] 积累几次\n一开始会有batch-size个prompt去做rollout，每个prompt rollout出n个response，之后每mini-batch-size个prompt及其rollout出来的response会去做一次梯度下降，batch-size / mini-batch-size次梯度下降之后一个step结束\nMonitoring Module 可以使用TensorBoard,andb,Comet等，因为个人使用所以只介绍swanlab(wandb的国内镜像)\n注册登录，设置 project_name 和 experiment_name 就可以在电脑上/手机上看了\n很好用的监控平台！\nswanlab官方文档👈官方文档\n">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/KOBE_hu_898ca0c48cea256c.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">DaYang</a></h1>
+            <h2 class="site-description">Welcome to my blog!</h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/QingZhou-YangHY'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+                    
+                        <li id="i18n-switch">  
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                            <select name="language" title="language" onchange="window.location.href = this.selectedOptions[0].value">
+                                
+                                    <option value="http://localhost:1313/" selected>English</option>
+                                
+                                    <option value="http://localhost:1313/zh-cn/" >中文</option>
+                                
+                            </select>
+                        </li>
+                    
+                
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#process-overview">process-overview</a>
+      <ol>
+        <li>
+          <ol>
+            <li><a href="#generate_sequencesnormal-rl和agent-rl">generate_sequences(normal-rl和agent-rl)</a></li>
+            <li><a href="#adv各rl算法之间的差异主要体现在adv的计算方式此处需要针对不同的算法进行修改">adv(各rl算法之间的差异主要体现在adv的计算方式，此处需要针对不同的算法进行修改)</a></li>
+            <li><a href="#compute_lossnormal-rl和agent-rl">compute_loss（normal-rl和agent-rl）</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#deepspeed">DeepSpeed</a>
+      <ol>
+        <li>
+          <ol>
+            <li><a href="#hugging-face经常有高质量实验总结可以多关注一下">hugging face经常有高质量实验总结，可以多关注一下</a></li>
+          </ol>
+        </li>
+        <li><a href="#batch-size-related-parameters">Batch Size Related Parameters</a></li>
+        <li><a href="#train_batch_size-integer">train_batch_size: [integer]</a></li>
+        <li><a href="#train_micro_batch_size_per_gpu-integer">train_micro_batch_size_per_gpu: [integer]</a></li>
+        <li><a href="#gradient_accumulation_steps-integer">gradient_accumulation_steps: [integer]</a></li>
+      </ol>
+    </li>
+    <li><a href="#monitoring-module">Monitoring Module</a></li>
+    <li><a href="#the-ultra-scale-playbooktraining-llms-on-gpu-clusters">The Ultra-Scale Playbook:Training LLMs on GPU Clusters</a>
+      <ol>
+        <li><a href="#finding-the-best-training-configuration">Finding the Best Training Configuration</a>
+          <ol>
+            <li><a href="#step-1-fitting-a-training-step-in-memory">Step 1: Fitting a training step in memory</a></li>
+            <li><a href="#step-2-achieving-the-target-global-batch-size">Step 2: Achieving the target global batch size</a></li>
+            <li><a href="#step-3-optimizing-training-throughput">Step 3: Optimizing training throughput</a></li>
+            <li><a href="#benchmarking-thousands-of-configurations">Benchmarking thousands of configurations</a></li>
+            <li><a href="#lessons-learned-on-benchmarking">Lessons learned on benchmarking</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/notes/" style="background-color: #457b9d; color: #fff;">
+                Notes
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/verl%E5%AD%A6%E4%B9%A0/">veRL学习</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Oct 16, 2025</time>
+            </div>
+        
+
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h1 id="基于verl框架并行训练的深入探究">基于veRL框架并行训练的深入探究
+</h1><h2 id="process-overview">process-overview
+</h2><ul>
+<li>加载模型<br>
+veRL使用<strong>Ray框架</strong>进行模型的调度<br>
+init_workers 初始化策略模型、参考模型、价值模型、奖励模型。这里面有些模型不会用到。很多都不会使用价值模型，奖励模型也都是基于规则的</li>
+<li>训练过程<br>
+get_data_batch</li>
+</ul>
+<h4 id="generate_sequencesnormal-rl和agent-rl">generate_sequences(normal-rl和agent-rl)
+</h4><p>normal-rl：单轮的交互（prompt&ndash;&gt;model&ndash;&gt;response），这个流程就结束了<br>
+agent-rl：多轮的交互（prompt&ndash;&gt;model&ndash;&gt;response&ndash;&gt;env（tool call,code exec ,etc）&ndash;&gt;model&ndash;&gt;response&ndash;&gt;&hellip;）<br>
+reward（通过自定义的奖励函数控制）不用去修改veRL框架，通过配置文件进行修改<br>
+log_probs（计算策略模型和参考模型输出token的概率）<br>
+values(目前主流的rl算法基本上都在舍弃价值模型)</p>
+<h4 id="adv各rl算法之间的差异主要体现在adv的计算方式此处需要针对不同的算法进行修改">adv(各rl算法之间的差异主要体现在adv的计算方式，此处需要针对不同的算法进行修改)
+</h4><h4 id="compute_lossnormal-rl和agent-rl">compute_loss（normal-rl和agent-rl）
+</h4><p>normal-rl：无需和环境交互，response中token全部由模型生成，均参与损失计算<br>
+agent-rl：需要获取观测结果，观测结果部分不是模型生成，计算损失时需要对其进行mask<br>
+update actor</p>
+<h2 id="deepspeed">DeepSpeed
+</h2><p><a class="link" href="https://huggingface.co/docs/transformers/deepspeed"  target="_blank" rel="noopener"
+    >DeepSpeed官方文档</a>👈官方文档<br>
+<a class="link" href="https://www.deepspeed.ai/docs/config-json/"  target="_blank" rel="noopener"
+    >DeepSpeed配置JSON</a>👈使用只需要JSON配置文件<br>
+<a class="link" href="https://www.youtube.com/watch?v=mpuRca2UZtI&amp;t=2925s"  target="_blank" rel="noopener"
+    >【利用多張GPU訓練大型語言模型】 - YouTube</a>👈李宏毅老师YouTube视频讲解（约一个小时）<br>
+<a class="link" href="https://huggingface.co/spaces/nanotron/ultrascale-playbook"  target="_blank" rel="noopener"
+    >The Ultra-Scale Playbook:Training LLMs on GPU Clusters</a>👈并行训练高质参考资料</p>
+<h4 id="hugging-face经常有高质量实验总结可以多关注一下">hugging face经常有高质量实验总结，可以多关注一下
+</h4><h3 id="batch-size-related-parameters">Batch Size Related Parameters
+</h3><p><strong>train_batch_size</strong> = <strong>train_micro_batch_size_per_gpu</strong> * <strong>gradient_accumulation_steps</strong> * <strong>number of GPUs</strong></p>
+<h3 id="train_batch_size-integer">train_batch_size: [integer]
+</h3><p>代表着one step.Example:32</p>
+<h3 id="train_micro_batch_size_per_gpu-integer">train_micro_batch_size_per_gpu: [integer]
+</h3><p>一次更新的batch_size，所以叫micro_batch_size.</p>
+<h3 id="gradient_accumulation_steps-integer">gradient_accumulation_steps: [integer]
+</h3><p>积累几次</p>
+<p>一开始会有batch-size个prompt去做rollout，每个prompt rollout出n个response，之后每mini-batch-size个prompt及其rollout出来的response会去做一次梯度下降，batch-size / mini-batch-size次梯度下降之后一个step结束</p>
+<h2 id="monitoring-module">Monitoring Module
+</h2><p>可以使用TensorBoard,andb,Comet等，因为个人使用所以只介绍swanlab(wandb的国内镜像)<br>
+注册登录，设置 project_name 和 experiment_name 就可以在电脑上/手机上看了<br>
+很好用的监控平台！<br>
+<a class="link" href="https://docs.swanlab.cn/"  target="_blank" rel="noopener"
+    >swanlab官方文档</a>👈官方文档</p>
+<h2 id="the-ultra-scale-playbooktraining-llms-on-gpu-clusters">The Ultra-Scale Playbook:Training LLMs on GPU Clusters
+</h2><hr>
+<h3 id="finding-the-best-training-configuration">Finding the Best Training Configuration
+</h3><h4 id="step-1-fitting-a-training-step-in-memory">Step 1: Fitting a training step in memory
+</h4><p>首先我们思考如何把一个完整的模型放在我们的GPUs集群里面，通常有一下两种办法</p>
+<ul>
+<li>
+<p>GPU-rich case 🤑 - when you have plenty of GPUs available:</p>
+<ul>
+<li>For models under 10B parameters, you can use a single parallelism technique, e.g. tensor parallelism or ZeRO-3/DP with full recompute across 8 GPUs.</li>
+<li>后面模型太大了就不提了，可以自行去资料中翻看</li>
+</ul>
+</li>
+<li>
+<p>GPU-poor case 😭 - when you might be low on GPU resources:</p>
+<ul>
+<li>You can enable full activation recomputation to trade some compute for memory (and train a bit more slowly).</li>
+<li>You can increase gradient accumulation to process larger batches with limited memory.</li>
+</ul>
+</li>
+</ul>
+<p>Now that we have a first model instance training, we need to make sure we have the right batch size.</p>
+<h4 id="step-2-achieving-the-target-global-batch-size">Step 2: Achieving the target global batch size
+</h4><p>To increase our current global batch size:</p>
+<ul>
+<li>We can scale up data parallelism or gradient accumulation steps.</li>
+<li>For long sequences, we can leverage context parallelism.</li>
+</ul>
+<p>To decrease our current global batch size:</p>
+<ul>
+<li>We can reduce data parallelism in favor of other parallelization strategies.</li>
+<li>For long sequences, we can reduce context parallelism.</li>
+</ul>
+<p>OK, now we have the model running in the general configuration we want in terms of model size and batch size - but are we training it the fastest way? The final step is to work on optimizing throughput.</p>
+<h4 id="step-3-optimizing-training-throughput">Step 3: Optimizing training throughput
+</h4><p>We want to make sure the training is running as fast as possible so all our precious GPUs are well utilized at all times. As long as memory and communication aren&rsquo;t bottlenecks, we can try the following:</p>
+<ul>
+<li>Scale up tensor parallelism (using the fast intra-node bandwidth) until we reach a degree close to the node size, so that we can reduce other forms of parallelism.</li>
+<li>Increase data parallelism with ZeRO-3 while keeping the target batch size.</li>
+<li>When data parallelism communication starts to become a bottleneck, transition to using pipeline parallelism.</li>
+<li>Try scaling up different parallelisms one by one.</li>
+<li>Experiment with micro-batch sizes (mbs) to aim for an optimal balance between max global batch size, model size, compute, and communication.</li>
+</ul>
+<h4 id="benchmarking-thousands-of-configurations">Benchmarking thousands of configurations
+</h4><p>有 Heatmap 可以看Best Configurations</p>
+<h4 id="lessons-learned-on-benchmarking">Lessons learned on benchmarking
+</h4><p>What looks simple in theory often requires careful attention to many moving parts in practice.</p>
+<hr>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/p/nlp/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">NLP</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/sjtu-research-intern/">
+        
+        
+            <div class="article-image">
+                <img src="/p/sjtu-research-intern/SJTU.a646047ad7c64afeed5d2be2fa5870be_hu_a70bed7b28ca1894.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post SJTU-research-intern"
+                        
+                        data-hash="md5-pkYEetfGSv7tXSvi&#43;lhwvg==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">SJTU-research-intern</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/flash-attention%E5%AE%89%E8%A3%85%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E5%8F%8A%E5%85%B6%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Flash-Attention安装常见问题及其解决方案</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/ray%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%AD%E7%BB%83%E5%9B%A0%E8%BF%9B%E7%A8%8B%E8%80%97%E5%B0%BD%E5%AF%BC%E8%87%B4ssh%E6%96%AD%E5%BC%80%E8%BF%9E%E6%8E%A5/">
+        
+        
+            <div class="article-image">
+                <img src="/p/ray%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%AD%E7%BB%83%E5%9B%A0%E8%BF%9B%E7%A8%8B%E8%80%97%E5%B0%BD%E5%AF%BC%E8%87%B4ssh%E6%96%AD%E5%BC%80%E8%BF%9E%E6%8E%A5/Ray.c64a43cfcd8e30845b7034d2be973cdf_hu_39e0cf0a02b216da.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post Ray分布式训练因进程耗尽导致SSH断开连接"
+                        
+                        data-hash="md5-xkpDz82OMIRbcDTSvpc83w==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Ray分布式训练因进程耗尽导致SSH断开连接</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/still3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">STILL3</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2025 - 
+        
+        2026 DaYang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.31.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.8c084058b40befe06689a879f198241d129be0572f9b5a66862385dd362c5e22.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

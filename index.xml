@@ -8,11 +8,11 @@
         <language>en</language>
         <copyright>DaYang</copyright>
         <lastBuildDate>Mon, 19 Jan 2026 10:00:00 +0800</lastBuildDate><atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>一些关于NLP的总结</title>
-        <link>http://localhost:1313/p/%E4%B8%80%E4%BA%9B%E5%85%B3%E4%BA%8Enlp%E7%9A%84%E6%80%BB%E7%BB%93/</link>
+        <title>NLP</title>
+        <link>http://localhost:1313/p/nlp/</link>
         <pubDate>Mon, 19 Jan 2026 10:00:00 +0800</pubDate>
         
-        <guid>http://localhost:1313/p/%E4%B8%80%E4%BA%9B%E5%85%B3%E4%BA%8Enlp%E7%9A%84%E6%80%BB%E7%BB%93/</guid>
+        <guid>http://localhost:1313/p/nlp/</guid>
         <description>&lt;h2 id=&#34;生成式人工智慧與機器學習導論2025第3講解剖大型語言模型representation&#34;&gt;【生成式人工智慧與機器學習導論2025】第3講：解剖大型語言模型representation
 &lt;/h2&gt;&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.youtube.com/watch?v=Xnil63UDW2o&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;https://www.youtube.com/watch?v=Xnil63UDW2o&lt;/a&gt;&lt;/p&gt;
@@ -32,10 +32,10 @@
 &lt;/h4&gt;&lt;p&gt;Llama 用 Rope , 旋转位置编码, 为了把位置的咨询加入到计算中&lt;/p&gt;
 &lt;h4 id=&#34;multi-head-attention&#34;&gt;Multi-head Attention
 &lt;/h4&gt;&lt;p&gt;每一个 head 的作用不一样
-&lt;img src=&#34;http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head1.png&#34;
+&lt;img src=&#34;http://localhost:1313/p/nlp/head1.png&#34;
 	width=&#34;1920&#34;
 	height=&#34;1080&#34;
-	srcset=&#34;http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head1_hu_5c2f61de8fa1895a.png 480w, http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head1_hu_7082b3b93c16b72d.png 1024w&#34;
+	srcset=&#34;http://localhost:1313/p/nlp/head1_hu_5c2f61de8fa1895a.png 480w, http://localhost:1313/p/nlp/head1_hu_7082b3b93c16b72d.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 	
@@ -44,10 +44,10 @@
 		data-flex-basis=&#34;426px&#34;
 	
 &gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head2.png&#34;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/nlp/head2.png&#34;
 	width=&#34;1920&#34;
 	height=&#34;1080&#34;
-	srcset=&#34;http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head2_hu_83133a53ace293d4.png 480w, http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head2_hu_55132687d139d9b4.png 1024w&#34;
+	srcset=&#34;http://localhost:1313/p/nlp/head2_hu_83133a53ace293d4.png 480w, http://localhost:1313/p/nlp/head2_hu_55132687d139d9b4.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 	
@@ -56,10 +56,10 @@
 		data-flex-basis=&#34;426px&#34;
 	
 &gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head_sum.png&#34;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/nlp/head_sum.png&#34;
 	width=&#34;1920&#34;
 	height=&#34;1080&#34;
-	srcset=&#34;http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head_sum_hu_e51fd46eca1988c9.png 480w, http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/head_sum_hu_4be7b5a6e054e9f4.png 1024w&#34;
+	srcset=&#34;http://localhost:1313/p/nlp/head_sum_hu_e51fd46eca1988c9.png 480w, http://localhost:1313/p/nlp/head_sum_hu_4be7b5a6e054e9f4.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 	
@@ -69,10 +69,10 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;目前的语言模型大多数都是 Causal Attention, 这样计算方便(Autogressive)&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/neuron.png&#34;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/nlp/neuron.png&#34;
 	width=&#34;1920&#34;
 	height=&#34;1080&#34;
-	srcset=&#34;http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/neuron_hu_4bcc0684b5ad4793.png 480w, http://localhost:1313/p/%E8%A7%A3%E5%89%96%E5%A4%A7%E5%9E%8B%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/neuron_hu_3fd78a0647b41cb5.png 1024w&#34;
+	srcset=&#34;http://localhost:1313/p/nlp/neuron_hu_4bcc0684b5ad4793.png 480w, http://localhost:1313/p/nlp/neuron_hu_3fd78a0647b41cb5.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 	
@@ -132,26 +132,12 @@ GPU 负载越高、token越复杂，TPOT 也会变慢。&lt;/p&gt;
 </description>
         </item>
         <item>
-        <title>沉淀期</title>
-        <link>http://localhost:1313/p/%E6%B2%89%E6%B7%80%E6%9C%9F/</link>
-        <pubDate>Tue, 23 Dec 2025 14:46:00 +0800</pubDate>
-        
-        <guid>http://localhost:1313/p/%E6%B2%89%E6%B7%80%E6%9C%9F/</guid>
-        <description>&lt;h4 id=&#34;20251223&#34;&gt;2025/12/23
-&lt;/h4&gt;&lt;p&gt;孩子们别怕，你们的老大最近在准备考试 + 补基础（专注theroy）&lt;/p&gt;
-&lt;p&gt;所有的前沿热点基本上都是第一时间能拿到信息，从GLA, MiniMax, GLM4.7（包括慢脚）等等这些一直紧跟前沿&lt;/p&gt;
-&lt;p&gt;欢迎和期待研究员们能与我一块进行研究，拒绝短平快，长期目标是ICML, NeurIPS, ICLR, 故事会就算了哈!&lt;/p&gt;
-&lt;h4 id=&#34;how-to-contact-with-me&#34;&gt;How to contact with me?
-&lt;/h4&gt;&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;mailto:yhy3868850350@gmail.com&#34; &gt;yhy3868850350@gmail.com&lt;/a&gt;&lt;/p&gt;
-</description>
-        </item>
-        <item>
-        <title>SJTU-Intern</title>
-        <link>http://localhost:1313/p/sjtu-intern/</link>
+        <title>SJTU-research-intern</title>
+        <link>http://localhost:1313/p/sjtu-research-intern/</link>
         <pubDate>Thu, 23 Oct 2025 10:00:00 +0800</pubDate>
         
-        <guid>http://localhost:1313/p/sjtu-intern/</guid>
-        <description>&lt;img src="http://localhost:1313/p/sjtu-intern/SJTU.jpg" alt="Featured image of post SJTU-Intern" /&gt;&lt;h4 id=&#34;20251023&#34;&gt;2025/10/23
+        <guid>http://localhost:1313/p/sjtu-research-intern/</guid>
+        <description>&lt;img src="http://localhost:1313/p/sjtu-research-intern/SJTU.jpg" alt="Featured image of post SJTU-research-intern" /&gt;&lt;h4 id=&#34;20251023&#34;&gt;2025/10/23
 &lt;/h4&gt;&lt;p&gt;实习第一天&lt;/p&gt;
 &lt;h4 id=&#34;20251027&#34;&gt;2025/10/27
 &lt;/h4&gt;&lt;p&gt;周六凌晨开始跑的论文复现，当时为了图速度就没有顾虑太多。今天学姐问我一些实验过程中的指标变化等等来对比idea的实验是否正常工作，只能回去手动复制tmux里面的内容。&lt;/p&gt;
@@ -162,11 +148,11 @@ GPU 负载越高、token越复杂，TPOT 也会变慢。&lt;/p&gt;
 </description>
         </item>
         <item>
-        <title>基于veRL框架并行训练的深入探究</title>
-        <link>http://localhost:1313/p/%E5%9F%BA%E4%BA%8Everl%E6%A1%86%E6%9E%B6%E5%B9%B6%E8%A1%8C%E8%AE%AD%E7%BB%83%E7%9A%84%E6%B7%B1%E5%85%A5%E6%8E%A2%E7%A9%B6/</link>
+        <title>veRL学习</title>
+        <link>http://localhost:1313/p/verl%E5%AD%A6%E4%B9%A0/</link>
         <pubDate>Thu, 16 Oct 2025 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/p/%E5%9F%BA%E4%BA%8Everl%E6%A1%86%E6%9E%B6%E5%B9%B6%E8%A1%8C%E8%AE%AD%E7%BB%83%E7%9A%84%E6%B7%B1%E5%85%A5%E6%8E%A2%E7%A9%B6/</guid>
+        <guid>http://localhost:1313/p/verl%E5%AD%A6%E4%B9%A0/</guid>
         <description>&lt;h1 id=&#34;基于verl框架并行训练的深入探究&#34;&gt;基于veRL框架并行训练的深入探究
 &lt;/h1&gt;&lt;h2 id=&#34;process-overview&#34;&gt;process-overview
 &lt;/h2&gt;&lt;ul&gt;
@@ -263,11 +249,11 @@ update actor&lt;/p&gt;
 </description>
         </item>
         <item>
-        <title>Flash-Attention安装最速传说</title>
-        <link>http://localhost:1313/p/flash-attention%E5%AE%89%E8%A3%85%E6%9C%80%E9%80%9F%E4%BC%A0%E8%AF%B4/</link>
+        <title>Flash-Attention安装常见问题及其解决方案</title>
+        <link>http://localhost:1313/p/flash-attention%E5%AE%89%E8%A3%85%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E5%8F%8A%E5%85%B6%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/</link>
         <pubDate>Thu, 09 Oct 2025 10:00:00 +0800</pubDate>
         
-        <guid>http://localhost:1313/p/flash-attention%E5%AE%89%E8%A3%85%E6%9C%80%E9%80%9F%E4%BC%A0%E8%AF%B4/</guid>
+        <guid>http://localhost:1313/p/flash-attention%E5%AE%89%E8%A3%85%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E5%8F%8A%E5%85%B6%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/</guid>
         <description>&lt;h1 id=&#34;解决方案&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.cnblogs.com/coldchair/p/18615384&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;解决方案&lt;/a&gt;👈
 &lt;/h1&gt;&lt;h2 id=&#34;方法1就完全work&#34;&gt;方法1就完全work!
@@ -285,11 +271,11 @@ update actor&lt;/p&gt;
 &lt;/h1&gt;</description>
         </item>
         <item>
-        <title>STILL3论文精读</title>
-        <link>http://localhost:1313/p/still3%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/</link>
+        <title>STILL3</title>
+        <link>http://localhost:1313/p/still3/</link>
         <pubDate>Thu, 02 Oct 2025 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/p/still3%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/</guid>
+        <guid>http://localhost:1313/p/still3/</guid>
         <description>&lt;p&gt;重新认真地读一遍STILL3(LLMs慢思维技术报告III )，补充知识点&lt;/p&gt;
 &lt;h1 id=&#34;an-empirical-study-on-eliciting-and-improving-r1-like-reasoning-models&#34;&gt;An Empirical Study on Eliciting and Improving R1-like Reasoning Models
 &lt;/h1&gt;&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/RUCAIBox/Slow_Thinking_with_LLMs&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
@@ -317,10 +303,10 @@ update actor&lt;/p&gt;
 &lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/RUCAIBox/Slow_Thinking_with_LLMs&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;复现点这里找资源&lt;/a&gt;&lt;/p&gt;
 &lt;h1 id=&#34;实验设置&#34;&gt;实验设置
-&lt;/h1&gt;&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/still3%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/config.jpg&#34;
+&lt;/h1&gt;&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/still3/config.jpg&#34;
 	width=&#34;735&#34;
 	height=&#34;494&#34;
-	srcset=&#34;http://localhost:1313/p/still3%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/config_hu_70515ab103a2c7ca.jpg 480w, http://localhost:1313/p/still3%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/config_hu_ec0a84f70a7f3d4a.jpg 1024w&#34;
+	srcset=&#34;http://localhost:1313/p/still3/config_hu_70515ab103a2c7ca.jpg 480w, http://localhost:1313/p/still3/config_hu_ec0a84f70a7f3d4a.jpg 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;config&#34;
@@ -392,19 +378,19 @@ iveAOP利用AoPS论坛的帖子创建了一个由3863个示例组成的抗污染
 </description>
         </item>
         <item>
-        <title>大型推理模型的强化学习综述精读</title>
-        <link>http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/</link>
+        <title>LRM-RL-survey</title>
+        <link>http://localhost:1313/p/lrm-rl-survey/</link>
         <pubDate>Wed, 24 Sep 2025 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/</guid>
-        <description>&lt;img src="http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/sky.jpg" alt="Featured image of post 大型推理模型的强化学习综述精读" /&gt;&lt;h1 id=&#34;a-survey-of-reinforcement-learning-for-large-reasoning-models&#34;&gt;A Survey of Reinforcement Learning for Large Reasoning Models
+        <guid>http://localhost:1313/p/lrm-rl-survey/</guid>
+        <description>&lt;img src="http://localhost:1313/p/lrm-rl-survey/sky.jpg" alt="Featured image of post LRM-RL-survey" /&gt;&lt;h1 id=&#34;a-survey-of-reinforcement-learning-for-large-reasoning-models&#34;&gt;A Survey of Reinforcement Learning for Large Reasoning Models
 &lt;/h1&gt;&lt;h2 id=&#34;background&#34;&gt;Background
 &lt;/h2&gt;&lt;p&gt;RL在推进LLM能力的前沿方面取得了显著成功，特别是在解决数学和编码等复杂逻辑任务方面。因此，RL已成为将LLM转化为LRM的基础方法。&lt;/p&gt;
 &lt;p&gt;需要探索提高强化学习向人工超级智能（ASI）的可扩展性的策略。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/history.jpg&#34;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/lrm-rl-survey/history.jpg&#34;
 	width=&#34;1313&#34;
 	height=&#34;621&#34;
-	srcset=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/history_hu_fd91b4e2f759ffa.jpg 480w, http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/history_hu_493c3c9057a75b6c.jpg 1024w&#34;
+	srcset=&#34;http://localhost:1313/p/lrm-rl-survey/history_hu_fd91b4e2f759ffa.jpg 480w, http://localhost:1313/p/lrm-rl-survey/history_hu_493c3c9057a75b6c.jpg 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;这两年的发展&#34;
@@ -415,10 +401,10 @@ iveAOP利用AoPS论坛的帖子创建了一个由3863个示例组成的抗污染
 		data-flex-basis=&#34;507px&#34;
 	
 &gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/overview.jpg&#34;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/lrm-rl-survey/overview.jpg&#34;
 	width=&#34;1304&#34;
 	height=&#34;615&#34;
-	srcset=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/overview_hu_5f42649c3469429c.jpg 480w, http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/overview_hu_9c488682e473c029.jpg 1024w&#34;
+	srcset=&#34;http://localhost:1313/p/lrm-rl-survey/overview_hu_5f42649c3469429c.jpg 480w, http://localhost:1313/p/lrm-rl-survey/overview_hu_9c488682e473c029.jpg 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;具体包含的模块&#34;
@@ -430,10 +416,10 @@ iveAOP利用AoPS论坛的帖子创建了一个由3863个示例组成的抗污染
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;回顾一下大致流程吧！&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/agentProgress.jpg&#34;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/lrm-rl-survey/agentProgress.jpg&#34;
 	width=&#34;762&#34;
 	height=&#34;339&#34;
-	srcset=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/agentProgress_hu_4d7c597a2ebaeebd.jpg 480w, http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/agentProgress_hu_b9f415b03c60b5a9.jpg 1024w&#34;
+	srcset=&#34;http://localhost:1313/p/lrm-rl-survey/agentProgress_hu_4d7c597a2ebaeebd.jpg 480w, http://localhost:1313/p/lrm-rl-survey/agentProgress_hu_b9f415b03c60b5a9.jpg 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;agentProgress&#34;
@@ -444,10 +430,10 @@ iveAOP利用AoPS论坛的帖子创建了一个由3863个示例组成的抗污染
 		data-flex-basis=&#34;539px&#34;
 	
 &gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/LMProgress.jpg&#34;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/lrm-rl-survey/LMProgress.jpg&#34;
 	width=&#34;479&#34;
 	height=&#34;394&#34;
-	srcset=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/LMProgress_hu_1f5e4f08ac92e4f2.jpg 480w, http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/LMProgress_hu_7cd98ff41913c5e4.jpg 1024w&#34;
+	srcset=&#34;http://localhost:1313/p/lrm-rl-survey/LMProgress_hu_1f5e4f08ac92e4f2.jpg 480w, http://localhost:1313/p/lrm-rl-survey/LMProgress_hu_7cd98ff41913c5e4.jpg 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;LMProgress&#34;
@@ -488,10 +474,10 @@ iveAOP利用AoPS论坛的帖子创建了一个由3863个示例组成的抗污染
 DeepSeek的旗舰模型R1[2025a]是第一个在基准测试中与o1性能相匹配的开源模型。它采用多阶段训练管道来确保全面的模型能力，并探索了没有监督微调的纯RL路线（即Zero RL）。&lt;br&gt;
 其他专有模型发布紧随其后：Claude-3.7-Sonnet[2025a]以混合推理为特色，Gemini 2.0和2.5[2025]引入了更长的上下文长度，Seed Thinking 1.5[2025b]以跨领域的泛化为特色，o3[2025a]系列展示了越来越先进的推理能力。最近，OpenAI推出了他们的第一个开源推理模型gpt-oss-120b[2025a]，随后推出了GPT5[2025a]，这是他们迄今为止最强大的人工智能系统，可以在高效模型和更深入的推理模型gpt-5思维之间灵活切换。并行的开源努力继续扩大了格局。在Qwen家族中，QwQ-32B[2025g]与R1的表现相匹配，其次是Qwen3[2025a]系列，代表性型号Qwen3-235B进一步提高了基准分数。Skywork-OR1[2025d]模型套件基于R1蒸馏模型，并通过有效的数据混合和算法创新实现了可扩展的RL训练。Minimax-M1[2025a]是第一个有效地将混合注意力引入尺度RL的模型。其他作品包括Llama Nemotron Ultra[2025]，旨在平衡准确性和效率；Magistral 24B[2025]，通过RL从头开始训练，而不是从先前的模型中提炼；以及种子OSS[2025a]，强调长上下文推理能力。等等&amp;hellip;&lt;/p&gt;
 &lt;p&gt;过去的一年发展迅速啊！&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/models.jpg&#34;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/lrm-rl-survey/models.jpg&#34;
 	width=&#34;1297&#34;
 	height=&#34;677&#34;
-	srcset=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/models_hu_8b9f390b6a5af111.jpg 480w, http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/models_hu_2544bbbdc362202a.jpg 1024w&#34;
+	srcset=&#34;http://localhost:1313/p/lrm-rl-survey/models_hu_8b9f390b6a5af111.jpg 480w, http://localhost:1313/p/lrm-rl-survey/models_hu_2544bbbdc362202a.jpg 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;models&#34;
@@ -582,10 +568,10 @@ Pass@k在推导和分析优势和有效近似值时，将集合级目标分解�
 &lt;/h4&gt;&lt;h4 id=&#34;优势函数as-a--qs-a--v-s该优势衡量的是与现有政策相比当前行动在预期总回报方面有多大改进&#34;&gt;优势函数：A(s, a) = Q(s, a) − V (s).该优势衡量的是与现有政策相比，当前行动在预期总回报方面有多大改进。
 &lt;/h4&gt;&lt;h3 id=&#34;优化算法的历程&#34;&gt;优化算法的历程
 &lt;/h3&gt;&lt;p&gt;PPO算法[Schulman等人，2017b]首次被提出作为TRPO算法[Schurman等人，2015a]的计算高效近似。&lt;br&gt;
-&lt;img src=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/algorithm.jpg&#34;
+&lt;img src=&#34;http://localhost:1313/p/lrm-rl-survey/algorithm.jpg&#34;
 	width=&#34;1161&#34;
 	height=&#34;795&#34;
-	srcset=&#34;http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/algorithm_hu_ab70d2da1d0a05a6.jpg 480w, http://localhost:1313/p/%E5%A4%A7%E5%9E%8B%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%BB%BC%E8%BF%B0%E7%B2%BE%E8%AF%BB/algorithm_hu_bddcdd47c9c7c11e.jpg 1024w&#34;
+	srcset=&#34;http://localhost:1313/p/lrm-rl-survey/algorithm_hu_ab70d2da1d0a05a6.jpg 480w, http://localhost:1313/p/lrm-rl-survey/algorithm_hu_bddcdd47c9c7c11e.jpg 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;algorithm&#34;
@@ -708,15 +694,15 @@ Pass@k在推导和分析优势和有效近似值时，将集合级目标分解�
 </description>
         </item>
         <item>
-        <title>Pass@k论文精读及其复现</title>
-        <link>http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/</link>
+        <title>Pass@k论文复现</title>
+        <link>http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E5%A4%8D%E7%8E%B0/</link>
         <pubDate>Sun, 21 Sep 2025 16:00:00 +0800</pubDate>
         
-        <guid>http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/</guid>
-        <description>&lt;img src="http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/ByteDance.jpg" alt="Featured image of post Pass@k论文精读及其复现" /&gt;&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/Seed.jpg&#34;
+        <guid>http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E5%A4%8D%E7%8E%B0/</guid>
+        <description>&lt;img src="http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E5%A4%8D%E7%8E%B0/ByteDance.jpg" alt="Featured image of post Pass@k论文复现" /&gt;&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E5%A4%8D%E7%8E%B0/Seed.jpg&#34;
 	width=&#34;400&#34;
 	height=&#34;400&#34;
-	srcset=&#34;http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/Seed_hu_2d5c39b72441c640.jpg 480w, http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB%E5%8F%8A%E5%85%B6%E5%A4%8D%E7%8E%B0/Seed_hu_e08f665f0403ee6b.jpg 1024w&#34;
+	srcset=&#34;http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E5%A4%8D%E7%8E%B0/Seed_hu_2d5c39b72441c640.jpg 480w, http://localhost:1313/p/pass@k%E8%AE%BA%E6%96%87%E5%A4%8D%E7%8E%B0/Seed_hu_e08f665f0403ee6b.jpg 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 	
@@ -918,12 +904,12 @@ Ubuntu 24.04.2 LTS&lt;/p&gt;
 &lt;/h3&gt;</description>
         </item>
         <item>
-        <title>RUC科研之旅</title>
+        <title>RUC-research-intern</title>
         <link>http://localhost:1313/p/ruc-study-framework/</link>
         <pubDate>Tue, 16 Sep 2025 10:00:00 +0800</pubDate>
         
         <guid>http://localhost:1313/p/ruc-study-framework/</guid>
-        <description>&lt;img src="http://localhost:1313/p/ruc-study-framework/RUC.jpg" alt="Featured image of post RUC科研之旅" /&gt;&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/ruc-study-framework/AI-Box.jpg&#34;
+        <description>&lt;img src="http://localhost:1313/p/ruc-study-framework/RUC.jpg" alt="Featured image of post RUC-research-intern" /&gt;&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/ruc-study-framework/AI-Box.jpg&#34;
 	width=&#34;200&#34;
 	height=&#34;200&#34;
 	srcset=&#34;http://localhost:1313/p/ruc-study-framework/AI-Box_hu_dd5bef9123c22f74.jpg 480w, http://localhost:1313/p/ruc-study-framework/AI-Box_hu_3cf40d827e974d65.jpg 1024w&#34;

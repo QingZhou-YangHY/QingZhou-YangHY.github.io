@@ -7,21 +7,21 @@
         <generator>Hugo -- gohugo.io</generator>
         <language>en</language>
         <copyright>DaYang</copyright>
-        <lastBuildDate>Tue, 23 Dec 2025 14:46:00 +0800</lastBuildDate><atom:link href="http://localhost:1313/categories/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>Diary</title>
-        <link>http://localhost:1313/categories/diary/</link>
-        <pubDate>Tue, 23 Dec 2025 14:46:00 +0800</pubDate>
-        
-        <guid>http://localhost:1313/categories/diary/</guid>
-        <description>&lt;img src="http://localhost:1313/diary-category.jpg" alt="Featured image of post Diary" /&gt;</description>
-        </item>
-        <item>
+        <lastBuildDate>Mon, 19 Jan 2026 10:00:00 +0800</lastBuildDate><atom:link href="http://localhost:1313/categories/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>Notes</title>
         <link>http://localhost:1313/categories/notes/</link>
-        <pubDate>Wed, 19 Nov 2025 10:00:00 +0800</pubDate>
+        <pubDate>Mon, 19 Jan 2026 10:00:00 +0800</pubDate>
         
         <guid>http://localhost:1313/categories/notes/</guid>
         <description>&lt;img src="http://localhost:1313/notes-category.jpg" alt="Featured image of post Notes" /&gt;</description>
+        </item>
+        <item>
+        <title>Diary</title>
+        <link>http://localhost:1313/categories/diary/</link>
+        <pubDate>Mon, 15 Sep 2025 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/categories/diary/</guid>
+        <description>&lt;img src="http://localhost:1313/diary-category.jpg" alt="Featured image of post Diary" /&gt;</description>
         </item>
         <item>
         <title>RL</title>

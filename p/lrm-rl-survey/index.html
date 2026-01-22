@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="A Survey of Reinforcement Learning for Large Reasoning Models Background RL在推进LLM能力的前沿方面取得了显著成功，特别是在解决数学和编码等复杂逻辑任务方面。因此，RL已成为将LLM转化为LRM的基础方法。\n需要探索提高强化学习向人工超级智能（ASI）的可扩展性的策略。\n回顾一下大致流程吧！\n简单讲解一下RL应用到语言模型的时候，这些概念映射到了哪里 Prompt/Task（x）：对应于初始状态或环境上下文，从数据分布中提取，对应于数据集D。\nPolicy (πθ):表示语言模型，它根据提示生成一个长度为T的序列，表示为y=（y1，…，yT）。\nState (st):定义为提示以及到目前为止生成的令牌，即st=（x，a1:t−1）。\nAction (at):在步骤t从动作空间A中选择的单元。根据粒度，动作可以是整个序列y（序列级）、∈V处的令牌（令牌级）或 片段\nTransition Dynamics (P):在LLM的上下文中，状态转换通常是确定的，因为st+1=[st，at]，其中[·，·]表示字符串连接。当状态包含EOS令牌时，策略将转换为终端状态，这意味着轨迹结束。\nReward (R(x, y) or rt):基于动作粒度进行分配，例如，轨迹末端的序列级别R（x，y），每个令牌的令牌级别rt=R（x、a1:t），或每个分段的步长级别rk=R（x、y（1:k））。\nReturn (G):提示x的整个轨迹y的累积奖励（通常在有限时间内γ=1）。它通过序列级奖励简化为单个标量R（x，y），否则按每个令牌/步骤聚合奖励\nFrontier Models 按时间顺序排列在三个主要方向上：LRM、agentic LRMs和多模态LRM。\n一个大型推理模型，OpenAI的o1[2024]系列，建立了将训练时间RL和测试时间计算扩展到更强大的推理能力的有效性，在数学、编码和科学基准测试方面取得了领先成果。\nDeepSeek的旗舰模型R1[2025a]是第一个在基准测试中与o1性能相匹配的开源模型。它采用多阶段训练管道来确保全面的模型能力，并探索了没有监督微调的纯RL路线（即Zero RL）。\n其他专有模型发布紧随其后：Claude-3.7-Sonnet[2025a]以混合推理为特色，Gemini 2.0和2.5[2025]引入了更长的上下文长度，Seed Thinking 1.5[2025b]以跨领域的泛化为特色，o3[2025a]系列展示了越来越先进的推理能力。最近，OpenAI推出了他们的第一个开源推理模型gpt-oss-120b[2025a]，随后推出了GPT5[2025a]，这是他们迄今为止最强大的人工智能系统，可以在高效模型和更深入的推理模型gpt-5思维之间灵活切换。并行的开源努力继续扩大了格局。在Qwen家族中，QwQ-32B[2025g]与R1的表现相匹配，其次是Qwen3[2025a]系列，代表性型号Qwen3-235B进一步提高了基准分数。Skywork-OR1[2025d]模型套件基于R1蒸馏模型，并通过有效的数据混合和算法创新实现了可扩展的RL训练。Minimax-M1[2025a]是第一个有效地将混合注意力引入尺度RL的模型。其他作品包括Llama Nemotron Ultra[2025]，旨在平衡准确性和效率；Magistral 24B[2025]，通过RL从头开始训练，而不是从先前的模型中提炼；以及种子OSS[2025a]，强调长上下文推理能力。等等&hellip;\n">
+<title>LRM-RL-survey</title>
+
+<link rel='canonical' href='http://localhost:1313/p/lrm-rl-survey/'>
+
+<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="LRM-RL-survey">
+<meta property='og:description' content="A Survey of Reinforcement Learning for Large Reasoning Models Background RL在推进LLM能力的前沿方面取得了显著成功，特别是在解决数学和编码等复杂逻辑任务方面。因此，RL已成为将LLM转化为LRM的基础方法。\n需要探索提高强化学习向人工超级智能（ASI）的可扩展性的策略。\n回顾一下大致流程吧！\n简单讲解一下RL应用到语言模型的时候，这些概念映射到了哪里 Prompt/Task（x）：对应于初始状态或环境上下文，从数据分布中提取，对应于数据集D。\nPolicy (πθ):表示语言模型，它根据提示生成一个长度为T的序列，表示为y=（y1，…，yT）。\nState (st):定义为提示以及到目前为止生成的令牌，即st=（x，a1:t−1）。\nAction (at):在步骤t从动作空间A中选择的单元。根据粒度，动作可以是整个序列y（序列级）、∈V处的令牌（令牌级）或 片段\nTransition Dynamics (P):在LLM的上下文中，状态转换通常是确定的，因为st+1=[st，at]，其中[·，·]表示字符串连接。当状态包含EOS令牌时，策略将转换为终端状态，这意味着轨迹结束。\nReward (R(x, y) or rt):基于动作粒度进行分配，例如，轨迹末端的序列级别R（x，y），每个令牌的令牌级别rt=R（x、a1:t），或每个分段的步长级别rk=R（x、y（1:k））。\nReturn (G):提示x的整个轨迹y的累积奖励（通常在有限时间内γ=1）。它通过序列级奖励简化为单个标量R（x，y），否则按每个令牌/步骤聚合奖励\nFrontier Models 按时间顺序排列在三个主要方向上：LRM、agentic LRMs和多模态LRM。\n一个大型推理模型，OpenAI的o1[2024]系列，建立了将训练时间RL和测试时间计算扩展到更强大的推理能力的有效性，在数学、编码和科学基准测试方面取得了领先成果。\nDeepSeek的旗舰模型R1[2025a]是第一个在基准测试中与o1性能相匹配的开源模型。它采用多阶段训练管道来确保全面的模型能力，并探索了没有监督微调的纯RL路线（即Zero RL）。\n其他专有模型发布紧随其后：Claude-3.7-Sonnet[2025a]以混合推理为特色，Gemini 2.0和2.5[2025]引入了更长的上下文长度，Seed Thinking 1.5[2025b]以跨领域的泛化为特色，o3[2025a]系列展示了越来越先进的推理能力。最近，OpenAI推出了他们的第一个开源推理模型gpt-oss-120b[2025a]，随后推出了GPT5[2025a]，这是他们迄今为止最强大的人工智能系统，可以在高效模型和更深入的推理模型gpt-5思维之间灵活切换。并行的开源努力继续扩大了格局。在Qwen家族中，QwQ-32B[2025g]与R1的表现相匹配，其次是Qwen3[2025a]系列，代表性型号Qwen3-235B进一步提高了基准分数。Skywork-OR1[2025d]模型套件基于R1蒸馏模型，并通过有效的数据混合和算法创新实现了可扩展的RL训练。Minimax-M1[2025a]是第一个有效地将混合注意力引入尺度RL的模型。其他作品包括Llama Nemotron Ultra[2025]，旨在平衡准确性和效率；Magistral 24B[2025]，通过RL从头开始训练，而不是从先前的模型中提炼；以及种子OSS[2025a]，强调长上下文推理能力。等等&hellip;\n">
+<meta property='og:url' content='http://localhost:1313/p/lrm-rl-survey/'>
+<meta property='og:site_name' content='DaYang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2025-09-24T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2025-09-24T00:00:00&#43;00:00'/><meta property='og:image' content='http://localhost:1313/p/lrm-rl-survey/sky.jpg' />
+<meta name="twitter:title" content="LRM-RL-survey">
+<meta name="twitter:description" content="A Survey of Reinforcement Learning for Large Reasoning Models Background RL在推进LLM能力的前沿方面取得了显著成功，特别是在解决数学和编码等复杂逻辑任务方面。因此，RL已成为将LLM转化为LRM的基础方法。\n需要探索提高强化学习向人工超级智能（ASI）的可扩展性的策略。\n回顾一下大致流程吧！\n简单讲解一下RL应用到语言模型的时候，这些概念映射到了哪里 Prompt/Task（x）：对应于初始状态或环境上下文，从数据分布中提取，对应于数据集D。\nPolicy (πθ):表示语言模型，它根据提示生成一个长度为T的序列，表示为y=（y1，…，yT）。\nState (st):定义为提示以及到目前为止生成的令牌，即st=（x，a1:t−1）。\nAction (at):在步骤t从动作空间A中选择的单元。根据粒度，动作可以是整个序列y（序列级）、∈V处的令牌（令牌级）或 片段\nTransition Dynamics (P):在LLM的上下文中，状态转换通常是确定的，因为st+1=[st，at]，其中[·，·]表示字符串连接。当状态包含EOS令牌时，策略将转换为终端状态，这意味着轨迹结束。\nReward (R(x, y) or rt):基于动作粒度进行分配，例如，轨迹末端的序列级别R（x，y），每个令牌的令牌级别rt=R（x、a1:t），或每个分段的步长级别rk=R（x、y（1:k））。\nReturn (G):提示x的整个轨迹y的累积奖励（通常在有限时间内γ=1）。它通过序列级奖励简化为单个标量R（x，y），否则按每个令牌/步骤聚合奖励\nFrontier Models 按时间顺序排列在三个主要方向上：LRM、agentic LRMs和多模态LRM。\n一个大型推理模型，OpenAI的o1[2024]系列，建立了将训练时间RL和测试时间计算扩展到更强大的推理能力的有效性，在数学、编码和科学基准测试方面取得了领先成果。\nDeepSeek的旗舰模型R1[2025a]是第一个在基准测试中与o1性能相匹配的开源模型。它采用多阶段训练管道来确保全面的模型能力，并探索了没有监督微调的纯RL路线（即Zero RL）。\n其他专有模型发布紧随其后：Claude-3.7-Sonnet[2025a]以混合推理为特色，Gemini 2.0和2.5[2025]引入了更长的上下文长度，Seed Thinking 1.5[2025b]以跨领域的泛化为特色，o3[2025a]系列展示了越来越先进的推理能力。最近，OpenAI推出了他们的第一个开源推理模型gpt-oss-120b[2025a]，随后推出了GPT5[2025a]，这是他们迄今为止最强大的人工智能系统，可以在高效模型和更深入的推理模型gpt-5思维之间灵活切换。并行的开源努力继续扩大了格局。在Qwen家族中，QwQ-32B[2025g]与R1的表现相匹配，其次是Qwen3[2025a]系列，代表性型号Qwen3-235B进一步提高了基准分数。Skywork-OR1[2025d]模型套件基于R1蒸馏模型，并通过有效的数据混合和算法创新实现了可扩展的RL训练。Minimax-M1[2025a]是第一个有效地将混合注意力引入尺度RL的模型。其他作品包括Llama Nemotron Ultra[2025]，旨在平衡准确性和效率；Magistral 24B[2025]，通过RL从头开始训练，而不是从先前的模型中提炼；以及种子OSS[2025a]，强调长上下文推理能力。等等&hellip;\n"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='http://localhost:1313/p/lrm-rl-survey/sky.jpg' />
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/KOBE_hu_898ca0c48cea256c.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">DaYang</a></h1>
+            <h2 class="site-description">Welcome to my blog!</h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/QingZhou-YangHY'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+                    
+                        <li id="i18n-switch">  
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                            <select name="language" title="language" onchange="window.location.href = this.selectedOptions[0].value">
+                                
+                                    <option value="http://localhost:1313/" selected>English</option>
+                                
+                                    <option value="http://localhost:1313/zh-cn/" >中文</option>
+                                
+                            </select>
+                        </li>
+                    
+                
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#background">Background</a></li>
+    <li><a href="#简单讲解一下rl应用到语言模型的时候这些概念映射到了哪里">简单讲解一下RL应用到语言模型的时候，这些概念映射到了哪里</a></li>
+    <li><a href="#frontier-models">Frontier Models</a></li>
+    <li><a href="#foundational-components">Foundational Components</a>
+      <ol>
+        <li><a href="#reward-design">Reward Design</a></li>
+        <li><a href="#verifiable-rewards">Verifiable Rewards</a></li>
+        <li><a href="#rule-based-rewards">Rule-based Rewards</a></li>
+        <li><a href="#rule-based-verifier">Rule-based Verifier</a>
+          <ol>
+            <li><a href="#训练人工智能系统执行任务的难易程度与任务的可验证程度成正比">训练人工智能系统执行任务的难易程度与任务的可验证程度成正比</a></li>
+          </ol>
+        </li>
+        <li><a href="#generative-rewards">Generative Rewards</a>
+          <ol>
+            <li><a href="#这里着重说明-generative-rewards-for-non-verifiable-tasks">这里着重说明 Generative Rewards for Non-Verifiable Tasks</a></li>
+          </ol>
+        </li>
+        <li><a href="#dense-rewards">Dense Rewards</a></li>
+        <li><a href="#unsupervised-rewards">Unsupervised Rewards</a></li>
+        <li><a href="#rewards-shaping">Rewards Shaping</a></li>
+        <li><a href="#policy-optimization">Policy Optimization</a>
+          <ol>
+            <li><a href="#environmentthe-context-in-rl-for-llms">environment:the context in RL for LLMs</a></li>
+            <li><a href="#policythe-distribution-of-the-next-level-prediction">policy:the distribution of the next-level prediction</a></li>
+            <li><a href="#由于llm中的大量参数llm的rl策略优化算法大多是基于一阶梯度的算法">由于LLM中的大量参数，LLM的RL策略优化算法大多是基于一阶梯度的算法</a></li>
+          </ol>
+        </li>
+        <li><a href="#notations符号">Notations（符号）</a>
+          <ol>
+            <li><a href="#当前状态s的预期积累奖励表示为vvalue函数">当前状态s的预期积累奖励表示为V（value）函数</a></li>
+            <li><a href="#当前状态动作对应的预期积累表示为qquality函数">当前状态动作对应的预期积累表示为Q（quality）函数</a></li>
+            <li><a href="#优势函数as-a--qs-a--v-s该优势衡量的是与现有政策相比当前行动在预期总回报方面有多大改进">优势函数：A(s, a) = Q(s, a) − V (s).该优势衡量的是与现有政策相比，当前行动在预期总回报方面有多大改进。</a></li>
+          </ol>
+        </li>
+        <li><a href="#优化算法的历程">优化算法的历程</a></li>
+        <li><a href="#critic-based-algorithms">Critic-based Algorithms</a></li>
+        <li><a href="#critic-free-algorithms">Critic-Free Algorithms</a>
+          <ol>
+            <li><a href="#importance-sampling-for-policy-optimization">Importance Sampling for Policy Optimization</a></li>
+          </ol>
+        </li>
+        <li><a href="#off-policy-optimization">Off-policy Optimization</a></li>
+        <li><a href="#regularization-objectives">Regularization Objectives</a></li>
+        <li><a href="#sampling-hyper-parameters">Sampling Hyper-parameters</a>
+          <ol>
+            <li><a href="#exploration-and-exploitation-dynamics">Exploration and Exploitation Dynamics</a></li>
+            <li><a href="#length-budgeting-and-sequence-management">Length Budgeting and Sequence Management</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#foundational-problems">Foundational Problems</a>
+      <ol>
+        <li><a href="#rls-role-sharpening-or-discovery">RL’s Role: Sharpening or Discovery</a></li>
+        <li><a href="#rl-vs-sft-generalize-or-memorize">RL vs. SFT: Generalize or Memorize</a></li>
+        <li><a href="#model-prior-weak-and-strong">Model Prior: Weak and Strong</a>
+          <ol>
+            <li><a href="#model-family-differences">Model Family Differences</a></li>
+          </ol>
+        </li>
+        <li><a href="#reward-type-process-or-outcome">Reward Type: Process or Outcome</a></li>
+      </ol>
+    </li>
+    <li><a href="#training-resources">Training Resources</a>
+      <ol>
+        <li><a href="#static-corpus">Static Corpus</a></li>
+        <li><a href="#rl-infrastructure--framework">RL Infrastructure &amp; Framework</a></li>
+        <li><a href="#dynamic-environment">Dynamic Environment</a></li>
+        <li><a href="#applications">Applications</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/lrm-rl-survey/">
+                <img src="/p/lrm-rl-survey/sky_hu_d9d59f4b6d90d2aa.jpg"
+                        srcset="/p/lrm-rl-survey/sky_hu_d9d59f4b6d90d2aa.jpg 800w, /p/lrm-rl-survey/sky_hu_9f404a35457831ec.jpg 1600w"
+                        width="800" 
+                        height="674" 
+                        loading="lazy"
+                        alt="Featured image of post LRM-RL-survey" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/notes/" style="background-color: #457b9d; color: #fff;">
+                Notes
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/lrm-rl-survey/">LRM-RL-survey</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Sep 24, 2025</time>
+            </div>
+        
+
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h1 id="a-survey-of-reinforcement-learning-for-large-reasoning-models">A Survey of Reinforcement Learning for Large Reasoning Models
+</h1><h2 id="background">Background
+</h2><p>RL在推进LLM能力的前沿方面取得了显著成功，特别是在解决数学和编码等复杂逻辑任务方面。因此，RL已成为将LLM转化为LRM的基础方法。</p>
+<p>需要探索提高强化学习向人工超级智能（ASI）的可扩展性的策略。</p>
+<p><img src="/p/lrm-rl-survey/history.jpg"
+	width="1313"
+	height="621"
+	srcset="/p/lrm-rl-survey/history_hu_fd91b4e2f759ffa.jpg 480w, /p/lrm-rl-survey/history_hu_493c3c9057a75b6c.jpg 1024w"
+	loading="lazy"
+	
+		alt="这两年的发展"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="211"
+		data-flex-basis="507px"
+	
+></p>
+<p><img src="/p/lrm-rl-survey/overview.jpg"
+	width="1304"
+	height="615"
+	srcset="/p/lrm-rl-survey/overview_hu_5f42649c3469429c.jpg 480w, /p/lrm-rl-survey/overview_hu_9c488682e473c029.jpg 1024w"
+	loading="lazy"
+	
+		alt="具体包含的模块"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="212"
+		data-flex-basis="508px"
+	
+></p>
+<p>回顾一下大致流程吧！</p>
+<p><img src="/p/lrm-rl-survey/agentProgress.jpg"
+	width="762"
+	height="339"
+	srcset="/p/lrm-rl-survey/agentProgress_hu_4d7c597a2ebaeebd.jpg 480w, /p/lrm-rl-survey/agentProgress_hu_b9f415b03c60b5a9.jpg 1024w"
+	loading="lazy"
+	
+		alt="agentProgress"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="224"
+		data-flex-basis="539px"
+	
+></p>
+<p><img src="/p/lrm-rl-survey/LMProgress.jpg"
+	width="479"
+	height="394"
+	srcset="/p/lrm-rl-survey/LMProgress_hu_1f5e4f08ac92e4f2.jpg 480w, /p/lrm-rl-survey/LMProgress_hu_7cd98ff41913c5e4.jpg 1024w"
+	loading="lazy"
+	
+		alt="LMProgress"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="121"
+		data-flex-basis="291px"
+	
+></p>
+<h2 id="简单讲解一下rl应用到语言模型的时候这些概念映射到了哪里">简单讲解一下RL应用到语言模型的时候，这些概念映射到了哪里
+</h2><ul>
+<li>
+<p>Prompt/Task（x）：对应于初始状态或环境上下文，从数据分布中提取，对应于数据集D。</p>
+</li>
+<li>
+<p>Policy (πθ):表示语言模型，它根据提示生成一个长度为T的序列，表示为y=（y1，…，yT）。</p>
+</li>
+<li>
+<p>State (st):定义为提示以及到目前为止生成的令牌，即st=（x，a1:t−1）。</p>
+</li>
+<li>
+<p>Action (at):在步骤t从动作空间A中选择的单元。根据粒度，动作可以是整个序列y（序列级）、∈V处的令牌（令牌级）或 片段</p>
+</li>
+<li>
+<p>Transition Dynamics (P):在LLM的上下文中，状态转换通常是确定的，因为st+1=[st，at]，其中[·，·]表示字符串连接。当状态包含EOS令牌时，策略将转换为终端状态，这意味着轨迹结束。</p>
+</li>
+<li>
+<p>Reward (R(x, y) or rt):基于动作粒度进行分配，例如，轨迹末端的序列级别R（x，y），每个令牌的令牌级别rt=R（x、a1:t），或每个分段的步长级别rk=R（x、y（1:k））。</p>
+</li>
+<li>
+<p>Return (G):提示x的整个轨迹y的累积奖励（通常在有限时间内γ=1）。它通过序列级奖励简化为单个标量R（x，y），否则按每个令牌/步骤聚合奖励</p>
+</li>
+</ul>
+<h2 id="frontier-models">Frontier Models
+</h2><p>按时间顺序排列在三个主要方向上：LRM、agentic LRMs和多模态LRM。<br>
+一个大型推理模型，OpenAI的o1[2024]系列，建立了将训练时间RL和测试时间计算扩展到更强大的推理能力的有效性，在数学、编码和科学基准测试方面取得了领先成果。<br>
+DeepSeek的旗舰模型R1[2025a]是第一个在基准测试中与o1性能相匹配的开源模型。它采用多阶段训练管道来确保全面的模型能力，并探索了没有监督微调的纯RL路线（即Zero RL）。<br>
+其他专有模型发布紧随其后：Claude-3.7-Sonnet[2025a]以混合推理为特色，Gemini 2.0和2.5[2025]引入了更长的上下文长度，Seed Thinking 1.5[2025b]以跨领域的泛化为特色，o3[2025a]系列展示了越来越先进的推理能力。最近，OpenAI推出了他们的第一个开源推理模型gpt-oss-120b[2025a]，随后推出了GPT5[2025a]，这是他们迄今为止最强大的人工智能系统，可以在高效模型和更深入的推理模型gpt-5思维之间灵活切换。并行的开源努力继续扩大了格局。在Qwen家族中，QwQ-32B[2025g]与R1的表现相匹配，其次是Qwen3[2025a]系列，代表性型号Qwen3-235B进一步提高了基准分数。Skywork-OR1[2025d]模型套件基于R1蒸馏模型，并通过有效的数据混合和算法创新实现了可扩展的RL训练。Minimax-M1[2025a]是第一个有效地将混合注意力引入尺度RL的模型。其他作品包括Llama Nemotron Ultra[2025]，旨在平衡准确性和效率；Magistral 24B[2025]，通过RL从头开始训练，而不是从先前的模型中提炼；以及种子OSS[2025a]，强调长上下文推理能力。等等&hellip;</p>
+<p>过去的一年发展迅速啊！</p>
+<p><img src="/p/lrm-rl-survey/models.jpg"
+	width="1297"
+	height="677"
+	srcset="/p/lrm-rl-survey/models_hu_8b9f390b6a5af111.jpg 480w, /p/lrm-rl-survey/models_hu_2544bbbdc362202a.jpg 1024w"
+	loading="lazy"
+	
+		alt="models"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="191"
+		data-flex-basis="459px"
+	
+></p>
+<hr>
+<h2 id="foundational-components">Foundational Components
+</h2><h3 id="reward-design">Reward Design
+</h3><p>在1.1中，我们对LRM RL中的奖励设计进行了全面的考察。从可验证的奖励开始，DeepSeek-R1的成功就是例证，它通过可验证的奖励机制证明了RL的可扩展性。</p>
+<p>在1.2中，我们考察生成性奖励，其中模型用于验证或直接生成奖励信号。</p>
+<p>然而，可验证和生成性奖励通常都表示为稀疏的数值反馈。一个重要的互补维度在于奖励信号的密度。</p>
+<p>1.3相应地考察了包含密集奖励的方法。另一个分类轴涉及奖励是根据外部真实情况计算的，还是由模型直接估计的。</p>
+<p>这一区别促使我们在1.4中讨论无监督奖励。</p>
+<p>在这四个类别的基础上，我们在1.5中转向奖励塑造，在那里我们分析了组合或转换不同奖励信号以促进学习的策略。</p>
+<h3 id="verifiable-rewards">Verifiable Rewards
+</h3><p>基于规则的奖励通过利用准确性和格式检查，为RL提供可扩展和可靠的训练信号，特别是在数学和代码任务中。</p>
+<p>Verifier定律强调，具有清晰和自动验证的任务可以实现高效的RL优化，而主观任务仍然具有挑战性。</p>
+<h3 id="rule-based-rewards">Rule-based Rewards
+</h3><ul>
+<li>
+<p>Accuracy rewards:对于具有确定性结果的任务（例如数学），策略必须在规定的分隔符（通常为\boxed{…}）内产生最终解决方案。然后，自动检查器将此输出与地面实况进行比较。对于编码任务，单元测试或编译器提供通过/失败信号</p>
+</li>
+<li>
+<p>Format rewards:这些奖励施加了一个结构约束，要求模型将其私有思想链放置在<think>和</inthink>之间，并在单独的字段中输出最终答案（例如<answer>…</answer>）。这提高了大规模RL中的可靠解析和验证</p>
+</li>
+</ul>
+<h3 id="rule-based-verifier">Rule-based Verifier
+</h3><p>基于规则的奖励通常来自基于规则的验证器。这些依赖于大量手动编写的等价规则来确定预测的答案是否与基本事实相匹配。目前，广泛使用的数学验证器主要基于Python库Math-Verify1和SymPy2构建。此外，一些作品，如DAPO[2025d]和DeepScaleR[2025c]，也提供了开源和成熟的验证器。最近，Huang等人[2025e]强调了与基于规则和基于模型的验证器相关的独特局限性，为设计更可靠的奖励系统提供了信息。</p>
+<h4 id="训练人工智能系统执行任务的难易程度与任务的可验证程度成正比">训练人工智能系统执行任务的难易程度与任务的可验证程度成正比
+</h4><h3 id="generative-rewards">Generative Rewards
+</h3><h4 id="这里着重说明-generative-rewards-for-non-verifiable-tasks">这里着重说明 Generative Rewards for Non-Verifiable Tasks
+</h4><ul>
+<li>
+<p>Reasoning Reward Models (Learning to Think)</p>
+</li>
+<li>
+<p>Rubric-based Rewards (Structuring Subjectivity)：强调细粒度奖励</p>
+</li>
+<li>
+<p>Co-Evolving Systems (Unifying Policy and Reward):</p>
+<ul>
+<li>
+<p>Self-Rewarding：自我奖励，一个模型既充当policy model，也充当reward model</p>
+</li>
+<li>
+<p>Co-Optimization：policy和reward模型共同训练</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="dense-rewards">Dense Rewards
+</h3><p>dense rewards 和 verifiers对于open-domain还是太难了</p>
+<p>Scaling remains challenging for tasks like open-domain text generation due to the difficulty of defining dense rewards or using verifiers.</p>
+<p>Granularity细粒度分为：Trajectory（整个序列），Token，Step，Turn（Agent）<br>
+这几个信号可以相互转换，比如把globa returns 转换成 localized signals，奖励的重新分配<br>
+可以理解为从每次交互中直接分配和从结果中分解得出的回合级别奖励</p>
+<h3 id="unsupervised-rewards">Unsupervised Rewards
+</h3><p>cluster：聚类（也有集群的意思）</p>
+<p>majority vote：多数投票</p>
+<p>Heuristic Rewards（启发式奖励）：这种方法构成了另一种基于规则的奖励形式，采用基于输出属性（如长度或格式）的简单预定义规则作为质量的代理。由DeepSeek-R1开创。不会提高模型真正能力？（质疑）</p>
+<h3 id="rewards-shaping">Rewards Shaping
+</h3><p>Rewards Shaping将稀疏信号丰富为稳定的、信息丰富的梯度，用于LLM训练</p>
+<ul>
+<li>
+<p>Rule-based Reward Shaping<br>
+最简单的：把rule-based verifier和reward model组合起来生成overall reward signal。通常有一个constant coefficient平衡the contributions of the reward model and the rule-based component，不是所有正确的responses都是同样的scores，这样可以把所有的responses重新排序，避免无效的学习梯度</p>
+<p>这种启发式组合策略在开放域任务中得到了广泛的应用，提供了更多的信息和有效的奖励信号。</p>
+<p>另一种方法是DeepSeek-R1中实现结果级奖励和格式奖励，能让LLM学习长思维链推理，用于解决LLM输出中的各种异常。</p>
+</li>
+<li>
+<p>Structure-based Reward Shaping
+Pass@k在推导和分析优势和有效近似值时，将集合级目标分解回单个样本信用分配。</p>
+</li>
+</ul>
+<h3 id="policy-optimization">Policy Optimization
+</h3><p>最近的研究把on-policy RL和offline datasets结合在一起来进行optimization同时使用各种regularization techniques（正则化技术）比如entropy和KL防止overfitting</p>
+<h4 id="environmentthe-context-in-rl-for-llms">environment:the context in RL for LLMs
+</h4><h4 id="policythe-distribution-of-the-next-level-prediction">policy:the distribution of the next-level prediction
+</h4><h4 id="由于llm中的大量参数llm的rl策略优化算法大多是基于一阶梯度的算法">由于LLM中的大量参数，LLM的RL策略优化算法大多是基于一阶梯度的算法
+</h4><h3 id="notations符号">Notations（符号）
+</h3><h4 id="当前状态s的预期积累奖励表示为vvalue函数">当前状态s的预期积累奖励表示为V（value）函数
+</h4><h4 id="当前状态动作对应的预期积累表示为qquality函数">当前状态动作对应的预期积累表示为Q（quality）函数
+</h4><h4 id="优势函数as-a--qs-a--v-s该优势衡量的是与现有政策相比当前行动在预期总回报方面有多大改进">优势函数：A(s, a) = Q(s, a) − V (s).该优势衡量的是与现有政策相比，当前行动在预期总回报方面有多大改进。
+</h4><h3 id="优化算法的历程">优化算法的历程
+</h3><p>PPO算法[Schulman等人，2017b]首次被提出作为TRPO算法[Schurman等人，2015a]的计算高效近似。<br>
+<img src="/p/lrm-rl-survey/algorithm.jpg"
+	width="1161"
+	height="795"
+	srcset="/p/lrm-rl-survey/algorithm_hu_ab70d2da1d0a05a6.jpg 480w, /p/lrm-rl-survey/algorithm_hu_bddcdd47c9c7c11e.jpg 1024w"
+	loading="lazy"
+	
+		alt="algorithm"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="146"
+		data-flex-basis="350px"
+	
+></p>
+<h3 id="critic-based-algorithms">Critic-based Algorithms
+</h3><p>critic需要和LLM一起run和update，这样会导致巨大的计算开销，而且对于复杂的任务来说，扩展性不好</p>
+<h3 id="critic-free-algorithms">Critic-Free Algorithms
+</h3><p>只需要sequence-level rewards for training</p>
+<p>对于RLVR任务可以防止reward hacking等问题，这使得Critic-Free Algorithms更具有可扩展性</p>
+<p>最近的研究表明response-level足以用于RL的可扩展推理任务</p>
+<p>最受欢迎的critic-free approach是GRPO，新推出的GSPO[Zheng等人，2025a]，用序列级剪切代替了逐符号剪切的重要性采样率</p>
+<p>SPO引入了一种无组、单流策略优化，用持久的KL自适应值跟踪器和全局优势归一化来替换每组基线，从而产生比GRPO更平滑的收敛和更高的精度</p>
+<h4 id="importance-sampling-for-policy-optimization">Importance Sampling for Policy Optimization
+</h4><p>TRPO引入了RL中重要性抽样的第一个版本，其中在目标中引入了令牌式重要性比wi，t<br>
+这种方法在最近的工作中被广泛采用，如GRPO。由于无法在CoT的长上下文中有效计算实际分布比率，因此这种方法仅限于token-level重要性比率</p>
+<p>token-level重要性采样在RL算法中引入了另一种偏差，因为实际采样分布给定的策略是针对状态-动作对定义的，而token-level方法只考虑当前动作。GMPO[赵等人，2025f]通过引入几何平均来寻求缓解，以提高具有极端重要性采样率的token的训练鲁棒性</p>
+<p>在GSPO的最新工作中[Zheng等人，2025a]，计算了序列级重要性抽样因子。GSPO添加了一个唯一的归一化因子，以确保可以计算概率比，但这种方法也是对实际重要性抽样因子的有偏估计</p>
+<h3 id="off-policy-optimization">Off-policy Optimization
+</h3><p>Off-policy RL通过把data collection 和 policy learning解耦，实现了从历史、异步或离线数据集进行训练，从而提高了样本效率</p>
+<p>选择性地replay 早期的推理traces可以提高exploration for LLM reasoning</p>
+<p>现在很多都在对数据进行处理来提升exploration</p>
+<h3 id="regularization-objectives">Regularization Objectives
+</h3><p>Objective-specific regularization helps balance explration and exploitation,boosting RL effiency and policy performance.</p>
+<p>KL,entropy and length regularization remain open questions,each affects policy optimization and scalability</p>
+<p>Length Penalty建议应用基于问题难度的自适应长度惩罚来保持模型的能力</p>
+<h3 id="sampling-hyper-parameters">Sampling Hyper-parameters
+</h3><h4 id="exploration-and-exploitation-dynamics">Exploration and Exploitation Dynamics
+</h4><p>一些工作提出了一种动态方法，例如分阶段提高温度(e.g., 1.40 → 1.45 → 1.50 for a 4B model, 0.7 → 1.0 → 1.1 for a 7B model)</p>
+<p>entropy 在0.3被发现是最佳平衡</p>
+<p>其他的工作只是倡导提高一个固定的温度（例如1.0或1.2）来鼓励初步探索，同时指出它本身不足以防止长期的熵下降</p>
+<h4 id="length-budgeting-and-sequence-management">Length Budgeting and Sequence Management
+</h4><p>几乎所有的work都在努力管理生成响应的长度，以平衡性能和成本。</p>
+<ul>
+<li>This involves starting RL with a short context window (e.g., 8k) before progressively increasing it to 16k, 24k, or 32k in later stages</li>
+</ul>
+<p>初始的短上下文阶段被认为是必不可少的，因为它迫使模型学习更简洁、更具令牌效率的推理模式</p>
+<h2 id="foundational-problems">Foundational Problems
+</h2><h3 id="rls-role-sharpening-or-discovery">RL’s Role: Sharpening or Discovery
+</h3><h3 id="rl-vs-sft-generalize-or-memorize">RL vs. SFT: Generalize or Memorize
+</h3><p>发现RL擅长巩固和增强现有能力，而SFT在引入新知识或新模型能力方面更有效</p>
+<h3 id="model-prior-weak-and-strong">Model Prior: Weak and Strong
+</h3><ul>
+<li>
+<p>R1-Zero：直接将大规模基于规则的RL应用于基本模型，产生新兴的长期推理</p>
+</li>
+<li>
+<p>R1：包含冷启动</p>
+</li>
+</ul>
+<p>基础模型先验比指导模型更适合强化学习，通常会产生比从高度一致的指导模型开始时观察到的更平滑的改进轨迹，其中根深蒂固的格式和服从先验可能会干扰奖励的形成</p>
+<h4 id="model-family-differences">Model Family Differences
+</h4><h3 id="reward-type-process-or-outcome">Reward Type: Process or Outcome
+</h3><h2 id="training-resources">Training Resources
+</h2><h3 id="static-corpus">Static Corpus
+</h3><ul>
+<li>
+<p>Math</p>
+</li>
+<li>
+<p>Code</p>
+</li>
+<li>
+<p>STEM</p>
+</li>
+<li>
+<p>Agent</p>
+</li>
+<li>
+<p>Mixture</p>
+</li>
+</ul>
+<h3 id="rl-infrastructure--framework">RL Infrastructure &amp; Framework
+</h3><p>e.g.OpenRLHF/veRL/AReaL/slime/TRL</p>
+<h3 id="dynamic-environment">Dynamic Environment
+</h3><ul>
+<li>
+<p>Rule</p>
+</li>
+<li>
+<p>Code</p>
+</li>
+<li>
+<p>Game</p>
+</li>
+<li>
+<p>Model</p>
+</li>
+<li>
+<p>Ensemble</p>
+</li>
+</ul>
+<h3 id="applications">Applications
+</h3><ul>
+<li>
+<p>1.Agentic Tasks</p>
+</li>
+<li>
+<p>2.Coding Tasks</p>
+</li>
+<li>
+<p>3.Multimodal Tasks</p>
+</li>
+<li>
+<p>4.Robotics Tasks</p>
+</li>
+<li>
+<p>5.Multi-Agent Systems</p>
+</li>
+<li>
+<p>6.Medical Tasks</p>
+</li>
+</ul>
+<hr>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/p/nlp/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">NLP</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/sjtu-research-intern/">
+        
+        
+            <div class="article-image">
+                <img src="/p/sjtu-research-intern/SJTU.a646047ad7c64afeed5d2be2fa5870be_hu_a70bed7b28ca1894.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post SJTU-research-intern"
+                        
+                        data-hash="md5-pkYEetfGSv7tXSvi&#43;lhwvg==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">SJTU-research-intern</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/verl%E5%AD%A6%E4%B9%A0/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">veRL学习</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/flash-attention%E5%AE%89%E8%A3%85%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E5%8F%8A%E5%85%B6%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Flash-Attention安装常见问题及其解决方案</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/ray%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%AD%E7%BB%83%E5%9B%A0%E8%BF%9B%E7%A8%8B%E8%80%97%E5%B0%BD%E5%AF%BC%E8%87%B4ssh%E6%96%AD%E5%BC%80%E8%BF%9E%E6%8E%A5/">
+        
+        
+            <div class="article-image">
+                <img src="/p/ray%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%AD%E7%BB%83%E5%9B%A0%E8%BF%9B%E7%A8%8B%E8%80%97%E5%B0%BD%E5%AF%BC%E8%87%B4ssh%E6%96%AD%E5%BC%80%E8%BF%9E%E6%8E%A5/Ray.c64a43cfcd8e30845b7034d2be973cdf_hu_39e0cf0a02b216da.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post Ray分布式训练因进程耗尽导致SSH断开连接"
+                        
+                        data-hash="md5-xkpDz82OMIRbcDTSvpc83w==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Ray分布式训练因进程耗尽导致SSH断开连接</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2025 - 
+        
+        2026 DaYang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.31.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.8c084058b40befe06689a879f198241d129be0572f9b5a66862385dd362c5e22.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

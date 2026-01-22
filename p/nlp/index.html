@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="How LLMs Work">
+<title>NLP</title>
+
+<link rel='canonical' href='http://localhost:1313/p/nlp/'>
+
+<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="NLP">
+<meta property='og:description' content="How LLMs Work">
+<meta property='og:url' content='http://localhost:1313/p/nlp/'>
+<meta property='og:site_name' content='DaYang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2026-01-19T10:00:00&#43;08:00'/><meta property='article:modified_time' content='2026-01-19T10:00:00&#43;08:00'/>
+<meta name="twitter:title" content="NLP">
+<meta name="twitter:description" content="How LLMs Work">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/KOBE_hu_898ca0c48cea256c.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">DaYang</a></h1>
+            <h2 class="site-description">Welcome to my blog!</h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/QingZhou-YangHY'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+                    
+                        <li id="i18n-switch">  
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                            <select name="language" title="language" onchange="window.location.href = this.selectedOptions[0].value">
+                                
+                                    <option value="http://localhost:1313/" selected>English</option>
+                                
+                                    <option value="http://localhost:1313/zh-cn/" >中文</option>
+                                
+                            </select>
+                        </li>
+                    
+                
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#生成式人工智慧與機器學習導論2025第3講解剖大型語言模型representation">【生成式人工智慧與機器學習導論2025】第3講：解剖大型語言模型representation</a>
+      <ol>
+        <li><a href="#logit-lens">Logit Lens</a></li>
+        <li><a href="#patchscopes">Patchscopes</a></li>
+        <li><a href="#layer解读使用transformer架构的解读">Layer解读（使用Transformer架构的解读）</a>
+          <ol>
+            <li><a href="#positional-embedding">Positional Embedding</a></li>
+            <li><a href="#multi-head-attention">Multi-head Attention</a></li>
+          </ol>
+        </li>
+        <li><a href="#实做环节">实做环节</a></li>
+      </ol>
+    </li>
+    <li><a href="#一文看懂大模型推理过程">一文看懂大模型推理过程</a>
+      <ol>
+        <li><a href="#ttfttime-to-first-token">TTFT（Time To First Token）</a></li>
+        <li><a href="#tpottime-per-output-token">TPOT（Time Per Output Token）</a></li>
+        <li><a href="#itlinference-time-latency">ITL（Inference Time Latency）</a></li>
+      </ol>
+    </li>
+    <li><a href="#engram">Engram</a></li>
+    <li><a href="#微调技术">微调技术</a></li>
+    <li><a href="#the-big-llm-architecture-comparison">The Big LLM Architecture Comparison</a></li>
+    <li><a href="#understanding-reasoning-llms">Understanding Reasoning LLMs</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/notes/" style="background-color: #457b9d; color: #fff;">
+                Notes
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/nlp/">NLP</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            How LLMs Work
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jan 19, 2026</time>
+            </div>
+        
+
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="生成式人工智慧與機器學習導論2025第3講解剖大型語言模型representation">【生成式人工智慧與機器學習導論2025】第3講：解剖大型語言模型representation
+</h2><p><a class="link" href="https://www.youtube.com/watch?v=Xnil63UDW2o"  target="_blank" rel="noopener"
+    >https://www.youtube.com/watch?v=Xnil63UDW2o</a></p>
+<p>Token Embedding 是在Layer 1输入的那个， Contextualized Embedding(也就是我们说的representation表征) 指的是经过Layer 1输出的那个.</p>
+<p>Representation Engineering, Activation Engineering, Activating Steering&hellip;</p>
+<h3 id="logit-lens">Logit Lens
+</h3><p>对每一层进行 Unembedding ,可以看每一层的思考所对应的文字，窥探语言模型的思考过程</p>
+<h3 id="patchscopes">Patchscopes
+</h3><p>把一个向量（一个token/字）替换成一句话</p>
+<h3 id="layer解读使用transformer架构的解读">Layer解读（使用Transformer架构的解读）
+</h3><p>Layer 中还有 Layer.</p>
+<p>首先过 Self-attention Layer (attention layer), 考虑上下文就是因为 attention layer, 输出经过几个 Feed Forward Layer</p>
+<p>典中典，要求手撕 Attention Layer ,</p>
+<p>自己跟自己也要进行dot product</p>
+<p>dot product 叫 Attention weight, 要所有的 weight 过 Softmax</p>
+<h4 id="positional-embedding">Positional Embedding
+</h4><p>Llama 用 Rope , 旋转位置编码, 为了把位置的咨询加入到计算中</p>
+<h4 id="multi-head-attention">Multi-head Attention
+</h4><p>每一个 head 的作用不一样
+<img src="/p/nlp/head1.png"
+	width="1920"
+	height="1080"
+	srcset="/p/nlp/head1_hu_5c2f61de8fa1895a.png 480w, /p/nlp/head1_hu_7082b3b93c16b72d.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="177"
+		data-flex-basis="426px"
+	
+></p>
+<p><img src="/p/nlp/head2.png"
+	width="1920"
+	height="1080"
+	srcset="/p/nlp/head2_hu_83133a53ace293d4.png 480w, /p/nlp/head2_hu_55132687d139d9b4.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="177"
+		data-flex-basis="426px"
+	
+></p>
+<p><img src="/p/nlp/head_sum.png"
+	width="1920"
+	height="1080"
+	srcset="/p/nlp/head_sum_hu_e51fd46eca1988c9.png 480w, /p/nlp/head_sum_hu_4be7b5a6e054e9f4.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="177"
+		data-flex-basis="426px"
+	
+></p>
+<p>目前的语言模型大多数都是 Causal Attention, 这样计算方便(Autogressive)</p>
+<p><img src="/p/nlp/neuron.png"
+	width="1920"
+	height="1080"
+	srcset="/p/nlp/neuron_hu_4bcc0684b5ad4793.png 480w, /p/nlp/neuron_hu_3fd78a0647b41cb5.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="177"
+		data-flex-basis="426px"
+	
+></p>
+<h3 id="实做环节">实做环节
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">model.num_parameters()会告诉我们 model 的参数量
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>深度学习模型的参数通常以多个矩阵 (Matrix) 和向量 (Vector) 的形式存储。向量、矩阵等统称为张量(Tensor)</p>
+<p>Llama3 有28层，Gemma4B 有44层</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">model.state_dict() 可以实际把参数拿出来看看
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="一文看懂大模型推理过程">一文看懂大模型推理过程
+</h2><p>内容特别简单，适合感兴趣的小白简单阅读<br>
+<a class="link" href="https://zhuanlan.zhihu.com/p/1931115470431454357"  target="_blank" rel="noopener"
+    >https://zhuanlan.zhihu.com/p/1931115470431454357</a></p>
+<h3 id="ttfttime-to-first-token">TTFT（Time To First Token）
+</h3><p>Tokenizer + Prefill</p>
+<p>一般是推理过程里耗时最多的一步，尤其当输入内容多、模型参数大时</p>
+<h3 id="tpottime-per-output-token">TPOT（Time Per Output Token）
+</h3><p>Decoding Loop中的每一次推理</p>
+<p>模型每“说”一个字/词的时间<br>
+TPOT 越低，响应越流畅。<br>
+但模型越大，TPOT 越高；<br>
+GPU 负载越高、token越复杂，TPOT 也会变慢。</p>
+<h3 id="itlinference-time-latency">ITL（Inference Time Latency）
+</h3><p>Tokenizer + Prefill + Decoding Loop + Post-processing</p>
+<p>ITL = 从你提问到回答完整输出的总耗时。</p>
+<p>它 = TTFT + n × TPOT</p>
+<h2 id="engram">Engram
+</h2><p><a class="link" href="https://zhuanlan.zhihu.com/p/1994328242795090231"  target="_blank" rel="noopener"
+    >https://zhuanlan.zhihu.com/p/1994328242795090231</a></p>
+<h2 id="微调技术">微调技术
+</h2><p><a class="link" href="https://zhuanlan.zhihu.com/p/636481171"  target="_blank" rel="noopener"
+    >https://zhuanlan.zhihu.com/p/636481171</a></p>
+<h2 id="the-big-llm-architecture-comparison">The Big LLM Architecture Comparison
+</h2><p><a class="link" href="https://magazine.sebastianraschka.com/p/the-big-llm-architecture-comparison"  target="_blank" rel="noopener"
+    >https://magazine.sebastianraschka.com/p/the-big-llm-architecture-comparison</a></p>
+<h2 id="understanding-reasoning-llms">Understanding Reasoning LLMs
+</h2><p><a class="link" href="https://magazine.sebastianraschka.com/p/understanding-reasoning-llms"  target="_blank" rel="noopener"
+    >https://magazine.sebastianraschka.com/p/understanding-reasoning-llms</a></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/p/sjtu-research-intern/">
+        
+        
+            <div class="article-image">
+                <img src="/p/sjtu-research-intern/SJTU.a646047ad7c64afeed5d2be2fa5870be_hu_a70bed7b28ca1894.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post SJTU-research-intern"
+                        
+                        data-hash="md5-pkYEetfGSv7tXSvi&#43;lhwvg==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">SJTU-research-intern</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/verl%E5%AD%A6%E4%B9%A0/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">veRL学习</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/flash-attention%E5%AE%89%E8%A3%85%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E5%8F%8A%E5%85%B6%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Flash-Attention安装常见问题及其解决方案</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/ray%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%AD%E7%BB%83%E5%9B%A0%E8%BF%9B%E7%A8%8B%E8%80%97%E5%B0%BD%E5%AF%BC%E8%87%B4ssh%E6%96%AD%E5%BC%80%E8%BF%9E%E6%8E%A5/">
+        
+        
+            <div class="article-image">
+                <img src="/p/ray%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%AD%E7%BB%83%E5%9B%A0%E8%BF%9B%E7%A8%8B%E8%80%97%E5%B0%BD%E5%AF%BC%E8%87%B4ssh%E6%96%AD%E5%BC%80%E8%BF%9E%E6%8E%A5/Ray.c64a43cfcd8e30845b7034d2be973cdf_hu_39e0cf0a02b216da.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post Ray分布式训练因进程耗尽导致SSH断开连接"
+                        
+                        data-hash="md5-xkpDz82OMIRbcDTSvpc83w==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Ray分布式训练因进程耗尽导致SSH断开连接</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/still3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">STILL3</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2025 - 
+        
+        2026 DaYang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.31.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.8c084058b40befe06689a879f198241d129be0572f9b5a66862385dd362c5e22.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>
