@@ -7,7 +7,50 @@
         <generator>Hugo -- gohugo.io</generator>
         <language>en</language>
         <copyright>DaYang</copyright>
-        <lastBuildDate>Mon, 19 Jan 2026 10:00:00 +0800</lastBuildDate><atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Thu, 22 Jan 2026 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>veRL</title>
+        <link>http://localhost:1313/p/verl/</link>
+        <pubDate>Thu, 22 Jan 2026 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/p/verl/</guid>
+        <description>&lt;h2 id=&#34;verl框架入门&#34;&gt;veRL框架入门
+&lt;/h2&gt;&lt;h3 id=&#34;使用方法快速上手&#34;&gt;使用方法/快速上手
+&lt;/h3&gt;&lt;p&gt;知乎上收藏了一些轮椅教程，不能真正提升能力&lt;br&gt;
+代码就是基础，把一个模糊想法变成能跑、能扩、能复现、能解释的系统——执行力是硬通货&lt;br&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://zhuanlan.zhihu.com/p/24682036412&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;HybridFlow / veRL 原文浅析&lt;/a&gt;很干，对system理解有很大帮助&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://zhuanlan.zhihu.com/p/27676081245&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;[AI Infra] VeRL 框架入门&amp;amp;代码带读&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://zhuanlan.zhihu.com/p/30876678559&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;从零开始的verl框架解析&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&#34;deepspeed&#34;&gt;DeepSpeed
+&lt;/h3&gt;&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://huggingface.co/docs/transformers/deepspeed&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;DeepSpeed官方文档&lt;/a&gt;👈官方文档&lt;br&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://www.deepspeed.ai/docs/config-json/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;DeepSpeed配置JSON&lt;/a&gt;👈使用只需要JSON配置文件&lt;br&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://www.youtube.com/watch?v=mpuRca2UZtI&amp;amp;t=2925s&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;【利用多張GPU訓練大型語言模型】 - YouTube&lt;/a&gt;👈李宏毅老师YouTube视频讲解（约一个小时）&lt;br&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://huggingface.co/spaces/nanotron/ultrascale-playbook&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;The Ultra-Scale Playbook:Training LLMs on GPU Clusters&lt;/a&gt;👈并行训练高质参考资料&lt;/p&gt;
+&lt;h4 id=&#34;hugging-face经常有高质量实验总结可以多关注一下&#34;&gt;hugging face经常有高质量实验总结，可以多关注一下
+&lt;/h4&gt;&lt;h4 id=&#34;batch-size-related-parameters&#34;&gt;Batch Size Related Parameters
+&lt;/h4&gt;&lt;p&gt;&lt;strong&gt;train_batch_size&lt;/strong&gt; = &lt;strong&gt;train_micro_batch_size_per_gpu&lt;/strong&gt; * &lt;strong&gt;gradient_accumulation_steps&lt;/strong&gt; * &lt;strong&gt;number of GPUs&lt;/strong&gt;&lt;/p&gt;
+&lt;h4 id=&#34;train_batch_size-integer&#34;&gt;train_batch_size: [integer]
+&lt;/h4&gt;&lt;p&gt;代表着one step.Example:32&lt;/p&gt;
+&lt;h4 id=&#34;train_micro_batch_size_per_gpu-integer&#34;&gt;train_micro_batch_size_per_gpu: [integer]
+&lt;/h4&gt;&lt;p&gt;一次更新的batch_size，所以叫micro_batch_size.&lt;/p&gt;
+&lt;h4 id=&#34;gradient_accumulation_steps-integer&#34;&gt;gradient_accumulation_steps: [integer]
+&lt;/h4&gt;&lt;p&gt;积累几次&lt;/p&gt;
+&lt;p&gt;一开始会有batch-size个prompt去做rollout，每个prompt rollout出n个response，之后每mini-batch-size个prompt及其rollout出来的response会去做一次梯度下降，batch-size / mini-batch-size次梯度下降之后一个step结束&lt;/p&gt;
+&lt;h3 id=&#34;监控平台&#34;&gt;监控平台
+&lt;/h3&gt;&lt;p&gt;可以使用TensorBoard,wandb,Comet等，因为个人使用所以只介绍swanlab(wandb的国内镜像)&lt;br&gt;
+注册登录，设置 project_name 和 experiment_name 就可以在电脑上/手机上看了&lt;br&gt;
+很好用的监控平台！&lt;br&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://docs.swanlab.cn/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;swanlab官方文档&lt;/a&gt;👈官方文档&lt;/p&gt;
+</description>
+        </item>
+        <item>
         <title>NLP</title>
         <link>http://localhost:1313/p/nlp/</link>
         <pubDate>Mon, 19 Jan 2026 10:00:00 +0800</pubDate>
@@ -145,107 +188,6 @@ GPU 负载越高、token越复杂，TPOT 也会变慢。&lt;/p&gt;
 &lt;p&gt;千万不要一味地追求速度，图省事！&lt;/p&gt;
 &lt;p&gt;与此同时解决了submodule问题，具体的流程大致为删掉子仓库中的.git，移除本地缓存（觉得他是子module），从.gitmodule中移除（当然我本地没有）。&lt;/p&gt;
 &lt;p&gt;之前也解决了关于代码冲突的问题（需要手动进行修改），比如在git pull中是常见问题，大致进一步又了解了，准备后面有时间写一个关于这种多人协作常出现的问题，要注意的事项以及如何解决&lt;/p&gt;
-</description>
-        </item>
-        <item>
-        <title>veRL学习</title>
-        <link>http://localhost:1313/p/verl%E5%AD%A6%E4%B9%A0/</link>
-        <pubDate>Thu, 16 Oct 2025 00:00:00 +0000</pubDate>
-        
-        <guid>http://localhost:1313/p/verl%E5%AD%A6%E4%B9%A0/</guid>
-        <description>&lt;h1 id=&#34;基于verl框架并行训练的深入探究&#34;&gt;基于veRL框架并行训练的深入探究
-&lt;/h1&gt;&lt;h2 id=&#34;process-overview&#34;&gt;process-overview
-&lt;/h2&gt;&lt;ul&gt;
-&lt;li&gt;加载模型&lt;br&gt;
-veRL使用&lt;strong&gt;Ray框架&lt;/strong&gt;进行模型的调度&lt;br&gt;
-init_workers 初始化策略模型、参考模型、价值模型、奖励模型。这里面有些模型不会用到。很多都不会使用价值模型，奖励模型也都是基于规则的&lt;/li&gt;
-&lt;li&gt;训练过程&lt;br&gt;
-get_data_batch&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h4 id=&#34;generate_sequencesnormal-rl和agent-rl&#34;&gt;generate_sequences(normal-rl和agent-rl)
-&lt;/h4&gt;&lt;p&gt;normal-rl：单轮的交互（prompt&amp;ndash;&amp;gt;model&amp;ndash;&amp;gt;response），这个流程就结束了&lt;br&gt;
-agent-rl：多轮的交互（prompt&amp;ndash;&amp;gt;model&amp;ndash;&amp;gt;response&amp;ndash;&amp;gt;env（tool call,code exec ,etc）&amp;ndash;&amp;gt;model&amp;ndash;&amp;gt;response&amp;ndash;&amp;gt;&amp;hellip;）&lt;br&gt;
-reward（通过自定义的奖励函数控制）不用去修改veRL框架，通过配置文件进行修改&lt;br&gt;
-log_probs（计算策略模型和参考模型输出token的概率）&lt;br&gt;
-values(目前主流的rl算法基本上都在舍弃价值模型)&lt;/p&gt;
-&lt;h4 id=&#34;adv各rl算法之间的差异主要体现在adv的计算方式此处需要针对不同的算法进行修改&#34;&gt;adv(各rl算法之间的差异主要体现在adv的计算方式，此处需要针对不同的算法进行修改)
-&lt;/h4&gt;&lt;h4 id=&#34;compute_lossnormal-rl和agent-rl&#34;&gt;compute_loss（normal-rl和agent-rl）
-&lt;/h4&gt;&lt;p&gt;normal-rl：无需和环境交互，response中token全部由模型生成，均参与损失计算&lt;br&gt;
-agent-rl：需要获取观测结果，观测结果部分不是模型生成，计算损失时需要对其进行mask&lt;br&gt;
-update actor&lt;/p&gt;
-&lt;h2 id=&#34;deepspeed&#34;&gt;DeepSpeed
-&lt;/h2&gt;&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://huggingface.co/docs/transformers/deepspeed&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;DeepSpeed官方文档&lt;/a&gt;👈官方文档&lt;br&gt;
-&lt;a class=&#34;link&#34; href=&#34;https://www.deepspeed.ai/docs/config-json/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;DeepSpeed配置JSON&lt;/a&gt;👈使用只需要JSON配置文件&lt;br&gt;
-&lt;a class=&#34;link&#34; href=&#34;https://www.youtube.com/watch?v=mpuRca2UZtI&amp;amp;t=2925s&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;【利用多張GPU訓練大型語言模型】 - YouTube&lt;/a&gt;👈李宏毅老师YouTube视频讲解（约一个小时）&lt;br&gt;
-&lt;a class=&#34;link&#34; href=&#34;https://huggingface.co/spaces/nanotron/ultrascale-playbook&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;The Ultra-Scale Playbook:Training LLMs on GPU Clusters&lt;/a&gt;👈并行训练高质参考资料&lt;/p&gt;
-&lt;h4 id=&#34;hugging-face经常有高质量实验总结可以多关注一下&#34;&gt;hugging face经常有高质量实验总结，可以多关注一下
-&lt;/h4&gt;&lt;h3 id=&#34;batch-size-related-parameters&#34;&gt;Batch Size Related Parameters
-&lt;/h3&gt;&lt;p&gt;&lt;strong&gt;train_batch_size&lt;/strong&gt; = &lt;strong&gt;train_micro_batch_size_per_gpu&lt;/strong&gt; * &lt;strong&gt;gradient_accumulation_steps&lt;/strong&gt; * &lt;strong&gt;number of GPUs&lt;/strong&gt;&lt;/p&gt;
-&lt;h3 id=&#34;train_batch_size-integer&#34;&gt;train_batch_size: [integer]
-&lt;/h3&gt;&lt;p&gt;代表着one step.Example:32&lt;/p&gt;
-&lt;h3 id=&#34;train_micro_batch_size_per_gpu-integer&#34;&gt;train_micro_batch_size_per_gpu: [integer]
-&lt;/h3&gt;&lt;p&gt;一次更新的batch_size，所以叫micro_batch_size.&lt;/p&gt;
-&lt;h3 id=&#34;gradient_accumulation_steps-integer&#34;&gt;gradient_accumulation_steps: [integer]
-&lt;/h3&gt;&lt;p&gt;积累几次&lt;/p&gt;
-&lt;p&gt;一开始会有batch-size个prompt去做rollout，每个prompt rollout出n个response，之后每mini-batch-size个prompt及其rollout出来的response会去做一次梯度下降，batch-size / mini-batch-size次梯度下降之后一个step结束&lt;/p&gt;
-&lt;h2 id=&#34;monitoring-module&#34;&gt;Monitoring Module
-&lt;/h2&gt;&lt;p&gt;可以使用TensorBoard,andb,Comet等，因为个人使用所以只介绍swanlab(wandb的国内镜像)&lt;br&gt;
-注册登录，设置 project_name 和 experiment_name 就可以在电脑上/手机上看了&lt;br&gt;
-很好用的监控平台！&lt;br&gt;
-&lt;a class=&#34;link&#34; href=&#34;https://docs.swanlab.cn/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;swanlab官方文档&lt;/a&gt;👈官方文档&lt;/p&gt;
-&lt;h2 id=&#34;the-ultra-scale-playbooktraining-llms-on-gpu-clusters&#34;&gt;The Ultra-Scale Playbook:Training LLMs on GPU Clusters
-&lt;/h2&gt;&lt;hr&gt;
-&lt;h3 id=&#34;finding-the-best-training-configuration&#34;&gt;Finding the Best Training Configuration
-&lt;/h3&gt;&lt;h4 id=&#34;step-1-fitting-a-training-step-in-memory&#34;&gt;Step 1: Fitting a training step in memory
-&lt;/h4&gt;&lt;p&gt;首先我们思考如何把一个完整的模型放在我们的GPUs集群里面，通常有一下两种办法&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;GPU-rich case 🤑 - when you have plenty of GPUs available:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;For models under 10B parameters, you can use a single parallelism technique, e.g. tensor parallelism or ZeRO-3/DP with full recompute across 8 GPUs.&lt;/li&gt;
-&lt;li&gt;后面模型太大了就不提了，可以自行去资料中翻看&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;GPU-poor case 😭 - when you might be low on GPU resources:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;You can enable full activation recomputation to trade some compute for memory (and train a bit more slowly).&lt;/li&gt;
-&lt;li&gt;You can increase gradient accumulation to process larger batches with limited memory.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Now that we have a first model instance training, we need to make sure we have the right batch size.&lt;/p&gt;
-&lt;h4 id=&#34;step-2-achieving-the-target-global-batch-size&#34;&gt;Step 2: Achieving the target global batch size
-&lt;/h4&gt;&lt;p&gt;To increase our current global batch size:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;We can scale up data parallelism or gradient accumulation steps.&lt;/li&gt;
-&lt;li&gt;For long sequences, we can leverage context parallelism.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;To decrease our current global batch size:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;We can reduce data parallelism in favor of other parallelization strategies.&lt;/li&gt;
-&lt;li&gt;For long sequences, we can reduce context parallelism.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;OK, now we have the model running in the general configuration we want in terms of model size and batch size - but are we training it the fastest way? The final step is to work on optimizing throughput.&lt;/p&gt;
-&lt;h4 id=&#34;step-3-optimizing-training-throughput&#34;&gt;Step 3: Optimizing training throughput
-&lt;/h4&gt;&lt;p&gt;We want to make sure the training is running as fast as possible so all our precious GPUs are well utilized at all times. As long as memory and communication aren&amp;rsquo;t bottlenecks, we can try the following:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Scale up tensor parallelism (using the fast intra-node bandwidth) until we reach a degree close to the node size, so that we can reduce other forms of parallelism.&lt;/li&gt;
-&lt;li&gt;Increase data parallelism with ZeRO-3 while keeping the target batch size.&lt;/li&gt;
-&lt;li&gt;When data parallelism communication starts to become a bottleneck, transition to using pipeline parallelism.&lt;/li&gt;
-&lt;li&gt;Try scaling up different parallelisms one by one.&lt;/li&gt;
-&lt;li&gt;Experiment with micro-batch sizes (mbs) to aim for an optimal balance between max global batch size, model size, compute, and communication.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h4 id=&#34;benchmarking-thousands-of-configurations&#34;&gt;Benchmarking thousands of configurations
-&lt;/h4&gt;&lt;p&gt;有 Heatmap 可以看Best Configurations&lt;/p&gt;
-&lt;h4 id=&#34;lessons-learned-on-benchmarking&#34;&gt;Lessons learned on benchmarking
-&lt;/h4&gt;&lt;p&gt;What looks simple in theory often requires careful attention to many moving parts in practice.&lt;/p&gt;
-&lt;hr&gt;
 </description>
         </item>
         <item>
