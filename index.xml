@@ -15,7 +15,10 @@
         <guid>http://localhost:1313/p/verl/</guid>
         <description>&lt;h2 id=&#34;verl框架入门&#34;&gt;veRL框架入门
 &lt;/h2&gt;&lt;h3 id=&#34;使用方法快速上手&#34;&gt;使用方法/快速上手
-&lt;/h3&gt;&lt;p&gt;知乎上收藏了一些轮椅教程，不能真正提升能力&lt;br&gt;
+&lt;/h3&gt;&lt;p&gt;知乎上收藏了一些轮椅教程&lt;br&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://zhuanlan.zhihu.com/p/29149216967&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;OpenRLHF&amp;amp;Verl参数转换指南&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;更深入的：&lt;br&gt;
 &lt;a class=&#34;link&#34; href=&#34;https://zhuanlan.zhihu.com/p/24682036412&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;HybridFlow / veRL 原文浅析&lt;/a&gt;很干，对system理解有很大帮助&lt;/p&gt;
 &lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://zhuanlan.zhihu.com/p/27676081245&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
@@ -24,6 +27,11 @@
     &gt;从零开始的verl框架解析&lt;/a&gt;&lt;/p&gt;
 &lt;h3 id=&#34;笔记&#34;&gt;笔记
 &lt;/h3&gt;&lt;p&gt;主流并行框架（DDP/DeepSpeed/Megatron）均基于 SPMD（Single Program Multiple Data）架构：所有进程执行相同代码逻辑，通过环境变量差异自主确定行为模式，无需中心调度节点。灵活性不如single-controller模式。&lt;/p&gt;
+&lt;p&gt;计算GPU称为Worker，梯度聚合GPU称为Server&lt;/p&gt;
+&lt;p&gt;目前最通用的AllReduce方法：Ring-AllReduce。它由百度最先提出，非常有效地解决了数据并行中通讯负载不均的问题，使得DDP得以实现&lt;/p&gt;
+&lt;p&gt;Ring-ALLReduce则分两大步骤实现该目标：Reduce-Scatter和All-Gather&lt;/p&gt;
+&lt;p&gt;一开始会有batch-size个prompt去做rollout，每个prompt rollout出n个response，之后每mini-batch-size个prompt及其rollout出来的response会去做一次梯度下降，batch-size / mini-batch-size次梯度下降之后一个step结束&lt;/p&gt;
+&lt;p&gt;Ring-AllReduce的方法，因为在之后的ZeRO，Megatron-LM中，它将频繁地出现，是分布式训练系统中重要的算子&lt;/p&gt;
 &lt;h3 id=&#34;deepspeed&#34;&gt;DeepSpeed
 &lt;/h3&gt;&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://huggingface.co/docs/transformers/deepspeed&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;DeepSpeed官方文档&lt;/a&gt;👈官方文档&lt;br&gt;
