@@ -16,13 +16,14 @@
         <description>&lt;h2 id=&#34;verl框架入门&#34;&gt;veRL框架入门
 &lt;/h2&gt;&lt;h3 id=&#34;使用方法快速上手&#34;&gt;使用方法/快速上手
 &lt;/h3&gt;&lt;p&gt;知乎上收藏了一些轮椅教程，不能真正提升能力&lt;br&gt;
-代码就是基础，把一个模糊想法变成能跑、能扩、能复现、能解释的系统——执行力是硬通货&lt;br&gt;
 &lt;a class=&#34;link&#34; href=&#34;https://zhuanlan.zhihu.com/p/24682036412&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;HybridFlow / veRL 原文浅析&lt;/a&gt;很干，对system理解有很大帮助&lt;/p&gt;
 &lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://zhuanlan.zhihu.com/p/27676081245&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;[AI Infra] VeRL 框架入门&amp;amp;代码带读&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://zhuanlan.zhihu.com/p/30876678559&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;从零开始的verl框架解析&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&#34;笔记&#34;&gt;笔记
+&lt;/h3&gt;&lt;p&gt;主流并行框架（DDP/DeepSpeed/Megatron）均基于 SPMD（Single Program Multiple Data）架构：所有进程执行相同代码逻辑，通过环境变量差异自主确定行为模式，无需中心调度节点。灵活性不如single-controller模式。&lt;/p&gt;
 &lt;h3 id=&#34;deepspeed&#34;&gt;DeepSpeed
 &lt;/h3&gt;&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://huggingface.co/docs/transformers/deepspeed&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;DeepSpeed官方文档&lt;/a&gt;👈官方文档&lt;br&gt;
@@ -1035,7 +1036,7 @@ python3 -m verl.trainer.main_ppo &amp;hellip;&lt;/p&gt;&lt;/blockquote&gt;
 &lt;h2 id=&#34;博客内容规划&#34;&gt;博客内容规划
 &lt;/h2&gt;&lt;p&gt;我计划我的文章中记录以下内容：&lt;/p&gt;
 &lt;h3 id=&#34;笔记-notes&#34;&gt;笔记 (Notes)
-&lt;/h3&gt;&lt;p&gt;可能比较杂，什么都有。但重点是关于强化学习的内容&lt;/p&gt;
+&lt;/h3&gt;&lt;p&gt;可能比较杂，什么都有。但重点是关于llm的内容&lt;/p&gt;
 &lt;h3 id=&#34;理论-theory&#34;&gt;理论 (Theory)
 &lt;/h3&gt;&lt;p&gt;一些理论知识&lt;/p&gt;
 &lt;h3 id=&#34;日记-diary&#34;&gt;日记 (Diary)
