@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
-        <title>RL on DaYang</title>
+        <title>RL on Huanyu Yang</title>
         <link>http://localhost:1313/categories/rl/</link>
-        <description>Recent content in RL on DaYang</description>
+        <description>Recent content in RL on Huanyu Yang</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en</language>
-        <copyright>DaYang</copyright><atom:link href="http://localhost:1313/categories/rl/index.xml" rel="self" type="application/rss+xml" />
+        <copyright>Huanyu Yang</copyright><atom:link href="http://localhost:1313/categories/rl/index.xml" rel="self" type="application/rss+xml" />
     </channel>
 </rss>

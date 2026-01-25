@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
-        <title>Diary on DaYang</title>
+        <title>Diary on Huanyu Yang</title>
         <link>http://localhost:1313/categories/diary/</link>
-        <description>Recent content in Diary on DaYang</description>
+        <description>Recent content in Diary on Huanyu Yang</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en</language>
-        <copyright>DaYang</copyright>
+        <copyright>Huanyu Yang</copyright>
         <lastBuildDate>Mon, 15 Sep 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/categories/diary/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>第一篇文章</title>
         <link>http://localhost:1313/p/%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/</link>

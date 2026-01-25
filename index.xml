@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
-        <title>DaYang</title>
+        <title>Huanyu Yang</title>
         <link>http://localhost:1313/</link>
-        <description>Recent content on DaYang</description>
+        <description>Recent content on Huanyu Yang</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en</language>
-        <copyright>DaYang</copyright>
+        <copyright>Huanyu Yang</copyright>
         <lastBuildDate>Thu, 22 Jan 2026 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>veRL</title>
         <link>http://localhost:1313/p/verl/</link>
@@ -43,6 +43,8 @@
 &lt;li&gt;forward和backward计算量高，因此和它们相关的部分，例如参数W（fp16），activation，就全放入GPU。&lt;/li&gt;
 &lt;li&gt;update的部分计算量低，因此和它相关的部分，全部放入CPU中。例如W(fp32)，optimizer states（fp32）和gradients(fp16)等。&lt;/li&gt;
 &lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;在之前的内容中，已经介绍过流水线并行(PP)、数据并行(DP，DDP和ZeRO)。下面将要介绍最重要，也是目前基于Transformer做大模型预训练最基本的并行范式：来自NVIDIA的张量模型并行(TP)。它的基本思想就是把模型的参数纵向切开，放到不同的GPU上进行独立计算，然后再做聚合。&lt;/p&gt;
 &lt;h3 id=&#34;deepspeed&#34;&gt;DeepSpeed
 &lt;/h3&gt;&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://huggingface.co/docs/transformers/deepspeed&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;DeepSpeed官方文档&lt;/a&gt;👈官方文档&lt;br&gt;
