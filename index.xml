@@ -29,9 +29,20 @@
 &lt;/h3&gt;&lt;p&gt;主流并行框架（DDP/DeepSpeed/Megatron）均基于 SPMD（Single Program Multiple Data）架构：所有进程执行相同代码逻辑，通过环境变量差异自主确定行为模式，无需中心调度节点。灵活性不如single-controller模式。&lt;/p&gt;
 &lt;p&gt;计算GPU称为Worker，梯度聚合GPU称为Server&lt;/p&gt;
 &lt;p&gt;目前最通用的AllReduce方法：Ring-AllReduce。它由百度最先提出，非常有效地解决了数据并行中通讯负载不均的问题，使得DDP得以实现&lt;/p&gt;
-&lt;p&gt;Ring-ALLReduce则分两大步骤实现该目标：Reduce-Scatter和All-Gather&lt;/p&gt;
+&lt;p&gt;Ring-ALLReduce(&amp;ldquo;先富带动后富&amp;quot;思想)则分两大步骤实现该目标：Reduce-Scatter(圆排列转一圈后所有参数都有一个位置已经都更新完成)和All-Gather(把每一部分更新完的参数更新到其他的)&lt;/p&gt;
 &lt;p&gt;一开始会有batch-size个prompt去做rollout，每个prompt rollout出n个response，之后每mini-batch-size个prompt及其rollout出来的response会去做一次梯度下降，batch-size / mini-batch-size次梯度下降之后一个step结束&lt;/p&gt;
 &lt;p&gt;Ring-AllReduce的方法，因为在之后的ZeRO，Megatron-LM中，它将频繁地出现，是分布式训练系统中重要的算子&lt;/p&gt;
+&lt;p&gt;ZeRO是模型并行的形式，数据并行的实质&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;模型并行，是指在forward和backward的过程中，我只需要用自己维护的那块W来计算就行。即同样的输入X，每块GPU上各算模型的一部分，最后通过某些方式聚合结果。
+但对ZeRO来说，它做forward和backward的时候，是需要把各GPU上维护的W聚合起来的，即本质上还是用完整的W进行计算。它是不同的输入X，完整的参数W，最终再做聚合。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;对activation的存储是灵活的。不像optimizer states，gradients和parameters对模型更新是必须的，activation只是起到加速梯度计算的作用。因此，在哪几层保存activation，保存哪些activation都是可以灵活设置的。&lt;/p&gt;
+&lt;p&gt;ZeRO-Offload&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;forward和backward计算量高，因此和它们相关的部分，例如参数W（fp16），activation，就全放入GPU。&lt;/li&gt;
+&lt;li&gt;update的部分计算量低，因此和它相关的部分，全部放入CPU中。例如W(fp32)，optimizer states（fp32）和gradients(fp16)等。&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h3 id=&#34;deepspeed&#34;&gt;DeepSpeed
 &lt;/h3&gt;&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://huggingface.co/docs/transformers/deepspeed&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;DeepSpeed官方文档&lt;/a&gt;👈官方文档&lt;br&gt;
