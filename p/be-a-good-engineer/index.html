@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="成为一个好的engineer veRL框架使用方法/快速上手 知乎上收藏了一些轮椅教程\nOpenRLHF&amp;Verl参数转换指南\n更深入的：\nHybridFlow / veRL 原文浅析很干，对system理解有很大帮助\n[AI Infra] VeRL 框架入门&amp;代码带读\n从零开始的verl框架解析\n笔记 主流并行框架（DDP/DeepSpeed/Megatron）均基于 SPMD（Single Program Multiple Data）架构：所有进程执行相同代码逻辑，通过环境变量差异自主确定行为模式，无需中心调度节点。灵活性不如single-controller模式。\n计算GPU称为Worker，梯度聚合GPU称为Server\n目前最通用的AllReduce方法：Ring-AllReduce。它由百度最先提出，非常有效地解决了数据并行中通讯负载不均的问题，使得DDP得以实现\nRing-ALLReduce(&ldquo;先富带动后富&quot;思想)则分两大步骤实现该目标：Reduce-Scatter(圆排列转一圈后所有参数都有一个位置已经都更新完成)和All-Gather(把每一部分更新完的参数更新到其他的)\n一开始会有batch-size个prompt去做rollout，每个prompt rollout出n个response，之后每mini-batch-size个prompt及其rollout出来的response会去做一次梯度下降，batch-size / mini-batch-size次梯度下降之后一个step结束\nRing-AllReduce的方法，因为在之后的ZeRO，Megatron-LM中，它将频繁地出现，是分布式训练系统中重要的算子\nZeRO是模型并行的形式，数据并行的实质\n模型并行，是指在forward和backward的过程中，我只需要用自己维护的那块W来计算就行。即同样的输入X，每块GPU上各算模型的一部分，最后通过某些方式聚合结果。 但对ZeRO来说，它做forward和backward的时候，是需要把各GPU上维护的W聚合起来的，即本质上还是用完整的W进行计算。它是不同的输入X，完整的参数W，最终再做聚合。 对activation的存储是灵活的。不像optimizer states，gradients和parameters对模型更新是必须的，activation只是起到加速梯度计算的作用。因此，在哪几层保存activation，保存哪些activation都是可以灵活设置的。\nZeRO-Offload\nforward和backward计算量高，因此和它们相关的部分，例如参数W（fp16），activation，就全放入GPU。 update的部分计算量低，因此和它相关的部分，全部放入CPU中。例如W(fp32)，optimizer states（fp32）和gradients(fp16)等。 在之前的内容中，已经介绍过流水线并行(PP)、数据并行(DP，DDP和ZeRO)。下面将要介绍最重要，也是目前基于Transformer做大模型预训练最基本的并行范式：来自NVIDIA的张量模型并行(TP)。它的基本思想就是把模型的参数纵向切开，放到不同的GPU上进行独立计算，然后再做聚合。\n面向进程编程 整份脚本处理的是发生在1个进程上的事情。这样做的好处是，我们只需要维护1份脚本，然后将其发去不同机器的各张卡上执行，就能实现全局的并行。\nMegatron Megatron还是要看的\n图解大模型训练之：流水线并行（Pipeline Parallelism），以Gpipe为例\n图解大模型训练之：数据并行上篇(DP, DDP与ZeRO)\n图解大模型训练之：数据并行下篇( DeepSpeed ZeRO，零冗余优化)\n图解大模型训练之：张量模型并行(TP)，Megatron-LM\n图解大模型系列之：Megatron源码解读1，分布式环境初始化\nDeepSpeed DeepSpeed官方文档👈官方文档\nDeepSpeed配置JSON👈使用只需要JSON配置文件\n【利用多張GPU訓練大型語言模型】 - YouTube👈李宏毅老师YouTube视频讲解（约一个小时）\nThe Ultra-Scale Playbook:Training LLMs on GPU Clusters👈并行训练高质参考资料\nhugging face经常有高质量实验总结，可以多关注一下 Batch Size Related Parameters train_batch_size = train_micro_batch_size_per_gpu * gradient_accumulation_steps * number of GPUs\n">
-<title>veRL</title>
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=60678&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="成为一个好的工程师 基本功 主流并行框架（DDP/DeepSpeed/Megatron）均基于 SPMD（Single Program Multiple Data）架构：所有进程执行相同代码逻辑，通过环境变量差异自主确定行为模式，无需中心调度节点。灵活性不如single-controller模式。\n计算GPU称为Worker，梯度聚合GPU称为Server\nAllReduce 目前最通用的AllReduce方法：Ring-AllReduce。它由百度最先提出，非常有效地解决了数据并行中通讯负载不均的问题，使得DDP得以实现\nRing-ALLReduce(&ldquo;先富带动后富&quot;思想)则分两大步骤实现该目标：Reduce-Scatter(圆排列转一圈后所有参数都有一个位置已经都更新完成)和All-Gather(把每一部分更新完的参数更新到其他的)\nRing-AllReduce的方法，因为在之后的ZeRO，Megatron-LM中，它将频繁地出现，是分布式训练系统中重要的算子\nZeRO(DP) 图解大模型训练之：数据并行上篇(DP, DDP与ZeRO)\n图解大模型训练之：数据并行下篇(DeepSpeed ZeRO，零冗余优化)\nZeRO是模型并行的形式，数据并行的实质\n模型并行，是指在forward和backward的过程中，我只需要用自己维护的那块W来计算就行。即同样的输入X，每块GPU上各算模型的一部分，最后通过某些方式聚合结果。 但对ZeRO来说，它做forward和backward的时候，是需要把各GPU上维护的W聚合起来的，即本质上还是用完整的W进行计算。它是不同的输入X，完整的参数W，最终再做聚合。 对activation的存储是灵活的。不像optimizer states，gradients和parameters对模型更新是必须的，activation只是起到加速梯度计算的作用。因此，在哪几层保存activation，保存哪些activation都是可以灵活设置的。\nZeRO-Offload\nforward和backward计算量高，因此和它们相关的部分，例如参数W（fp16），activation，就全放入GPU。 update的部分计算量低，因此和它相关的部分，全部放入CPU中。例如W(fp32)，optimizer states（fp32）和gradients(fp16)等。 TP 图解大模型训练之：张量模型并行(TP)，Megatron-LM\n在之前的内容中，已经介绍过流水线并行(PP)、数据并行(DP，DDP和ZeRO)。下面将要介绍最重要，也是目前基于Transformer做大模型预训练最基本的并行范式：来自NVIDIA的张量模型并行(TP)。它的基本思想就是把模型的参数纵向切开，放到不同的GPU上进行独立计算，然后再做聚合。\n面向进程编程 整份脚本处理的是发生在1个进程上的事情。这样做的好处是，我们只需要维护1份脚本，然后将其发去不同机器的各张卡上执行，就能实现全局的并行。\nMegatron Megatron还是要看的\n图解大模型训练之：流水线并行（Pipeline Parallelism），以Gpipe为例\n图解大模型训练之：数据并行上篇(DP, DDP与ZeRO)\n图解大模型训练之：数据并行下篇(DeepSpeed ZeRO，零冗余优化)\n图解大模型训练之：张量模型并行(TP)，Megatron-LM\n图解大模型系列之：Megatron源码解读1，分布式环境初始化\nDeepSpeed DeepSpeed官方文档👈官方文档\nDeepSpeed配置JSON👈使用只需要JSON配置文件\n【利用多張GPU訓練大型語言模型】 - YouTube👈李宏毅老师YouTube视频讲解（约一个小时）\nThe Ultra-Scale Playbook:Training LLMs on GPU Clusters👈并行训练高质参考资料\nhugging face经常有高质量实验总结，可以多关注一下\n一开始会有batch-size个prompt去做rollout，每个prompt rollout出n个response，之后每mini-batch-size个prompt及其rollout出来的response会去做一次梯度下降，batch-size / mini-batch-size次梯度下降之后一个step结束\nBatch Size Related Parameters train_batch_size = train_micro_batch_size_per_gpu * gradient_accumulation_steps * number of GPUs train_batch_size: [integer] 代表着one step.Example:32 train_micro_batch_size_per_gpu: [integer] 一次更新的batch_size，所以叫micro_batch_size. gradient_accumulation_steps: [integer] 积累几次 一开始会有batch-size个prompt去做rollout，每个prompt rollout出n个response，之后每mini-batch-size个prompt及其rollout出来的response会去做一次梯度下降，batch-size / mini-batch-size次梯度下降之后一个step结束\n">
+<title>Be a good engineer</title>
 
-<link rel='canonical' href='http://localhost:1313/p/verl/'>
+<link rel='canonical' href='http://localhost:60678/p/be-a-good-engineer/'>
 
-<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="veRL">
-<meta property='og:description' content="成为一个好的engineer veRL框架使用方法/快速上手 知乎上收藏了一些轮椅教程\nOpenRLHF&amp;Verl参数转换指南\n更深入的：\nHybridFlow / veRL 原文浅析很干，对system理解有很大帮助\n[AI Infra] VeRL 框架入门&amp;代码带读\n从零开始的verl框架解析\n笔记 主流并行框架（DDP/DeepSpeed/Megatron）均基于 SPMD（Single Program Multiple Data）架构：所有进程执行相同代码逻辑，通过环境变量差异自主确定行为模式，无需中心调度节点。灵活性不如single-controller模式。\n计算GPU称为Worker，梯度聚合GPU称为Server\n目前最通用的AllReduce方法：Ring-AllReduce。它由百度最先提出，非常有效地解决了数据并行中通讯负载不均的问题，使得DDP得以实现\nRing-ALLReduce(&ldquo;先富带动后富&quot;思想)则分两大步骤实现该目标：Reduce-Scatter(圆排列转一圈后所有参数都有一个位置已经都更新完成)和All-Gather(把每一部分更新完的参数更新到其他的)\n一开始会有batch-size个prompt去做rollout，每个prompt rollout出n个response，之后每mini-batch-size个prompt及其rollout出来的response会去做一次梯度下降，batch-size / mini-batch-size次梯度下降之后一个step结束\nRing-AllReduce的方法，因为在之后的ZeRO，Megatron-LM中，它将频繁地出现，是分布式训练系统中重要的算子\nZeRO是模型并行的形式，数据并行的实质\n模型并行，是指在forward和backward的过程中，我只需要用自己维护的那块W来计算就行。即同样的输入X，每块GPU上各算模型的一部分，最后通过某些方式聚合结果。 但对ZeRO来说，它做forward和backward的时候，是需要把各GPU上维护的W聚合起来的，即本质上还是用完整的W进行计算。它是不同的输入X，完整的参数W，最终再做聚合。 对activation的存储是灵活的。不像optimizer states，gradients和parameters对模型更新是必须的，activation只是起到加速梯度计算的作用。因此，在哪几层保存activation，保存哪些activation都是可以灵活设置的。\nZeRO-Offload\nforward和backward计算量高，因此和它们相关的部分，例如参数W（fp16），activation，就全放入GPU。 update的部分计算量低，因此和它相关的部分，全部放入CPU中。例如W(fp32)，optimizer states（fp32）和gradients(fp16)等。 在之前的内容中，已经介绍过流水线并行(PP)、数据并行(DP，DDP和ZeRO)。下面将要介绍最重要，也是目前基于Transformer做大模型预训练最基本的并行范式：来自NVIDIA的张量模型并行(TP)。它的基本思想就是把模型的参数纵向切开，放到不同的GPU上进行独立计算，然后再做聚合。\n面向进程编程 整份脚本处理的是发生在1个进程上的事情。这样做的好处是，我们只需要维护1份脚本，然后将其发去不同机器的各张卡上执行，就能实现全局的并行。\nMegatron Megatron还是要看的\n图解大模型训练之：流水线并行（Pipeline Parallelism），以Gpipe为例\n图解大模型训练之：数据并行上篇(DP, DDP与ZeRO)\n图解大模型训练之：数据并行下篇( DeepSpeed ZeRO，零冗余优化)\n图解大模型训练之：张量模型并行(TP)，Megatron-LM\n图解大模型系列之：Megatron源码解读1，分布式环境初始化\nDeepSpeed DeepSpeed官方文档👈官方文档\nDeepSpeed配置JSON👈使用只需要JSON配置文件\n【利用多張GPU訓練大型語言模型】 - YouTube👈李宏毅老师YouTube视频讲解（约一个小时）\nThe Ultra-Scale Playbook:Training LLMs on GPU Clusters👈并行训练高质参考资料\nhugging face经常有高质量实验总结，可以多关注一下 Batch Size Related Parameters train_batch_size = train_micro_batch_size_per_gpu * gradient_accumulation_steps * number of GPUs\n">
-<meta property='og:url' content='http://localhost:1313/p/verl/'>
+<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="Be a good engineer">
+<meta property='og:description' content="成为一个好的工程师 基本功 主流并行框架（DDP/DeepSpeed/Megatron）均基于 SPMD（Single Program Multiple Data）架构：所有进程执行相同代码逻辑，通过环境变量差异自主确定行为模式，无需中心调度节点。灵活性不如single-controller模式。\n计算GPU称为Worker，梯度聚合GPU称为Server\nAllReduce 目前最通用的AllReduce方法：Ring-AllReduce。它由百度最先提出，非常有效地解决了数据并行中通讯负载不均的问题，使得DDP得以实现\nRing-ALLReduce(&ldquo;先富带动后富&quot;思想)则分两大步骤实现该目标：Reduce-Scatter(圆排列转一圈后所有参数都有一个位置已经都更新完成)和All-Gather(把每一部分更新完的参数更新到其他的)\nRing-AllReduce的方法，因为在之后的ZeRO，Megatron-LM中，它将频繁地出现，是分布式训练系统中重要的算子\nZeRO(DP) 图解大模型训练之：数据并行上篇(DP, DDP与ZeRO)\n图解大模型训练之：数据并行下篇(DeepSpeed ZeRO，零冗余优化)\nZeRO是模型并行的形式，数据并行的实质\n模型并行，是指在forward和backward的过程中，我只需要用自己维护的那块W来计算就行。即同样的输入X，每块GPU上各算模型的一部分，最后通过某些方式聚合结果。 但对ZeRO来说，它做forward和backward的时候，是需要把各GPU上维护的W聚合起来的，即本质上还是用完整的W进行计算。它是不同的输入X，完整的参数W，最终再做聚合。 对activation的存储是灵活的。不像optimizer states，gradients和parameters对模型更新是必须的，activation只是起到加速梯度计算的作用。因此，在哪几层保存activation，保存哪些activation都是可以灵活设置的。\nZeRO-Offload\nforward和backward计算量高，因此和它们相关的部分，例如参数W（fp16），activation，就全放入GPU。 update的部分计算量低，因此和它相关的部分，全部放入CPU中。例如W(fp32)，optimizer states（fp32）和gradients(fp16)等。 TP 图解大模型训练之：张量模型并行(TP)，Megatron-LM\n在之前的内容中，已经介绍过流水线并行(PP)、数据并行(DP，DDP和ZeRO)。下面将要介绍最重要，也是目前基于Transformer做大模型预训练最基本的并行范式：来自NVIDIA的张量模型并行(TP)。它的基本思想就是把模型的参数纵向切开，放到不同的GPU上进行独立计算，然后再做聚合。\n面向进程编程 整份脚本处理的是发生在1个进程上的事情。这样做的好处是，我们只需要维护1份脚本，然后将其发去不同机器的各张卡上执行，就能实现全局的并行。\nMegatron Megatron还是要看的\n图解大模型训练之：流水线并行（Pipeline Parallelism），以Gpipe为例\n图解大模型训练之：数据并行上篇(DP, DDP与ZeRO)\n图解大模型训练之：数据并行下篇(DeepSpeed ZeRO，零冗余优化)\n图解大模型训练之：张量模型并行(TP)，Megatron-LM\n图解大模型系列之：Megatron源码解读1，分布式环境初始化\nDeepSpeed DeepSpeed官方文档👈官方文档\nDeepSpeed配置JSON👈使用只需要JSON配置文件\n【利用多張GPU訓練大型語言模型】 - YouTube👈李宏毅老师YouTube视频讲解（约一个小时）\nThe Ultra-Scale Playbook:Training LLMs on GPU Clusters👈并行训练高质参考资料\nhugging face经常有高质量实验总结，可以多关注一下\n一开始会有batch-size个prompt去做rollout，每个prompt rollout出n个response，之后每mini-batch-size个prompt及其rollout出来的response会去做一次梯度下降，batch-size / mini-batch-size次梯度下降之后一个step结束\nBatch Size Related Parameters train_batch_size = train_micro_batch_size_per_gpu * gradient_accumulation_steps * number of GPUs train_batch_size: [integer] 代表着one step.Example:32 train_micro_batch_size_per_gpu: [integer] 一次更新的batch_size，所以叫micro_batch_size. gradient_accumulation_steps: [integer] 积累几次 一开始会有batch-size个prompt去做rollout，每个prompt rollout出n个response，之后每mini-batch-size个prompt及其rollout出来的response会去做一次梯度下降，batch-size / mini-batch-size次梯度下降之后一个step结束\n">
+<meta property='og:url' content='http://localhost:60678/p/be-a-good-engineer/'>
 <meta property='og:site_name' content='Huanyu Yang'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2026-01-22T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2026-01-22T00:00:00&#43;00:00'/>
-<meta name="twitter:title" content="veRL">
-<meta name="twitter:description" content="成为一个好的engineer veRL框架使用方法/快速上手 知乎上收藏了一些轮椅教程\nOpenRLHF&amp;Verl参数转换指南\n更深入的：\nHybridFlow / veRL 原文浅析很干，对system理解有很大帮助\n[AI Infra] VeRL 框架入门&amp;代码带读\n从零开始的verl框架解析\n笔记 主流并行框架（DDP/DeepSpeed/Megatron）均基于 SPMD（Single Program Multiple Data）架构：所有进程执行相同代码逻辑，通过环境变量差异自主确定行为模式，无需中心调度节点。灵活性不如single-controller模式。\n计算GPU称为Worker，梯度聚合GPU称为Server\n目前最通用的AllReduce方法：Ring-AllReduce。它由百度最先提出，非常有效地解决了数据并行中通讯负载不均的问题，使得DDP得以实现\nRing-ALLReduce(&ldquo;先富带动后富&quot;思想)则分两大步骤实现该目标：Reduce-Scatter(圆排列转一圈后所有参数都有一个位置已经都更新完成)和All-Gather(把每一部分更新完的参数更新到其他的)\n一开始会有batch-size个prompt去做rollout，每个prompt rollout出n个response，之后每mini-batch-size个prompt及其rollout出来的response会去做一次梯度下降，batch-size / mini-batch-size次梯度下降之后一个step结束\nRing-AllReduce的方法，因为在之后的ZeRO，Megatron-LM中，它将频繁地出现，是分布式训练系统中重要的算子\nZeRO是模型并行的形式，数据并行的实质\n模型并行，是指在forward和backward的过程中，我只需要用自己维护的那块W来计算就行。即同样的输入X，每块GPU上各算模型的一部分，最后通过某些方式聚合结果。 但对ZeRO来说，它做forward和backward的时候，是需要把各GPU上维护的W聚合起来的，即本质上还是用完整的W进行计算。它是不同的输入X，完整的参数W，最终再做聚合。 对activation的存储是灵活的。不像optimizer states，gradients和parameters对模型更新是必须的，activation只是起到加速梯度计算的作用。因此，在哪几层保存activation，保存哪些activation都是可以灵活设置的。\nZeRO-Offload\nforward和backward计算量高，因此和它们相关的部分，例如参数W（fp16），activation，就全放入GPU。 update的部分计算量低，因此和它相关的部分，全部放入CPU中。例如W(fp32)，optimizer states（fp32）和gradients(fp16)等。 在之前的内容中，已经介绍过流水线并行(PP)、数据并行(DP，DDP和ZeRO)。下面将要介绍最重要，也是目前基于Transformer做大模型预训练最基本的并行范式：来自NVIDIA的张量模型并行(TP)。它的基本思想就是把模型的参数纵向切开，放到不同的GPU上进行独立计算，然后再做聚合。\n面向进程编程 整份脚本处理的是发生在1个进程上的事情。这样做的好处是，我们只需要维护1份脚本，然后将其发去不同机器的各张卡上执行，就能实现全局的并行。\nMegatron Megatron还是要看的\n图解大模型训练之：流水线并行（Pipeline Parallelism），以Gpipe为例\n图解大模型训练之：数据并行上篇(DP, DDP与ZeRO)\n图解大模型训练之：数据并行下篇( DeepSpeed ZeRO，零冗余优化)\n图解大模型训练之：张量模型并行(TP)，Megatron-LM\n图解大模型系列之：Megatron源码解读1，分布式环境初始化\nDeepSpeed DeepSpeed官方文档👈官方文档\nDeepSpeed配置JSON👈使用只需要JSON配置文件\n【利用多張GPU訓練大型語言模型】 - YouTube👈李宏毅老师YouTube视频讲解（约一个小时）\nThe Ultra-Scale Playbook:Training LLMs on GPU Clusters👈并行训练高质参考资料\nhugging face经常有高质量实验总结，可以多关注一下 Batch Size Related Parameters train_batch_size = train_micro_batch_size_per_gpu * gradient_accumulation_steps * number of GPUs\n">
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2026-01-26T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2026-01-26T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="Be a good engineer">
+<meta name="twitter:description" content="成为一个好的工程师 基本功 主流并行框架（DDP/DeepSpeed/Megatron）均基于 SPMD（Single Program Multiple Data）架构：所有进程执行相同代码逻辑，通过环境变量差异自主确定行为模式，无需中心调度节点。灵活性不如single-controller模式。\n计算GPU称为Worker，梯度聚合GPU称为Server\nAllReduce 目前最通用的AllReduce方法：Ring-AllReduce。它由百度最先提出，非常有效地解决了数据并行中通讯负载不均的问题，使得DDP得以实现\nRing-ALLReduce(&ldquo;先富带动后富&quot;思想)则分两大步骤实现该目标：Reduce-Scatter(圆排列转一圈后所有参数都有一个位置已经都更新完成)和All-Gather(把每一部分更新完的参数更新到其他的)\nRing-AllReduce的方法，因为在之后的ZeRO，Megatron-LM中，它将频繁地出现，是分布式训练系统中重要的算子\nZeRO(DP) 图解大模型训练之：数据并行上篇(DP, DDP与ZeRO)\n图解大模型训练之：数据并行下篇(DeepSpeed ZeRO，零冗余优化)\nZeRO是模型并行的形式，数据并行的实质\n模型并行，是指在forward和backward的过程中，我只需要用自己维护的那块W来计算就行。即同样的输入X，每块GPU上各算模型的一部分，最后通过某些方式聚合结果。 但对ZeRO来说，它做forward和backward的时候，是需要把各GPU上维护的W聚合起来的，即本质上还是用完整的W进行计算。它是不同的输入X，完整的参数W，最终再做聚合。 对activation的存储是灵活的。不像optimizer states，gradients和parameters对模型更新是必须的，activation只是起到加速梯度计算的作用。因此，在哪几层保存activation，保存哪些activation都是可以灵活设置的。\nZeRO-Offload\nforward和backward计算量高，因此和它们相关的部分，例如参数W（fp16），activation，就全放入GPU。 update的部分计算量低，因此和它相关的部分，全部放入CPU中。例如W(fp32)，optimizer states（fp32）和gradients(fp16)等。 TP 图解大模型训练之：张量模型并行(TP)，Megatron-LM\n在之前的内容中，已经介绍过流水线并行(PP)、数据并行(DP，DDP和ZeRO)。下面将要介绍最重要，也是目前基于Transformer做大模型预训练最基本的并行范式：来自NVIDIA的张量模型并行(TP)。它的基本思想就是把模型的参数纵向切开，放到不同的GPU上进行独立计算，然后再做聚合。\n面向进程编程 整份脚本处理的是发生在1个进程上的事情。这样做的好处是，我们只需要维护1份脚本，然后将其发去不同机器的各张卡上执行，就能实现全局的并行。\nMegatron Megatron还是要看的\n图解大模型训练之：流水线并行（Pipeline Parallelism），以Gpipe为例\n图解大模型训练之：数据并行上篇(DP, DDP与ZeRO)\n图解大模型训练之：数据并行下篇(DeepSpeed ZeRO，零冗余优化)\n图解大模型训练之：张量模型并行(TP)，Megatron-LM\n图解大模型系列之：Megatron源码解读1，分布式环境初始化\nDeepSpeed DeepSpeed官方文档👈官方文档\nDeepSpeed配置JSON👈使用只需要JSON配置文件\n【利用多張GPU訓練大型語言模型】 - YouTube👈李宏毅老师YouTube视频讲解（约一个小时）\nThe Ultra-Scale Playbook:Training LLMs on GPU Clusters👈并行训练高质参考资料\nhugging face经常有高质量实验总结，可以多关注一下\n一开始会有batch-size个prompt去做rollout，每个prompt rollout出n个response，之后每mini-batch-size个prompt及其rollout出来的response会去做一次梯度下降，batch-size / mini-batch-size次梯度下降之后一个step结束\nBatch Size Related Parameters train_batch_size = train_micro_batch_size_per_gpu * gradient_accumulation_steps * number of GPUs train_batch_size: [integer] 代表着one step.Example:32 train_micro_batch_size_per_gpu: [integer] 一次更新的batch_size，所以叫micro_batch_size. gradient_accumulation_steps: [integer] 积累几次 一开始会有batch-size个prompt去做rollout，每个prompt rollout出n个response，之后每mini-batch-size个prompt及其rollout出来的response会去做一次梯度下降，batch-size / mini-batch-size次梯度下降之后一个step结束\n">
     </head>
     <body class="
     article-page
@@ -209,9 +209,9 @@
 
                             <select name="language" title="language" onchange="window.location.href = this.selectedOptions[0].value">
                                 
-                                    <option value="http://localhost:1313/" selected>English</option>
+                                    <option value="http://localhost:60678/" selected>English</option>
                                 
-                                    <option value="http://localhost:1313/zh-cn/" >中文</option>
+                                    <option value="http://localhost:60678/zh-cn/" >中文</option>
                                 
                             </select>
                         </li>
@@ -266,22 +266,20 @@
         <div class="widget--toc">
             <nav id="TableOfContents">
   <ol>
-    <li><a href="#成为一个好的engineer">成为一个好的engineer</a>
+    <li><a href="#成为一个好的工程师">成为一个好的工程师</a>
       <ol>
-        <li><a href="#verl框架使用方法快速上手">veRL框架使用方法/快速上手</a></li>
-        <li><a href="#笔记">笔记</a></li>
-        <li><a href="#面向进程编程">面向进程编程</a></li>
-        <li><a href="#megatron">Megatron</a></li>
-        <li><a href="#deepspeed">DeepSpeed</a>
+        <li><a href="#基本功">基本功</a>
           <ol>
-            <li><a href="#hugging-face经常有高质量实验总结可以多关注一下">hugging face经常有高质量实验总结，可以多关注一下</a></li>
-            <li><a href="#batch-size-related-parameters">Batch Size Related Parameters</a></li>
-            <li><a href="#train_batch_size-integer">train_batch_size: [integer]</a></li>
-            <li><a href="#train_micro_batch_size_per_gpu-integer">train_micro_batch_size_per_gpu: [integer]</a></li>
-            <li><a href="#gradient_accumulation_steps-integer">gradient_accumulation_steps: [integer]</a></li>
+            <li><a href="#allreduce">AllReduce</a></li>
+            <li><a href="#zerodp">ZeRO(DP)</a></li>
+            <li><a href="#tp">TP</a></li>
           </ol>
         </li>
+        <li><a href="#面向进程编程">面向进程编程</a></li>
+        <li><a href="#megatron">Megatron</a></li>
+        <li><a href="#deepspeed">DeepSpeed</a></li>
         <li><a href="#监控平台">监控平台</a></li>
+        <li><a href="#verl框架使用方法快速上手">veRL框架使用方法/快速上手</a></li>
       </ol>
     </li>
   </ol>
@@ -311,7 +309,7 @@
 
     <div class="article-title-wrapper">
         <h2 class="article-title">
-            <a href="/p/verl/">veRL</a>
+            <a href="/p/be-a-good-engineer/">Be a good engineer</a>
         </h2>
     
         
@@ -333,7 +331,7 @@
   <path d="M3 11h16" />
   <path d="M18 16.496v1.504l1 1" />
 </svg>
-                <time class="article-time--published">Jan 22, 2026</time>
+                <time class="article-time--published">Jan 26, 2026</time>
             </div>
         
 
@@ -349,25 +347,19 @@
     <section class="article-content">
     
     
-    <h2 id="成为一个好的engineer">成为一个好的engineer
-</h2><h3 id="verl框架使用方法快速上手">veRL框架使用方法/快速上手
-</h3><p>知乎上收藏了一些轮椅教程<br>
-<a class="link" href="https://zhuanlan.zhihu.com/p/29149216967"  target="_blank" rel="noopener"
-    >OpenRLHF&amp;Verl参数转换指南</a></p>
-<p>更深入的：<br>
-<a class="link" href="https://zhuanlan.zhihu.com/p/24682036412"  target="_blank" rel="noopener"
-    >HybridFlow / veRL 原文浅析</a>很干，对system理解有很大帮助</p>
-<p><a class="link" href="https://zhuanlan.zhihu.com/p/27676081245"  target="_blank" rel="noopener"
-    >[AI Infra] VeRL 框架入门&amp;代码带读</a></p>
-<p><a class="link" href="https://zhuanlan.zhihu.com/p/30876678559"  target="_blank" rel="noopener"
-    >从零开始的verl框架解析</a></p>
-<h3 id="笔记">笔记
+    <h2 id="成为一个好的工程师">成为一个好的工程师
+</h2><h3 id="基本功">基本功
 </h3><p>主流并行框架（DDP/DeepSpeed/Megatron）均基于 SPMD（Single Program Multiple Data）架构：所有进程执行相同代码逻辑，通过环境变量差异自主确定行为模式，无需中心调度节点。灵活性不如single-controller模式。</p>
 <p>计算GPU称为Worker，梯度聚合GPU称为Server</p>
-<p>目前最通用的AllReduce方法：Ring-AllReduce。它由百度最先提出，非常有效地解决了数据并行中通讯负载不均的问题，使得DDP得以实现</p>
+<h4 id="allreduce">AllReduce
+</h4><p>目前最通用的AllReduce方法：Ring-AllReduce。它由百度最先提出，非常有效地解决了数据并行中通讯负载不均的问题，使得DDP得以实现</p>
 <p>Ring-ALLReduce(&ldquo;先富带动后富&quot;思想)则分两大步骤实现该目标：Reduce-Scatter(圆排列转一圈后所有参数都有一个位置已经都更新完成)和All-Gather(把每一部分更新完的参数更新到其他的)</p>
-<p>一开始会有batch-size个prompt去做rollout，每个prompt rollout出n个response，之后每mini-batch-size个prompt及其rollout出来的response会去做一次梯度下降，batch-size / mini-batch-size次梯度下降之后一个step结束</p>
 <p>Ring-AllReduce的方法，因为在之后的ZeRO，Megatron-LM中，它将频繁地出现，是分布式训练系统中重要的算子</p>
+<h4 id="zerodp">ZeRO(DP)
+</h4><p><a class="link" href="https://zhuanlan.zhihu.com/p/617133971"  target="_blank" rel="noopener"
+    >图解大模型训练之：数据并行上篇(DP, DDP与ZeRO)</a><br>
+<a class="link" href="https://zhuanlan.zhihu.com/p/618865052"  target="_blank" rel="noopener"
+    >图解大模型训练之：数据并行下篇(DeepSpeed ZeRO，零冗余优化)</a></p>
 <p>ZeRO是模型并行的形式，数据并行的实质</p>
 <ul>
 <li>模型并行，是指在forward和backward的过程中，我只需要用自己维护的那块W来计算就行。即同样的输入X，每块GPU上各算模型的一部分，最后通过某些方式聚合结果。
@@ -379,7 +371,9 @@
 <li>forward和backward计算量高，因此和它们相关的部分，例如参数W（fp16），activation，就全放入GPU。</li>
 <li>update的部分计算量低，因此和它相关的部分，全部放入CPU中。例如W(fp32)，optimizer states（fp32）和gradients(fp16)等。</li>
 </ul>
-<hr>
+<h4 id="tp">TP
+</h4><p><a class="link" href="https://zhuanlan.zhihu.com/p/622212228"  target="_blank" rel="noopener"
+    >图解大模型训练之：张量模型并行(TP)，Megatron-LM</a></p>
 <p>在之前的内容中，已经介绍过流水线并行(PP)、数据并行(DP，DDP和ZeRO)。下面将要介绍最重要，也是目前基于Transformer做大模型预训练最基本的并行范式：来自NVIDIA的张量模型并行(TP)。它的基本思想就是把模型的参数纵向切开，放到不同的GPU上进行独立计算，然后再做聚合。</p>
 <h3 id="面向进程编程">面向进程编程
 </h3><p>整份脚本处理的是发生在1个进程上的事情。这样做的好处是，我们只需要维护1份脚本，然后将其发去不同机器的各张卡上执行，就能实现全局的并行。</p>
@@ -390,7 +384,7 @@
 <a class="link" href="https://zhuanlan.zhihu.com/p/617133971"  target="_blank" rel="noopener"
     >图解大模型训练之：数据并行上篇(DP, DDP与ZeRO)</a><br>
 <a class="link" href="https://zhuanlan.zhihu.com/p/618865052"  target="_blank" rel="noopener"
-    >图解大模型训练之：数据并行下篇( DeepSpeed ZeRO，零冗余优化)</a><br>
+    >图解大模型训练之：数据并行下篇(DeepSpeed ZeRO，零冗余优化)</a><br>
 <a class="link" href="https://zhuanlan.zhihu.com/p/622212228"  target="_blank" rel="noopener"
     >图解大模型训练之：张量模型并行(TP)，Megatron-LM</a><br>
 <a class="link" href="https://zhuanlan.zhihu.com/p/629121480"  target="_blank" rel="noopener"
@@ -404,15 +398,19 @@
     >【利用多張GPU訓練大型語言模型】 - YouTube</a>👈李宏毅老师YouTube视频讲解（约一个小时）<br>
 <a class="link" href="https://huggingface.co/spaces/nanotron/ultrascale-playbook"  target="_blank" rel="noopener"
     >The Ultra-Scale Playbook:Training LLMs on GPU Clusters</a>👈并行训练高质参考资料</p>
-<h4 id="hugging-face经常有高质量实验总结可以多关注一下">hugging face经常有高质量实验总结，可以多关注一下
-</h4><h4 id="batch-size-related-parameters">Batch Size Related Parameters
-</h4><p><strong>train_batch_size</strong> = <strong>train_micro_batch_size_per_gpu</strong> * <strong>gradient_accumulation_steps</strong> * <strong>number of GPUs</strong></p>
-<h4 id="train_batch_size-integer">train_batch_size: [integer]
-</h4><p>代表着one step.Example:32</p>
-<h4 id="train_micro_batch_size_per_gpu-integer">train_micro_batch_size_per_gpu: [integer]
-</h4><p>一次更新的batch_size，所以叫micro_batch_size.</p>
-<h4 id="gradient_accumulation_steps-integer">gradient_accumulation_steps: [integer]
-</h4><p>积累几次</p>
+<blockquote>
+<p>hugging face经常有高质量实验总结，可以多关注一下</p></blockquote>
+<p>一开始会有batch-size个prompt去做rollout，每个prompt rollout出n个response，之后每mini-batch-size个prompt及其rollout出来的response会去做一次梯度下降，batch-size / mini-batch-size次梯度下降之后一个step结束</p>
+<ul>
+<li>Batch Size Related Parameters
+<strong>train_batch_size</strong> = <strong>train_micro_batch_size_per_gpu</strong> * <strong>gradient_accumulation_steps</strong> * <strong>number of GPUs</strong></li>
+<li>train_batch_size: [integer]
+代表着one step.Example:32</li>
+<li>train_micro_batch_size_per_gpu: [integer]
+一次更新的batch_size，所以叫micro_batch_size.</li>
+<li>gradient_accumulation_steps: [integer]
+积累几次</li>
+</ul>
 <p>一开始会有batch-size个prompt去做rollout，每个prompt rollout出n个response，之后每mini-batch-size个prompt及其rollout出来的response会去做一次梯度下降，batch-size / mini-batch-size次梯度下降之后一个step结束</p>
 <h3 id="监控平台">监控平台
 </h3><p>可以使用TensorBoard,wandb,Comet等，因为个人使用所以只介绍swanlab(wandb的国内镜像)<br>
@@ -420,6 +418,17 @@
 很好用的监控平台！<br>
 <a class="link" href="https://docs.swanlab.cn/"  target="_blank" rel="noopener"
     >swanlab官方文档</a>👈官方文档</p>
+<h3 id="verl框架使用方法快速上手">veRL框架使用方法/快速上手
+</h3><p>知乎上收藏了一些轮椅教程<br>
+<a class="link" href="https://zhuanlan.zhihu.com/p/29149216967"  target="_blank" rel="noopener"
+    >OpenRLHF&amp;Verl参数转换指南</a></p>
+<p>更深入的：<br>
+<a class="link" href="https://zhuanlan.zhihu.com/p/24682036412"  target="_blank" rel="noopener"
+    >HybridFlow / veRL 原文浅析</a>很干，对system理解有很大帮助</p>
+<p><a class="link" href="https://zhuanlan.zhihu.com/p/27676081245"  target="_blank" rel="noopener"
+    >[AI Infra] VeRL 框架入门&amp;代码带读</a></p>
+<p><a class="link" href="https://zhuanlan.zhihu.com/p/30876678559"  target="_blank" rel="noopener"
+    >从零开始的verl框架解析</a></p>
 
 </section>
 
