@@ -45,6 +45,18 @@
 &lt;/ul&gt;
 &lt;hr&gt;
 &lt;p&gt;在之前的内容中，已经介绍过流水线并行(PP)、数据并行(DP，DDP和ZeRO)。下面将要介绍最重要，也是目前基于Transformer做大模型预训练最基本的并行范式：来自NVIDIA的张量模型并行(TP)。它的基本思想就是把模型的参数纵向切开，放到不同的GPU上进行独立计算，然后再做聚合。&lt;/p&gt;
+&lt;h3 id=&#34;megatron&#34;&gt;Megatron
+&lt;/h3&gt;&lt;p&gt;Megatron还是要看的&lt;br&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://zhuanlan.zhihu.com/p/613196255&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;图解大模型训练之：流水线并行（Pipeline Parallelism），以Gpipe为例&lt;/a&gt;&lt;br&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://zhuanlan.zhihu.com/p/617133971&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;图解大模型训练之：数据并行上篇(DP, DDP与ZeRO)&lt;/a&gt;&lt;br&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://zhuanlan.zhihu.com/p/618865052&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;图解大模型训练之：数据并行下篇( DeepSpeed ZeRO，零冗余优化)&lt;/a&gt;&lt;br&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://zhuanlan.zhihu.com/p/622212228&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;图解大模型训练之：张量模型并行(TP)，Megatron-LM&lt;/a&gt;&lt;br&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://zhuanlan.zhihu.com/p/629121480&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;图解大模型系列之：Megatron源码解读1，分布式环境初始化&lt;/a&gt;&lt;/p&gt;
 &lt;h3 id=&#34;deepspeed&#34;&gt;DeepSpeed
 &lt;/h3&gt;&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://huggingface.co/docs/transformers/deepspeed&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;DeepSpeed官方文档&lt;/a&gt;👈官方文档&lt;br&gt;
