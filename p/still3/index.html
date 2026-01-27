@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=60678&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="重新认真地读一遍STILL3(LLMs慢思维技术报告III )，补充知识点\nAn Empirical Study on Eliciting and Improving R1-like Reasoning Models 慢思考模型仓库\n缺乏可验证问题的领域:如DeepSeek-R1,基于规则和训练的奖励模型的联合使用\n随着训练的进行，可以观察到三个主要特征：增加训练奖励、增加响应长度和涌现推理模式。些因素是扩大强化学习训练成功的关键指标。\n在本报告中，首先深入研究了强化学习设置对训练效果的影响。接下来，通过强化学习训练直接激励基础模型发展复杂的推理能力，观察到模型逐渐花费更多的时间“思考”并表现出高级推理行为（例如，验证或反思）。最后，为了进一步增强微调模型的推理能力，探索了强化学习和工具增强作为提高模型推理性能的策略，在小型（1.5B）和中型LLM（32B）中都取得了显著的改进。\non-policy learning strategy被证明是关键因素！\nresponse length是RL训练成功的重要指标，这是结果，不是原因\n设计专门的奖励函数来鼓励模型产生更长的响应可能会导致奖励黑客攻击等问题，这不能从本质上增强模型的推理能力\n无论是短CoT还是长CoT，还是蒸馏过的模型，强化学习都可以提高能力\n通过fine-tuning，LRM可以获得操纵外部工具的能力，从而提高模型的性能。这种能力只需少量高质量的训练实例即可激活。\n复现点这里找资源\n实验设置 训练框架 OpenRLHF和veRL\n骨干模型 各种版本的QWEN2.5模型\nDEEPSEK-R1-DISTILL系列的1.5B和32B QWEN2.5\n在微调模型上进行实验，微调数据由自己合成。\n训练数据 多样性 AIME,MATH,NuminaMath,Open Reasoner Zero\n可验证性 删除了多选题，证明题，概念题，开放式问题和有多个子问题的问题\n再把答案不可能的数据删掉\n困难程度 基于模型的过滤，QWEN-7B-INSTRUCT正确率过高或者零通过率的题目删掉\n最后剩下90k个examples\nReward Design 设计并验证了一组不同的奖励，并分析了它们对模型性能的影响，包括输出奖励、格式奖励、长度奖励和动作奖励。\n输出奖励评估 最终答案是否与ground truth匹配。如果答案正确，我们将奖励设置为1，否则设置为0。\n如果模型未能将其最终答案放入\\boxed{}中，则奖励设置为0。\n使用格式奖励来指导基础模型正确构建其响应。\n探索了新的辅助奖励，包括鼓励更长反应的长度奖励和激励复杂推理行为的行动奖励。\nEvaluation Benchmarks 评估了各种数学推理任务的模型性能，包括MATH-OAI[13]、AIME、Omni-MATH[17]、LiveAOP[18]和HMMT。\niveAOP利用AoPS论坛的帖子创建了一个由3863个示例组成的抗污染评估集。\nCompute Environment 实验主要在DataCanvas的旗舰计算编排平台Alaya NeW AI操作系统上进行。\n">
 <title>STILL3</title>
 
-<link rel='canonical' href='http://localhost:60678/p/still3/'>
+<link rel='canonical' href='http://localhost:1313/p/still3/'>
 
 <link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="STILL3">
 <meta property='og:description' content="重新认真地读一遍STILL3(LLMs慢思维技术报告III )，补充知识点\nAn Empirical Study on Eliciting and Improving R1-like Reasoning Models 慢思考模型仓库\n缺乏可验证问题的领域:如DeepSeek-R1,基于规则和训练的奖励模型的联合使用\n随着训练的进行，可以观察到三个主要特征：增加训练奖励、增加响应长度和涌现推理模式。些因素是扩大强化学习训练成功的关键指标。\n在本报告中，首先深入研究了强化学习设置对训练效果的影响。接下来，通过强化学习训练直接激励基础模型发展复杂的推理能力，观察到模型逐渐花费更多的时间“思考”并表现出高级推理行为（例如，验证或反思）。最后，为了进一步增强微调模型的推理能力，探索了强化学习和工具增强作为提高模型推理性能的策略，在小型（1.5B）和中型LLM（32B）中都取得了显著的改进。\non-policy learning strategy被证明是关键因素！\nresponse length是RL训练成功的重要指标，这是结果，不是原因\n设计专门的奖励函数来鼓励模型产生更长的响应可能会导致奖励黑客攻击等问题，这不能从本质上增强模型的推理能力\n无论是短CoT还是长CoT，还是蒸馏过的模型，强化学习都可以提高能力\n通过fine-tuning，LRM可以获得操纵外部工具的能力，从而提高模型的性能。这种能力只需少量高质量的训练实例即可激活。\n复现点这里找资源\n实验设置 训练框架 OpenRLHF和veRL\n骨干模型 各种版本的QWEN2.5模型\nDEEPSEK-R1-DISTILL系列的1.5B和32B QWEN2.5\n在微调模型上进行实验，微调数据由自己合成。\n训练数据 多样性 AIME,MATH,NuminaMath,Open Reasoner Zero\n可验证性 删除了多选题，证明题，概念题，开放式问题和有多个子问题的问题\n再把答案不可能的数据删掉\n困难程度 基于模型的过滤，QWEN-7B-INSTRUCT正确率过高或者零通过率的题目删掉\n最后剩下90k个examples\nReward Design 设计并验证了一组不同的奖励，并分析了它们对模型性能的影响，包括输出奖励、格式奖励、长度奖励和动作奖励。\n输出奖励评估 最终答案是否与ground truth匹配。如果答案正确，我们将奖励设置为1，否则设置为0。\n如果模型未能将其最终答案放入\\boxed{}中，则奖励设置为0。\n使用格式奖励来指导基础模型正确构建其响应。\n探索了新的辅助奖励，包括鼓励更长反应的长度奖励和激励复杂推理行为的行动奖励。\nEvaluation Benchmarks 评估了各种数学推理任务的模型性能，包括MATH-OAI[13]、AIME、Omni-MATH[17]、LiveAOP[18]和HMMT。\niveAOP利用AoPS论坛的帖子创建了一个由3863个示例组成的抗污染评估集。\nCompute Environment 实验主要在DataCanvas的旗舰计算编排平台Alaya NeW AI操作系统上进行。\n">
-<meta property='og:url' content='http://localhost:60678/p/still3/'>
+<meta property='og:url' content='http://localhost:1313/p/still3/'>
 <meta property='og:site_name' content='Huanyu Yang'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2025-10-02T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2025-10-02T00:00:00&#43;00:00'/>
 <meta name="twitter:title" content="STILL3">
@@ -209,9 +209,9 @@
 
                             <select name="language" title="language" onchange="window.location.href = this.selectedOptions[0].value">
                                 
-                                    <option value="http://localhost:60678/" selected>English</option>
+                                    <option value="http://localhost:1313/" selected>English</option>
                                 
-                                    <option value="http://localhost:60678/zh-cn/" >中文</option>
+                                    <option value="http://localhost:1313/zh-cn/" >中文</option>
                                 
                             </select>
                         </li>

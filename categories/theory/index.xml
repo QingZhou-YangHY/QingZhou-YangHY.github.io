@@ -2,10 +2,10 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>Theory on Huanyu Yang</title>
-        <link>http://localhost:60678/categories/theory/</link>
+        <link>http://localhost:1313/categories/theory/</link>
         <description>Recent content in Theory on Huanyu Yang</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en</language>
-        <copyright>Huanyu Yang</copyright><atom:link href="http://localhost:60678/categories/theory/index.xml" rel="self" type="application/rss+xml" />
+        <copyright>Huanyu Yang</copyright><atom:link href="http://localhost:1313/categories/theory/index.xml" rel="self" type="application/rss+xml" />
     </channel>
 </rss>
