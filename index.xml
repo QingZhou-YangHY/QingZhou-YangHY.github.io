@@ -43,8 +43,50 @@
 &lt;p&gt;在之前的内容中，已经介绍过流水线并行(PP)、数据并行(DP，DDP和ZeRO)。下面将要介绍最重要，也是目前基于Transformer做大模型预训练最基本的并行范式：来自NVIDIA的张量模型并行(TP)。它的基本思想就是把模型的参数纵向切开，放到不同的GPU上进行独立计算，然后再做聚合。&lt;/p&gt;
 &lt;h4 id=&#34;关于随机种子设定的一般结论&#34;&gt;关于随机种子设定的一般结论
 &lt;/h4&gt;&lt;p&gt;一般在TP/PP组内，设定不同的随机种子。而在DP组内，设定相同的随机种子。这只是一个一般结论，我们可以根据实际情况去调整&lt;/p&gt;
-&lt;h4 id=&#34;杂谈&#34;&gt;杂谈
-&lt;/h4&gt;&lt;p&gt;下划线(_)开头表示Python中的私有变量, 但私有变量在Python中不存在, 只需遵循一些规范即可。语言本身没有任何限制&lt;/p&gt;
+&lt;h4 id=&#34;python杂谈&#34;&gt;python杂谈
+&lt;/h4&gt;&lt;p&gt;语言本身没有任何限制。在Python中，可以通过给对象属性名添加前缀下划线的方式来说明属性的访问可见性，例如，可以用__name表示一个私有属性，_name表示一个受保护属性。&lt;/p&gt;
+&lt;p&gt;下划线(_)开头表示Python中的私有变量, 但私有变量在Python中不存在, 只需遵循一些规范即可&lt;/p&gt;
+&lt;p&gt;除了对象方法之外，类中还可以有静态方法和类方法，这两类方法是发给类的消息，二者并没有实质性的区别&lt;/p&gt;
+&lt;p&gt;可以直接使用类名.方法名的方式来调用静态方法和类方法，二者的区别在于，类方法的第一个参数是类对象本身，而静态方法则没有这个参数&lt;/p&gt;
+&lt;p&gt;简单的总结一下，对象方法、类方法、静态方法都可以通过类名.方法名的方式来调用，区别在于方法的第一个参数到底是普通对象还是类对象，还是没有接受消息的对象。静态方法通常也可以直接写成一个独立的函数，因为它并没有跟特定的对象绑定&lt;/p&gt;
+&lt;p&gt;super().&lt;strong&gt;init&lt;/strong&gt;()来调用父类初始化方法，super函数是Python内置函数中专门为获取当前对象的父类对象而设计的&lt;/p&gt;
+&lt;p&gt;子类继承父类的方法后，还可以对方法进行重写（重新实现该方法），不同的子类可以对父类的同一个方法给出不同的实现版本，这样的方法在程序运行时就会表现出多态行为（调用相同的方法，做了不同的事情）&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;在没有特殊处理的情况下，函数的参数都是位置参数，也就意味着传入参数的时候对号入座即可&lt;br&gt;
+调用函数时，如果希望函数的调用者必须以参数名=参数值的方式传参，可以用命名关键字参数（keyword-only argument）取代位置参数。所谓命名关键字参数，是在函数的参数列表中，写在*之后的参数&lt;/p&gt;
+&lt;p&gt;在函数的参数列表中可以使用可变参数*args来接收任意数量的参数&lt;br&gt;
+关键字参数会将传入的带参数名的参数组装成一个字典，参数名就是字典中键值对的键，而参数值就是字典中键值对的值&lt;/p&gt;
+&lt;p&gt;不带参数名的参数（位置参数）必须出现在带参数名的参数（关键字参数）之前&lt;/p&gt;
+&lt;hr&gt;
+&lt;h4 id=&#34;理论推导&#34;&gt;理论推导
+&lt;/h4&gt;&lt;h4 id=&#34;语言模型language-model中最经典的交叉熵损失函数cross-entropy-loss&#34;&gt;语言模型（Language Model）中最经典的交叉熵损失函数（Cross-Entropy Loss）
+&lt;/h4&gt;&lt;p&gt;在概率论和深度学习中，给概率 $P$ 取对数（$\log$）绝不是为了让公式看起来更高级，而是出于数学稳定性、计算效率以及优化便利性的深度考量&lt;/p&gt;
+&lt;p&gt;语言模型的目标是最大化整个序列出现的概率。假设一个序列有 $T$ 个词，其联合概率是每一个词出现的条件概率的连乘：&lt;/p&gt;
+$$P(x_1, x_2, \dots, x_T) = \prod_{t=1}^{T} P(x_t | x_{&lt;t})$$&lt;p&gt;证明:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;e.g.&lt;/p&gt;
+&lt;p&gt;$P(x_1, x_2, x_3) = P(x_1, x_2) \cdot P(x_3 | x_1, x_2)$&lt;/p&gt;
+&lt;p&gt;$P(x_1, x_2) = P(x_1) \cdot P(x_2 | x_1)$&lt;/p&gt;
+&lt;p&gt;=&amp;gt;$P(x_1, x_2, x_3) = P(x_1) \cdot P(x_2 | x_1) \cdot P(x_3 | x_1, x_2)$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;递归进行约分&lt;/p&gt;
+&lt;p&gt;$P(x_1, \dots, x_T) = P(x_1, \dots, x_{T-1}) \cdot P(x_T | x_1, \dots, x_{T-1})$&lt;/p&gt;
+&lt;p&gt;$P(x_1, \dots, x_{T-1}) = P(x_1, \dots, x_{T-2}) \cdot P(x_{T-1} | x_1, \dots, x_{T-2})$&lt;/p&gt;
+&lt;p&gt;&amp;hellip;&amp;hellip;&lt;/p&gt;
+&lt;p&gt;直到拆到 $P(x_1)$&lt;/p&gt;
+&lt;p&gt;两边约分 =&amp;gt; $P(x_1, \dots, x_T) = P(x_1) \cdot P(x_2|x_1) \cdot P(x_3|x_{1,2}) \dots P(x_T|x_{&amp;lt;T}) = \prod_{t=1}^{T} P(x_t | x_{&amp;lt;t})$&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;blockquote&gt;
+&lt;p&gt;注：当 $t=1$ 时，$x_{&amp;lt;1}$ 为空集，即起始词概率 $P(x_1)$。&lt;/p&gt;&lt;/blockquote&gt;
+&lt;h3 id=&#34;训练经验&#34;&gt;训练经验
+&lt;/h3&gt;&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://zhuanlan.zhihu.com/p/721492096&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://zhuanlan.zhihu.com/p/721492096&lt;/a&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;SFT确实是可以注入知识的，只不过必须全参，lora完全不行，lora训十轮也学不进去，全参训一轮就学得差不多了，之前看各种文章无脑推荐高效微调法，其实是一个很大的误区。知识在整句话中其实只占很小的一部分，属于次要奇异值，lora会把这些东西忽略掉，导致学习一些hacking，比如格式、行文。所以我也说sft注入没有不可以，多样性一定保证，也要避免hacking。平时工作我也从来不用lora，因为次要奇异值往往更重要。&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h3 id=&#34;面向进程编程&#34;&gt;面向进程编程
 &lt;/h3&gt;&lt;p&gt;整份脚本处理的是发生在1个进程上的事情。这样做的好处是，我们只需要维护1份脚本，然后将其发去不同机器的各张卡上执行，就能实现全局的并行。&lt;/p&gt;
 &lt;h3 id=&#34;megatron&#34;&gt;Megatron
