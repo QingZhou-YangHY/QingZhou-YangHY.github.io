@@ -104,7 +104,61 @@ $\mathcal{L}&lt;em&gt;{DPO} = -\mathbb{E} \left[ \log \sigma \left( \beta \log \
 &lt;li&gt;新的数据去训练1中用来生成answer的模型&lt;/li&gt;
 &lt;li&gt;重复1-4：模型回答SFT数据-&amp;gt;打分-&amp;gt;top1替换得到新版数据-&amp;gt;训练模型-&amp;gt;模型回答SFT数据-&amp;gt;打分-&amp;gt;&amp;hellip;.&lt;/li&gt;
 &lt;/ol&gt;
-&lt;h3 id=&#34;训练经验&#34;&gt;训练经验
+&lt;h3 id=&#34;attention&#34;&gt;Attention
+&lt;/h3&gt;&lt;p&gt;定义&lt;/p&gt;
+$$\mathbf{q}_i, \mathbf{k}_i, \mathbf{v}_i, \mathbf{o}_i \in \mathbb{R}^{d \times 1} $$$$\mathbf{Q} = [\mathbf{q}_1, \mathbf{q}_2, \dots, \mathbf{q}_n]^\top \in \mathbb{R}^{n \times d} $$$$\mathbf{K} = [\mathbf{k}_1, \mathbf{k}_2, \dots, \mathbf{k}_n]^\top \in \mathbb{R}^{n \times d} $$$$\mathbf{V} = [\mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_n]^\top \in \mathbb{R}^{n \times d} $$$$\mathbf{O} = [\mathbf{o}_1, \mathbf{o}_2, \dots, \mathbf{o}_n]^\top \in \mathbb{R}^{n \times d}$$&lt;h4 id=&#34;softmax-attention&#34;&gt;Softmax Attention
+&lt;/h4&gt;&lt;p&gt;Softmax Attention通常指 Attention is all you need 中的Attention机制&lt;/p&gt;
+$$\mathbf{O} = \text{softmax}(\mathbf{Q}\mathbf{K}^\top + \log \mathbf{M})\mathbf{V}$$$$o_t = \sum_{j=1}^{t} \left( \underbrace{\frac{\exp(\boldsymbol{q}_t^\top \boldsymbol{k}_j)}{\sum_{j=1}^{t} \exp(\boldsymbol{q}_t^\top \boldsymbol{k}_j)}}_{\text{权重 } \alpha_{tj}} \right) \cdot \boldsymbol{v}_j= \frac{\sum_{j=1}^{t} \exp(\mathbf{q}_t^\top \mathbf{k}_j) \mathbf{v}_j}{\sum_{j=1}^{t} \exp(\mathbf{q}_t^\top \mathbf{k}_j)}$$&lt;blockquote&gt;
+&lt;p&gt;里面的分母可以提出来，每一项那部分都是常数&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;如果对最终输出O进行RMSNorm(Root Mean Square Layer Normalization)，分母会被消去，所以认为重点是分子部分&lt;/p&gt;
+$$\mathbf{O} = \exp(\mathbf{Q}\mathbf{K}^\top + \log \mathbf{M})\mathbf{V} = (\exp(\mathbf{Q}\mathbf{K}^\top) \odot \mathbf{M})\mathbf{V} $$&lt;blockquote&gt;
+&lt;p&gt;其中⊙是hadmard积(逐元素积,相同形状的矩阵对应位置元素相乘)&lt;/p&gt;&lt;/blockquote&gt;
+&lt;h4 id=&#34;linear-attention&#34;&gt;Linear Attention
+&lt;/h4&gt;&lt;p&gt;一开始的Linear Attention是模拟softmax attention,一种最简单的做法是去掉exp  &lt;/p&gt;
+$$\mathbf{O} = (\mathbf{Q}\mathbf{K}^\top \odot \mathbf{M})\mathbf{V}$$&lt;p&gt;对于非Causal的注意力计算(没有$\mathbf{M}$)，可以通过矩阵交换律改变计算顺序得到线性的计算 &lt;/p&gt;
+$$\mathbf{O} = \mathbf{Q}(\mathbf{K}^\top \mathbf{V})$$&lt;blockquote&gt;
+&lt;p&gt;原本$QK^\top$的时间复杂度是$O(n^{2}d)$，现在$K^\top V$的时间复杂度是$O(nd^{2})$，与Q相乘仍然是$O(nd^{2})$&lt;/p&gt;&lt;/blockquote&gt;
+$$
+\mathbf{o}_t = \sum_{j=1}^{t} \mathbf{v}_j (\mathbf{k}_j^\top \mathbf{q}_t) = \sum_{j=1}^{t} (\mathbf{v}_j \mathbf{k}_j^\top) \mathbf{q}_t = \left( \sum_{j=1}^{t} \mathbf{v}_j \mathbf{k}_j^\top \right) \mathbf{q}_t
+$$&lt;p&gt;下图手证 $\mathbf{o}&lt;em&gt;t = \sum&lt;/em&gt;{j=1}^{t} \mathbf{v}_j (\mathbf{k}_j^\top \mathbf{q}_t)$ ,记住矩阵有结合律和分配律, 没有交换律和消去律&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/be-a-good-engineer/image/linear_o_t.jpg&#34;
+	width=&#34;4096&#34;
+	height=&#34;3072&#34;
+	srcset=&#34;http://localhost:1313/p/be-a-good-engineer/image/linear_o_t_hu_a8461dbdbd422eee.jpg 480w, http://localhost:1313/p/be-a-good-engineer/image/linear_o_t_hu_c38bb4eb534f65f2.jpg 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;linear_o_t&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;133&#34;
+		data-flex-basis=&#34;320px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;将括号部分标记为 $S_t$ ,有 &lt;/p&gt;
+$$
+\mathbf{o}_t = \mathbf{S}_t \mathbf{q}_t, \quad \mathbf{S}_t = \mathbf{S}_{t-1} + \mathbf{v}_t \mathbf{k}_t^\top
+$$&lt;h4 id=&#34;deltanet&#34;&gt;DeltaNet
+&lt;/h4&gt;&lt;p&gt;最早的线性Attention对应的损失函数是 $-v^T(Sk)$&lt;/p&gt;
+&lt;p&gt;一个更理想更直接的损失可能是MSE/L2 Loss，即 $\frac{1}{2} |Sk - v|^2$ DeltaNet便使用了这样的损失&lt;br&gt;
+&lt;/p&gt;
+$$o_t = f(S_t; q_t), \quad S_t = S_{t-1} - \underbrace{\eta_t (S_{t-1} k_t - v_t) k_t^\top}_{\nabla_{S_{t-1}} \frac{1}{2} \| S_{t-1} k_t - v_t \|^2}$$&lt;p&gt;
+​
+$ \eta_t $是一个常数，不妨设其为1方便分析
+将式子拆开可以得到&lt;/p&gt;
+$$
+\begin{aligned}
+S_t &amp;= S_{t-1} - (S_{t-1}\boldsymbol{k}_t - \boldsymbol{v}_t)\boldsymbol{k}_t^\top \\
+&amp;= S_{t-1} - (S_{t-1}\boldsymbol{k}_t)\boldsymbol{k}_t^\top + \boldsymbol{v}_t\boldsymbol{k}_t^\top \\
+&amp;= S_{t-1}(\boldsymbol{I} - \boldsymbol{k}_t\boldsymbol{k}_t^\top) + \boldsymbol{v}_t\boldsymbol{k}_t^\top
+\end{aligned}
+$$&lt;p&gt;相比于一开始的状态更新，DeltaNet的状态更新之前先减去了一个 $(S_{t-1}\boldsymbol{k}_t)\boldsymbol{k}&lt;em&gt;t^\top, \quad S&lt;/em&gt;{t-1}\boldsymbol{k}_t$ 是模型对v的预测，所以这里就有点像是 去除模型的旧知识，加入正确的新知识。这个规则称为Delta Rule，也是Delta的来源&lt;/p&gt;
+&lt;h4 id=&#34;gated-deltanet&#34;&gt;Gated DeltaNet
+&lt;/h4&gt;&lt;p&gt;Gated DeltaNet将遗忘门加入到了DeltaNet中，它的引入方式为
+&lt;/p&gt;
+$$
+\boldsymbol{S}_t = \alpha_t \boldsymbol{S}_{t-1} (\boldsymbol{I} - \beta_t \boldsymbol{k}_t \boldsymbol{k}_t^\top) + \beta_t \boldsymbol{v}_t \boldsymbol{k}_t^\top
+$$&lt;h3 id=&#34;训练经验&#34;&gt;训练经验
 &lt;/h3&gt;&lt;h4 id=&#34;个人实战经验&#34;&gt;个人实战经验
 &lt;/h4&gt;&lt;ul&gt;
 &lt;li&gt;PEFT（Parameter-Efficient Fine-Tuning，参数高效微调）,就是我们常说的Lora&lt;/li&gt;
