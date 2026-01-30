@@ -7,10 +7,10 @@
         <generator>Hugo -- gohugo.io</generator>
         <language>en</language>
         <copyright>Huanyu Yang</copyright>
-        <lastBuildDate>Mon, 26 Jan 2026 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/categories/notes/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Fri, 30 Jan 2026 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/categories/notes/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>Be a good engineer</title>
         <link>http://localhost:1313/p/be-a-good-engineer/</link>
-        <pubDate>Mon, 26 Jan 2026 00:00:00 +0000</pubDate>
+        <pubDate>Fri, 30 Jan 2026 00:00:00 +0000</pubDate>
         
         <guid>http://localhost:1313/p/be-a-good-engineer/</guid>
         <description>&lt;h2 id=&#34;成为一个好的工程师&#34;&gt;成为一个好的工程师
@@ -57,6 +57,70 @@
 &lt;p&gt;在函数的参数列表中可以使用可变参数*args来接收任意数量的参数&lt;br&gt;
 关键字参数会将传入的带参数名的参数组装成一个字典，参数名就是字典中键值对的键，而参数值就是字典中键值对的值&lt;/p&gt;
 &lt;p&gt;不带参数名的参数（位置参数）必须出现在带参数名的参数（关键字参数）之前&lt;/p&gt;
+&lt;hr&gt;
+&lt;h4 id=&#34;理论推导&#34;&gt;理论推导
+&lt;/h4&gt;&lt;h4 id=&#34;语言模型language-model中最经典的交叉熵损失函数cross-entropy-loss&#34;&gt;语言模型（Language Model）中最经典的交叉熵损失函数（Cross-Entropy Loss）
+&lt;/h4&gt;&lt;p&gt;在概率论和深度学习中，给概率 $P$ 取对数（$\log$）绝不是为了让公式看起来更高级，而是出于数学稳定性、计算效率以及优化便利性的深度考量&lt;/p&gt;
+&lt;p&gt;语言模型的目标是最大化整个序列出现的概率。假设一个序列有 $T$ 个词，其联合概率是每一个词出现的条件概率的连乘：&lt;/p&gt;
+$$P(x_1, x_2, \dots, x_T) = \prod_{t=1}^{T} P(x_t | x_{&lt;t})$$&lt;p&gt;证明:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;e.g.&lt;/p&gt;
+&lt;p&gt;$P(x_1, x_2, x_3) = P(x_1, x_2) \cdot P(x_3 | x_1, x_2)$&lt;/p&gt;
+&lt;p&gt;$P(x_1, x_2) = P(x_1) \cdot P(x_2 | x_1)$&lt;/p&gt;
+&lt;p&gt;=&amp;gt;$P(x_1, x_2, x_3) = P(x_1) \cdot P(x_2 | x_1) \cdot P(x_3 | x_1, x_2)$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;递归进行约分&lt;/p&gt;
+&lt;p&gt;$P(x_1, \dots, x_T) = P(x_1, \dots, x_{T-1}) \cdot P(x_T | x_1, \dots, x_{T-1})$&lt;/p&gt;
+&lt;p&gt;$P(x_1, \dots, x_{T-1}) = P(x_1, \dots, x_{T-2}) \cdot P(x_{T-1} | x_1, \dots, x_{T-2})$&lt;/p&gt;
+&lt;p&gt;&amp;hellip;&amp;hellip;&lt;/p&gt;
+&lt;p&gt;直到拆到 $P(x_1)$&lt;/p&gt;
+&lt;p&gt;两边约分 =&amp;gt; $P(x_1, \dots, x_T) = P(x_1) \cdot P(x_2|x_1) \cdot P(x_3|x_{1,2}) \dots P(x_T|x_{&amp;lt;T}) = \prod_{t=1}^{T} P(x_t | x_{&amp;lt;t})$&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;blockquote&gt;
+&lt;p&gt;注：当 $t=1$ 时，$x_{&amp;lt;1}$ 为空集，即起始词概率 $P(x_1)$。&lt;/p&gt;&lt;/blockquote&gt;
+&lt;h4 id=&#34;sft&#34;&gt;SFT
+&lt;/h4&gt;&lt;p&gt;next token loss或者叫lm loss，这是现代语言模型最原始、最直接的训练方式：&lt;/p&gt;
+&lt;p&gt;$\mathcal{L}&lt;em&gt;{lm} = -\frac{1}{T} \sum&lt;/em&gt;{t=1}^{T} log P(x_t | x_{&amp;lt;t})$&lt;/p&gt;
+&lt;h4 id=&#34;dpo&#34;&gt;DPO
+&lt;/h4&gt;&lt;p&gt;优化目标是最大化给定 $x$,$y_l$,$y_w$下，好answer优于坏answer的概率&lt;/p&gt;
+&lt;p&gt;$\mathcal{L}&lt;em&gt;{DPO} = -\mathbb{E} \left[ \log \sigma \left( \beta \log \frac{\pi&lt;/em&gt;\theta(y_w|x)}{\pi_{ref}(y_w|x)} - \beta \log \frac{\pi_\theta(y_l|x)}{\pi_{ref}(y_l|x)} \right) \right]$&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;其中 $\pi_\theta$,$\pi_{ref}$分别表示正在训练的模型和冻住不训的参考模型，
+$x$,$y_l$,$y_w$分别表示prompt，较差的answer和较好的answer。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;目前工业界稳定跑通的DPO，很多用的都是下面这个公式：&lt;br&gt;
+$\mathcal{L}&lt;em&gt;{DPO} = -\mathbb{E} \left[ \log \sigma \left( \beta \log \frac{\pi&lt;/em&gt;\theta(y_w|x)}{\pi_{ref}(y_w|x)} - \beta \log \frac{\pi_\theta(y_l|x)}{\pi_{ref}(y_l|x)} \right) +  \alpha \log \pi_\theta(y_w|x) \right]$&lt;/p&gt;
+&lt;p&gt;另外额外提一嘴，DPO训练的时候 $\pi(y|x)$ 是 $\sum_{t=1}^{T} P(y_t|x_{&amp;lt;t})$ ，而不是 $\frac{1}{T} \sum_{t=1}^{T} P(y_t|x_{&amp;lt;t})$ ，这个原理我没有细究，因为我用的也不多。&lt;/p&gt;
+&lt;h4 id=&#34;rstrejection-sampling-fine-tuning&#34;&gt;RST(Rejection Sampling Fine-tuning)
+&lt;/h4&gt;&lt;p&gt;我们希望充分利用偏好对训练出来的 $\pi^&lt;em&gt;$ 模型，但是 $\pi^&lt;/em&gt;$ 又是个判别模型。既然判别模型做不了生成，那就找个生成的模型来采样，判别模型负责拒绝就可以了，于是也就有了拒绝采样的训练&lt;/p&gt;
+&lt;p&gt;offline RST的一般流程如下：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;用经过SFT 的模型或few shot的 pretrain 模型回答 SFT 所有训练数据的问题，得到模型answer&lt;/li&gt;
+&lt;li&gt;用奖励模型对SFT数据中原始的answer和模型生成answer进行打分&lt;/li&gt;
+&lt;li&gt;得分 top1 的answer 去替换SFT数据中的原始answer，产生新的一版训练数据&lt;/li&gt;
+&lt;li&gt;新的数据去训练1中用来生成answer的模型&lt;/li&gt;
+&lt;li&gt;重复1-4：模型回答SFT数据-&amp;gt;打分-&amp;gt;top1替换得到新版数据-&amp;gt;训练模型-&amp;gt;模型回答SFT数据-&amp;gt;打分-&amp;gt;&amp;hellip;.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;训练经验&#34;&gt;训练经验
+&lt;/h3&gt;&lt;h4 id=&#34;个人实战经验&#34;&gt;个人实战经验
+&lt;/h4&gt;&lt;ul&gt;
+&lt;li&gt;PEFT（Parameter-Efficient Fine-Tuning，参数高效微调）,就是我们常说的Lora&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;model = get_peft_model(model, config)&lt;/code&gt;&lt;/p&gt;
+&lt;h4 id=&#34;他人经验&#34;&gt;他人经验
+&lt;/h4&gt;&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://zhuanlan.zhihu.com/p/721492096&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;LLM实践&amp;ndash;支线：拯救Continue Pretrain的数据&lt;/a&gt; 这里面评论区提到的&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;SFT确实是可以注入知识的，只不过必须全参，lora完全不行，lora训十轮也学不进去，全参训一轮就学得差不多了，之前看各种文章无脑推荐高效微调法，其实是一个很大的误区。知识在整句话中其实只占很小的一部分，属于次要奇异值，lora会把这些东西忽略掉，导致学习一些hacking，比如格式、行文。所以我也说sft注入没有不可以，多样性一定保证，也要避免hacking。平时工作我也从来不用lora，因为次要奇异值往往更重要&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://zhuanlan.zhihu.com/p/4547529049&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;LLM实践&amp;ndash;拒绝采样&lt;/a&gt; 评论区&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;所有的后训练改进过程都是在解决LM LOSS不等于预期LOSS的问题，试图去稳定性量化预期LOSS，目前的所有技术都只是通过尝试来试图接近，这是token-based paradigm的必然问题。解决这个问题的终极方案是从next-token LM model转为semantic model，用semantic loss来替代Lm loss。&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h3 id=&#34;面向进程编程&#34;&gt;面向进程编程
 &lt;/h3&gt;&lt;p&gt;整份脚本处理的是发生在1个进程上的事情。这样做的好处是，我们只需要维护1份脚本，然后将其发去不同机器的各张卡上执行，就能实现全局的并行。&lt;/p&gt;
 &lt;h3 id=&#34;megatron&#34;&gt;Megatron
