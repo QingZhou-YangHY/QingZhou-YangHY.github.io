@@ -514,7 +514,11 @@ S_t &= S_{t-1} - (S_{t-1}\boldsymbol{k}_t - \boldsymbol{v}_t)\boldsymbol{k}_t^\t
 &= S_{t-1}(\boldsymbol{I} - \boldsymbol{k}_t\boldsymbol{k}_t^\top) + \boldsymbol{v}_t\boldsymbol{k}_t^\top
 \end{aligned}
 $$<p>相比于一开始的状态更新，DeltaNet的状态更新之前先减去了一个 $(S_{t-1}\boldsymbol{k}_t)\boldsymbol{k}<em>t^\top, \quad S</em>{t-1}\boldsymbol{k}_t$ 是模型对v的预测，所以这里就有点像是 去除模型的旧知识，加入正确的新知识。这个规则称为Delta Rule，也是Delta的来源</p>
-<h4 id="gated-deltanet">Gated DeltaNet
+<p>联想记忆（Associative Memory） 或 线性注意力 机制中，如何从存储矩阵 $S$ 中通过键 $k_j$ 检索出对应值 $v_j$ 的数学原理，以及为什么会产生误差?</p>
+$$S = \sum_{i=1}^{n} v_i k_i^\top$$<p>
+</p>
+$$Sk_j = \left( \sum_{i=1}^{n} v_i k_i^\top \right) k_j = \sum_{i=1}^{n} v_i (k_i^\top k_j)$$<p>为了看清检索结果准不准，我们将求和拆分为“目标项”（$i=j$）和“干扰项”（$i \neq j$）：当 $i = j$ 时：项为 $v_j (k_j^\top k_j)$。如果键向量是单位向量（即 $k_j^\top k_j = 1$），这一项就直接等于 $v_j$。当 $i \neq j$ 时：项为 $\sum_{i \neq j} (k_i^\top k_j) v_i$。这些是其他存储项对当前检索的干扰</p>
+$$Sk_j = v_j + \underbrace{\sum_{i \neq j} (k_i^\top k_j) v_i}_{\text{retrieval error}}$$<h4 id="gated-deltanet">Gated DeltaNet
 </h4><p>Gated DeltaNet将遗忘门加入到了DeltaNet中，它的引入方式为
 </p>
 $$
