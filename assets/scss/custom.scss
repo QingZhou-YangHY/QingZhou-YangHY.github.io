@@ -1,0 +1,485 @@
+/* =============================================================================
+   Custom design system — glassmorphism, azure accent
+   Redesign of hugo-theme-stack for Huanyu Yang's research blog.
+
+   - Loaded LAST by the theme's style.scss, so it overrides theme :root vars.
+   - Fonts self-hosted in /static/fonts (Latin subset, ~220KB total). No CDN.
+   - Chinese falls back to system PingFang SC / Microsoft YaHei.
+   - Base: html font-size 62.5% => 1rem = 10px (theme convention).
+   ============================================================================= */
+
+/* -----------------------------------------------------------------------------
+   1. Self-hosted webfonts (Latin). unicode-range keeps CJK on system fonts.
+   -------------------------------------------------------------------------- */
+$latin: U+0000-00FF, U+0131, U+0152-0153, U+2000-206F, U+2074, U+20AC, U+2122,
+    U+2190-2193, U+2212, U+2215, U+FEFF, U+FFFD;
+
+@font-face {
+    font-family: "Inter";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("/fonts/inter-400.woff2") format("woff2");
+    unicode-range: $latin;
+}
+@font-face {
+    font-family: "Inter";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("/fonts/inter-500.woff2") format("woff2");
+    unicode-range: $latin;
+}
+@font-face {
+    font-family: "Inter";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("/fonts/inter-600.woff2") format("woff2");
+    unicode-range: $latin;
+}
+@font-face {
+    font-family: "Inter";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("/fonts/inter-700.woff2") format("woff2");
+    unicode-range: $latin;
+}
+
+@font-face {
+    font-family: "Source Serif 4";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("/fonts/serif-600.woff2") format("woff2");
+    unicode-range: $latin;
+}
+@font-face {
+    font-family: "Source Serif 4";
+    font-style: italic;
+    font-weight: 600;
+    font-display: swap;
+    src: url("/fonts/serif-600-italic.woff2") format("woff2");
+    unicode-range: $latin;
+}
+@font-face {
+    font-family: "Source Serif 4";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("/fonts/serif-700.woff2") format("woff2");
+    unicode-range: $latin;
+}
+
+@font-face {
+    font-family: "JetBrains Mono";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("/fonts/mono-400.woff2") format("woff2");
+    unicode-range: $latin;
+}
+@font-face {
+    font-family: "JetBrains Mono";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("/fonts/mono-500.woff2") format("woff2");
+    unicode-range: $latin;
+}
+
+/* -----------------------------------------------------------------------------
+   2. Design tokens — LIGHT (default). Azure (true-blue) accent, cool-neutral paper.
+   -------------------------------------------------------------------------- */
+:root {
+    /* Type stack */
+    --sys-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Droid Sans", "Helvetica Neue";
+    --zh-font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Droid Sans Fallback";
+    --base-font-family: "Inter", var(--sys-font-family), var(--zh-font-family), sans-serif;
+    --article-font-family: var(--base-font-family);
+    --code-font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, var(--zh-font-family), monospace;
+    --font-serif: "Source Serif 4", Georgia, "Times New Roman", var(--zh-font-family), serif;
+
+    /* Surface + accent (azure — true blue, no violet cast) */
+    --body-background: #f4f7fb;
+    --accent-color: #1668dc;
+    --accent-color-darker: #1257b8;
+    --accent-color-text: #ffffff;
+    --body-text-color: #384049;
+
+    --tag-border-radius: 10px;
+    --card-border-radius: 16px; /* Apple-ish large rounding */
+
+    /* Cards — Apple-style Liquid Glass approximation. Thin translucent shell that
+       blurs the aurora backdrop; --card-solid is the opaque reduced-transparency
+       fallback. (No official Apple package exists; this is a web approximation.) */
+    --card-solid: #ffffff;
+    --card-background: rgba(255, 255, 255, 0.25);
+    --card-background-selected: rgba(22, 104, 220, 0.14);
+    --card-text-color-main: #191d24;
+    --card-text-color-secondary: #545c66;
+    --card-text-color-tertiary: #69717b;
+    --card-separator-color: rgba(22, 104, 220, 0.16);
+
+    /* Glass controls — thin shell (0.25) + strong blur/saturation; reading panel
+       stays more opaque (0.60) for long-form legibility. Bright top specular edge. */
+    --glass-blur: 30px;
+    --glass-saturate: 180%;
+    --glass-bg: rgba(255, 255, 255, 0.25);
+    --glass-bg-strong: rgba(255, 255, 255, 0.60); /* article body: readable */
+    --glass-border: rgba(255, 255, 255, 0.72);
+    --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.85), inset 0 -10px 22px rgba(255, 255, 255, 0.05);
+    --glass-sheen: rgba(90, 150, 245, 0.24); /* azure-tinted so it reads on thin glass */
+
+    /* Article content */
+    --article-line-height: 1.8;
+    --blockquote-background-color: #e9f1fc;
+    --heading-border-size: 3px;
+    --link-background-color: 22, 104, 220; /* azure highlight under inline links */
+    --link-background-opacity: 0.16;
+    --link-background-opacity-hover: 0.28;
+    --code-background-color: rgba(22, 104, 220, 0.10);
+    --code-text-color: #1668dc;
+    --table-border-color: #dfe6f0;
+    --tr-even-background-color: #eef3fb;
+
+    /* Softer, cool-tinted shadows — editorial prefers hairlines over elevation */
+    --shadow-l1: 0 1px 2px rgba(20, 48, 90, 0.05);
+    --shadow-l2: 0 4px 16px rgba(20, 48, 90, 0.08);
+    --shadow-l3: 0 4px 16px rgba(20, 48, 90, 0.08);
+    --shadow-l4: 0 14px 34px rgba(20, 48, 90, 0.12);
+
+    --scrollbar-thumb: #c7d4e6;
+}
+
+/* -----------------------------------------------------------------------------
+   3. Design tokens — DARK. Lightened azure so the accent stays recognisable.
+   -------------------------------------------------------------------------- */
+:root[data-scheme="dark"] {
+    --body-background: #10141b;
+    --accent-color: #5aa6ff;
+    --accent-color-darker: #85bcff;
+    --accent-color-text: #071427;
+    --body-text-color: rgba(232, 237, 244, 0.80);
+
+    --card-solid: #171c26;
+    --card-background: rgba(30, 38, 52, 0.30);
+    --card-background-selected: rgba(90, 166, 255, 0.18);
+    --card-text-color-main: rgba(239, 243, 249, 0.94);
+    --card-text-color-secondary: rgba(232, 237, 244, 0.66);
+    --card-text-color-tertiary: rgba(232, 237, 244, 0.48);
+    --card-separator-color: rgba(120, 165, 235, 0.24);
+
+    /* Glass controls (dark) — thin shell (0.30) + strong blur; reading panel 0.60 */
+    --glass-bg: rgba(30, 38, 52, 0.30);
+    --glass-bg-strong: rgba(22, 29, 43, 0.60);
+    --glass-border: rgba(255, 255, 255, 0.16);
+    --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.20), inset 0 -10px 22px rgba(255, 255, 255, 0.03);
+    --glass-sheen: rgba(255, 255, 255, 0.40); /* bright specular on dark glass */
+
+    --blockquote-background-color: #182231;
+    --link-background-color: 90, 166, 255;
+    --link-background-opacity: 0.18;
+    --link-background-opacity-hover: 0.32;
+    --code-background-color: rgba(90, 166, 255, 0.16);
+    --code-text-color: #85bcff;
+    --table-border-color: #33404f;
+    --tr-even-background-color: #182231;
+
+    --shadow-l1: 0 1px 2px rgba(0, 0, 0, 0.40);
+    --shadow-l2: 0 4px 16px rgba(0, 0, 0, 0.45);
+    --shadow-l3: 0 4px 16px rgba(0, 0, 0, 0.45);
+    --shadow-l4: 0 14px 34px rgba(0, 0, 0, 0.55);
+
+    --scrollbar-thumb: #3a3d4c;
+}
+
+/* -----------------------------------------------------------------------------
+   4. Typography — serif display for headings, tuned body rhythm.
+   -------------------------------------------------------------------------- */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+}
+
+/* Serif applies to every headline surface across the site */
+.article-title,
+.article-content h1,
+.article-content h2,
+.article-content h3,
+.article-content h4,
+.article-content h5,
+.article-content h6,
+.widget-title,
+.section-title,
+.sidebar .site-name {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    letter-spacing: -0.012em;
+}
+
+.article-title {
+    line-height: 1.22;
+}
+
+.sidebar.left .site-name {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.sidebar.left .site-description {
+    font-family: var(--base-font-family);
+    color: var(--card-text-color-secondary);
+    line-height: 1.55;
+}
+
+/* Article body: wider measure control + slightly tighter numerals in mono */
+.article-content {
+    letter-spacing: -0.002em;
+}
+.article-content :is(code, kbd, samp),
+.article-content pre {
+    font-feature-settings: "kern" 0, "liga" 0, "calt" 1;
+}
+
+/* Emphasis inside headings stays in-family (italic serif), never a random font */
+.article-content :is(h1, h2, h3, h4, h5, h6) em {
+    font-style: italic;
+    font-weight: 600;
+}
+
+/* -----------------------------------------------------------------------------
+   5. Glassmorphism — aurora backdrop + frosted translucent panels.
+   -------------------------------------------------------------------------- */
+
+/* Aurora backdrop: soft azure blobs on the base colour, fixed behind content,
+   so every frosted panel has something to blur. */
+body {
+    background-color: var(--body-background);
+    background-image:
+        radial-gradient(1100px 720px at 6% -10%, rgba(22, 104, 220, 0.16), transparent 60%),
+        radial-gradient(960px 680px at 106% 2%, rgba(90, 166, 255, 0.15), transparent 55%),
+        radial-gradient(860px 820px at 52% 120%, rgba(22, 104, 220, 0.10), transparent 60%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+}
+:root[data-scheme="dark"] body {
+    background-image:
+        radial-gradient(1100px 720px at 6% -10%, rgba(42, 92, 180, 0.34), transparent 60%),
+        radial-gradient(960px 680px at 106% 2%, rgba(58, 118, 214, 0.26), transparent 55%),
+        radial-gradient(860px 820px at 52% 120%, rgba(30, 74, 156, 0.28), transparent 60%);
+}
+
+/* Frosted panels. Article body uses the stronger (more opaque) fill so long-form
+   text stays readable; lighter panels elsewhere for the glassy depth. */
+.article-list article,
+.article-list--compact,
+.article-page .main-article,
+.widget--toc,
+.widget.archives .widget-archive--list,
+.search-form input,
+.tagCloud .tagCloud-tags a,
+.error-404 {
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate)) contrast(1.03);
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate)) contrast(1.03);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-highlight), var(--shadow-l2);
+}
+
+.article-page .main-article {
+    background: var(--glass-bg-strong);
+}
+
+/* Search input: glass pill; button sits inside it */
+.search-form input {
+    border-radius: var(--card-border-radius);
+}
+
+/* -----------------------------------------------------------------------------
+   5b. Interactive Liquid Glass — pointer-tracked sheen + reactive luminous edge
+       with a faint chromatic (light-splitting) rim. JS sets --mx/--my (0-100%)
+       per panel; :hover toggles --glass-active. Touch + reduced-motion opt out
+       (see the guard in footer/custom.html and the media query below).
+   -------------------------------------------------------------------------- */
+$glass-panels: ".article-list article, .article-page .main-article, .widget--toc, .widget.archives .widget-archive--list";
+
+#{$glass-panels} {
+    position: relative;
+    --mx: 50%;
+    --my: 50%;
+    --glass-active: 0;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease;
+}
+
+/* Specular sheen that follows the cursor (sits above the frosted fill, below text) */
+.article-list article::before,
+.article-page .main-article::before,
+.widget--toc::before,
+.widget.archives .widget-archive--list::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: var(--glass-active);
+    transition: opacity 0.35s ease;
+    background: radial-gradient(220px circle at var(--mx) var(--my),
+        var(--glass-sheen), transparent 62%);
+}
+
+/* Reactive luminous edge: a 1px ring, brightest near the cursor, with a faint
+   cool->warm split for a refraction feel. Masked to the border only. */
+.article-list article::after,
+.article-page .main-article::after,
+.widget--toc::after,
+.widget.archives .widget-archive--list::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    padding: 1px;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: var(--glass-active);
+    transition: opacity 0.35s ease;
+    background:
+        radial-gradient(260px circle at var(--mx) var(--my),
+            rgba(255, 255, 255, 0.95), rgba(150, 190, 255, 0.35) 26%, transparent 55%),
+        conic-gradient(from 210deg at var(--mx) var(--my),
+            rgba(120, 175, 255, 0.16), rgba(255, 235, 200, 0.14), rgba(120, 175, 255, 0.16));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+}
+
+/* Keep real content above the sheen */
+.article-list article > *,
+.article-page .main-article > *,
+.widget--toc > *,
+.widget.archives .widget-archive--list > * {
+    position: relative;
+    z-index: 2;
+}
+
+/* Hover: activate the effect, lift slightly, add a soft azure glow */
+.article-list article:hover,
+.article-page .main-article:hover,
+.widget--toc:hover,
+.widget.archives .widget-archive--list:hover {
+    --glass-active: 1;
+    transform: translateY(-3px);
+    box-shadow:
+        var(--glass-highlight),
+        var(--shadow-l4),
+        0 0 0 1px rgba(var(--link-background-color), 0.12),
+        0 10px 34px rgba(var(--link-background-color), 0.16);
+}
+
+/* Touch / reduced-motion: no pointer light, no lift — stays static frosted glass */
+@media (hover: none), (prefers-reduced-motion: reduce) {
+    .article-list article::before,
+    .article-page .main-article::before,
+    .widget--toc::before,
+    .widget.archives .widget-archive--list::before,
+    .article-list article::after,
+    .article-page .main-article::after,
+    .widget--toc::after,
+    .widget.archives .widget-archive--list::after {
+        display: none;
+    }
+    .article-list article:hover,
+    .article-page .main-article:hover,
+    .widget--toc:hover,
+    .widget.archives .widget-archive--list:hover {
+        transform: none;
+    }
+}
+
+/* Category + tag pills: unify the theme's 5-colour rainbow badges into one
+   soft azure tint (Color Consistency Lock — one accent across the site).
+   The :nth-child(n) selector matches the theme's rainbow specificity exactly;
+   custom.scss loads later, so it wins without !important. */
+.article-list article:nth-child(n) .article-category a,
+.article-category a,
+.article-tags a {
+    background: rgba(var(--link-background-color), 0.12);
+    color: var(--accent-color);
+    border: 1px solid rgba(var(--link-background-color), 0.20);
+    font-weight: 500;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.article-list article:nth-child(n) .article-category a:hover,
+.article-category a:hover,
+.article-tags a:hover {
+    background: var(--accent-color);
+    color: var(--accent-color-text);
+    border-color: var(--accent-color);
+}
+
+/* Section/heading accent bar: thinner, softer than the theme default */
+.article-content :is(h1, h2, h3, h4, h5, h6) {
+    border-inline-start-color: var(--accent-color);
+}
+
+/* Blockquote: azure rule instead of the plain grey bar */
+.article-content blockquote {
+    border-inline-start: 3px solid var(--accent-color);
+    background-color: var(--blockquote-background-color);
+    border-radius: 0 4px 4px 0;
+}
+
+/* -----------------------------------------------------------------------------
+   6. Interaction + a11y polish (MOTION_INTENSITY ~3, all reduced-motion safe).
+   -------------------------------------------------------------------------- */
+::selection {
+    background: var(--accent-color);
+    color: var(--accent-color-text);
+}
+
+a:focus-visible,
+button:focus-visible,
+.article-list article a:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 3px;
+    border-radius: 2px;
+}
+
+/* Tags: pill outline that fills with the accent on hover */
+.article-tags a,
+.tagCloud .tagCloud-tags a {
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Accessibility: drop the frosting for users who ask for reduced transparency.
+   Panels become fully opaque, blur is removed, text contrast is guaranteed. */
+@media (prefers-reduced-transparency: reduce) {
+    .article-list article,
+    .article-list--compact,
+    .article-page .main-article,
+    .widget--toc,
+    .widget.archives .widget-archive--list,
+    .search-form input,
+    .tagCloud .tagCloud-tags a,
+    .error-404 {
+        background: var(--card-solid);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+    body {
+        background-image: none;
+    }
+}

@@ -1,0 +1,169 @@
+---
+title: "RUC-research-intern"
+description: "AI BOX实习生"
+date: 2025-09-16T10:00:00+08:00
+slug: ruc-study-framework
+image:  'RUC.jpg'
+math: false
+license: 
+hidden: false
+comments: true
+draft: false
+categories:
+    - Notes
+
+---
+![AI Box小组](AI-Box.jpg "AI Box")
+# 科研日记
+
+用来记录我远程实习的日子
+
+#### 2025.07.16
+
+成为赵老师的本科实习生，暑假跟着师兄做了一个横向  
+
+##### 家里网好差（本来服务器就慢），还是要在学校多用功
+
+暑假一共6周，还有各种事情，加上休息吃饭探亲balabala也做不了太多事情。确定了方向，看了一些知乎上的论文解读（后面发现如果要通透还是要看原文）。
+
+#### 2025.09.16
+近期在搞论文复现的实验，跟上课题组的进度
+
+今天在修改run_dapo.sh脚本的时候发现了几个常见的问题
+- .sh的格式十分严格
+- Parquet文件格式
+> [Parquet文件格式讲解](https://zhuanlan.zhihu.com/p/680143641)👈  
+
+vibe coding脚本是无比正确的。  
+不知不觉已经两个月了，但对我而言收获是颇多的。
+##### 选择一个好组是十分重要的！软院TIC，高瓴AI BOX让我深刻感受到了好的氛围，成套的培养体系！
+##### 希望自己可以平衡好课内＋科研，还有生活等等其他方面
+
+晚上睡前简单看了一下verl官方文档里面Config Explanation的Data部分
+##### 梯度下降的三种常见形式
+- 1.Batch Gradient Descent（批量梯度下降）
+- 2.Stochastic Gradient Descent (SGD，随机梯度下降)
+- 3.Mini-batch Gradient Descent（小批量梯度下降）
+
+几个epoch就是过几次数据集，实践中把 “batch” 这个词用得比较宽：在框架/代码里 batch_size 常指 mini-batch 的大小，所以容易混淆 “batch gradient descent” 与 “mini-batch”。
+##### prompt_key
+这个不是学术上固定的术语，而是很多框架（比如 HuggingFace、VERL、LangChain 等）里常见的实现细节。
+- 在 字典 / JSON / 配置文件 里，用来标记某个 prompt 的 键名（key）。
+- 这样做可以在代码里快速查找/复用不同的 prompt 模板。
+```
+prompts = {
+    "translation": "Translate the following English text into Chinese: {text}",
+    "summarization": "Summarize the following paragraph: {text}",
+    "qa": "Answer the question based on the context: {context}\nQuestion: {question}"
+}
+
+```
+这里 "translation", "summarization", "qa" 就是 prompt_key，
+而它们对应的 value 就是具体的 prompt 模板。
+> Prompt = 给模型的输入提示，引导它完成任务。  
+Prompt_key = 在程序里标记或索引 prompt 模板的“名字/键”，方便管理和调用。
+
+> RM（Reward Model，奖励模型）：在 RLHF 里给生成结果打分的模型。
+
+> 如果使用基于模型的 RM，并且策略和 RM 的聊天模板不同，则需要设置data.return_raw_input_ids=True
+data.return_full_prompt=True
+用户输入：你好，介绍一下强化学习
+返回：[INST] 你好，介绍一下强化学习 [/INST]
+data.return_raw_chat=True
+用户输入：你好，介绍一下强化学习
+返回的就是:你好，介绍一下强化学习
+
+#### 2025.09.17
+早晨起来去工位继续看verl
+> actor_rollout_ref.hybrid_engine：是否是混合引擎，目前只支持混合引擎.
+
+> Dropout 是一种 正则化方法，用来防止神经网络过拟合。在训练时，随机“丢弃”一部分神经元（让它们暂时不参与计算和更新）。推理时,不再丢弃任何神经元，只是使用完整的输出。
+
+> actor_rollout_ref.model.use_remove_padding一般都选true移除```<PAD>```来加速推理，但是多模态或者大工程里仍有人使用false
+
+> Temperature （温度）。T = 1 → 正常分布。T > 1 → 分布更平滑，增加随机性，容易生成多样化甚至跑偏的内容。T < 1 → 分布更尖锐，模型更确定（更倾向选概率最高的 token，输出保守）。  
+Top-k：从 softmax 排序后的前 k 个 token 中随机抽样。  
+Top-p：动态选择前 累计概率 ≥ p 的最小 token 集合，从里面采样。
+
+> Actor:负责 更新参数  
+Ref (Reference Model):负责 对比/约束。它是冻结的（不更新），通常是最初的预训练模型。  
+Rollout:负责 产生输出（推理采样）
+
+> EOS = End Of Sequence（序列结束标记）。在 tokenizer 里，EOS 往往是个特殊的 ```</s>``` 或 ```<eos>``` 符号。ignore_eos=True 在训练中一般少用，除非你需要 生成固定长度序列，或者想收集超过 EOS 的 rollouts 数据。
+
+#### 2025.09.19
+
+> 一个深度学习训练任务中，nodes 指的是计算机，而 gpus-per-node 指的是每台计算机上安装的 GPU 数量。  
+可以把 nodes 理解为一台台服务器，每台服务器里可以插上多张显卡（GPU）。  
+nnodes: 1：你正在使用一台计算机来运行任务。  
+n_gpus_per_node: 8：这台计算机上插了 8 张 GPU。  
+所以，这个配置的意思是，你用一台装有 8 张 GPU 的服务器来运行你的任务。
+
+verl官方文档看完了，嗯。。还是要去看仓库
+
+都在赶iclr导致服务器又变得卡卡的
+
+实验复现遇到了问题导致一直是卡住的状态
+
+神器：
+> pkill -9 -u $USER -f ray
+
+#### 2025.09.20
+ray官方仓库，试图解决Ray实例后ray.init()挂起/失败问题
+
+> import  ray
+ray.init()
+2025-09-20 11:44:47,741 INFO worker.py:1538 -- Started a local Ray instance.  
+
+有时候会卡住
+> python
+import  ray
+ray.init()
+2025-09-20 11:44:47,741 INFO worker.py:1538 -- Started a local Ray instance.
+
+有时候会失败
+> [2025-09-20 11:50:22,050 E 31652 31652] core_worker.cc:179: Failed to register worker 01000000ffffffffffffffffffffffffffffffffffffffffffffffff to Raylet. IOError: [RayletClient] Unable to register worker with raylet. No such file or directory
+
+##### Versions/Dependencies
+Python 3.10
+Ray
+grpcio
+OS:
+
+##### Reproduction script
+> import ray
+ray.init()
+
+##### Issue Severity 
+High:It blocks me from completing my task.
+
+
+可能的原因:1.workers实际上没有启动
+2.系统中一个进程可以创建多少个线程？（可以通过cat /proc/sys/kernel/threads-max查看）
+
+
+可能的方法:1.在import ray后添加 ray.init(num_cpus=56, num_gpus=2)  这个方法很多人似乎有帮助，但不是一个好的解决方案
+2.可以看一下/tmp/ray/session_latest/raylet.out,如果在/tmp/ray/session_latest/看到有前缀python-core-worker- 的可以看一下，因为这个能了解工作进程可能发生了什么
+3.升级grpcio,2023年的时候安装grpcio 1.48.1 版本是有用的,相应的venv是 CentOS 7,Python 3.7.11，Ray 2.5.1,grpcio1.48.1
+4. 
+> #!/bin/bash
+ulimit -n 65536
+python3 -m verl.trainer.main_ppo ...
+
+5.一定要设置参数,只是用ray.init()就会崩溃。需要手动设置num_cpus
+
+其他人：
+2024.1.16也有在Ubuntu 20.04上遇到同样的问题 venv: ray == 2.7.1,grpcio == 1.59.2,python == 3.11.5
+2024.4.2有在ubuntu 22.04.3（docker内部）上遇到同样的问题，但是他只是失败，而不是挂起。在docker之外运行良好（他的M1 MacBook上）
+
+2024.4.14，2024.4.17，2024.7.11等等太多人遇到同样的问题了
+
+15点左右,/yhy/verl/trainer/config/ppo_trainer.yaml配置文件中进行修改
+##### 问题已解决！在import ray后添加 ray.init(num_cpus=56, num_gpus=2)  
+自己看issue，扒仓库源码等等解决了这个问题
+
+#### 2025.10.22
+
+结束了第一段实习，收获满满！  
+谢谢师兄！谢谢赵老师！  
+期待后续再合作！

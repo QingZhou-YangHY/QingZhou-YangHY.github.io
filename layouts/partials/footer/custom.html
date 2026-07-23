@@ -1,0 +1,31 @@
+{{/* Interactive Liquid Glass: track the pointer over glass panels and expose its
+     position as --mx/--my so the CSS sheen + reactive edge can follow it.
+     One delegated listener, rAF-batched. Opts out on touch / reduced-motion. */}}
+<script>
+(function () {
+    var mq = window.matchMedia;
+    if (mq('(prefers-reduced-motion: reduce)').matches) return;
+    if (mq('(hover: none)').matches || mq('(pointer: coarse)').matches) return;
+
+    var SEL = '.article-list article, .article-page .main-article, .widget--toc, .widget.archives .widget-archive--list';
+    var pending = null, ticking = false;
+
+    function flush() {
+        ticking = false;
+        if (!pending) return;
+        var el = pending.el, r = el.getBoundingClientRect();
+        if (r.width && r.height) {
+            el.style.setProperty('--mx', (((pending.x - r.left) / r.width) * 100).toFixed(2) + '%');
+            el.style.setProperty('--my', (((pending.y - r.top) / r.height) * 100).toFixed(2) + '%');
+        }
+        pending = null;
+    }
+
+    document.addEventListener('pointermove', function (e) {
+        var el = e.target && e.target.closest ? e.target.closest(SEL) : null;
+        if (!el) return;
+        pending = { el: el, x: e.clientX, y: e.clientY };
+        if (!ticking) { ticking = true; requestAnimationFrame(flush); }
+    }, { passive: true });
+}());
+</script>

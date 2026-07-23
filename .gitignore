@@ -1,0 +1,13 @@
+# Hugo build output and cache (rebuilt by CI)
+/public/
+/resources/
+.hugo_build.lock
+
+# Hugo binaries (CI installs its own)
+hugo
+hugo.exe
+*.exe
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
