@@ -1,1363 +1,520 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="成为一个好的工程师 基本功笔记 主流并行框架（DDP/DeepSpeed/Megatron）均基于 SPMD（Single Program Multiple Data）架构：所有进程执行相同代码逻辑，通过环境变量差异自主确定行为模式，无需中心调度节点。灵活性不如single-controller模式。\n计算GPU称为Worker，梯度聚合GPU称为Server\nAllReduce 目前最通用的AllReduce方法：Ring-AllReduce。它由百度最先提出，非常有效地解决了数据并行中通讯负载不均的问题，使得DDP得以实现\nRing-ALLReduce(&ldquo;先富带动后富&quot;思想)则分两大步骤实现该目标：Reduce-Scatter(圆排列转一圈后所有参数都有一个位置已经都更新完成)和All-Gather(把每一部分更新完的参数更新到其他的)\nRing-AllReduce的方法，因为在之后的ZeRO，Megatron-LM中，它将频繁地出现，是分布式训练系统中重要的算子\nZeRO(DP) 图解大模型训练之：数据并行上篇(DP, DDP与ZeRO)\n图解大模型训练之：数据并行下篇(DeepSpeed ZeRO，零冗余优化)\nZeRO是模型并行的形式，数据并行的实质\n模型并行，是指在forward和backward的过程中，我只需要用自己维护的那块W来计算就行。即同样的输入X，每块GPU上各算模型的一部分，最后通过某些方式聚合结果。 但对ZeRO来说，它做forward和backward的时候，是需要把各GPU上维护的W聚合起来的，即本质上还是用完整的W进行计算。它是不同的输入X，完整的参数W，最终再做聚合。 对activation的存储是灵活的。不像optimizer states，gradients和parameters对模型更新是必须的，activation只是起到加速梯度计算的作用。因此，在哪几层保存activation，保存哪些activation都是可以灵活设置的。\nZeRO-Offload\nforward和backward计算量高，因此和它们相关的部分，例如参数W（fp16），activation，就全放入GPU。 update的部分计算量低，因此和它相关的部分，全部放入CPU中。例如W(fp32)，optimizer states（fp32）和gradients(fp16)等。 TP 图解大模型训练之：张量模型并行(TP)，Megatron-LM\n在之前的内容中，已经介绍过流水线并行(PP)、数据并行(DP，DDP和ZeRO)。下面将要介绍最重要，也是目前基于Transformer做大模型预训练最基本的并行范式：来自NVIDIA的张量模型并行(TP)。它的基本思想就是把模型的参数纵向切开，放到不同的GPU上进行独立计算，然后再做聚合。\n关于随机种子设定的一般结论 一般在TP/PP组内，设定不同的随机种子。而在DP组内，设定相同的随机种子。这只是一个一般结论，我们可以根据实际情况去调整\npython杂谈 语言本身没有任何限制。在Python中，可以通过给对象属性名添加前缀下划线的方式来说明属性的访问可见性，例如，可以用__name表示一个私有属性，_name表示一个受保护属性。\n下划线(_)开头表示Python中的私有变量, 但私有变量在Python中不存在, 只需遵循一些规范即可\n除了对象方法之外，类中还可以有静态方法和类方法，这两类方法是发给类的消息，二者并没有实质性的区别\n可以直接使用类名.方法名的方式来调用静态方法和类方法，二者的区别在于，类方法的第一个参数是类对象本身，而静态方法则没有这个参数\n简单的总结一下，对象方法、类方法、静态方法都可以通过类名.方法名的方式来调用，区别在于方法的第一个参数到底是普通对象还是类对象，还是没有接受消息的对象。静态方法通常也可以直接写成一个独立的函数，因为它并没有跟特定的对象绑定\nsuper().init()来调用父类初始化方法，super函数是Python内置函数中专门为获取当前对象的父类对象而设计的\n子类继承父类的方法后，还可以对方法进行重写（重新实现该方法），不同的子类可以对父类的同一个方法给出不同的实现版本，这样的方法在程序运行时就会表现出多态行为（调用相同的方法，做了不同的事情）\n在没有特殊处理的情况下，函数的参数都是位置参数，也就意味着传入参数的时候对号入座即可\n调用函数时，如果希望函数的调用者必须以参数名=参数值的方式传参，可以用命名关键字参数（keyword-only argument）取代位置参数。所谓命名关键字参数，是在函数的参数列表中，写在*之后的参数\n在函数的参数列表中可以使用可变参数*args来接收任意数量的参数\n关键字参数会将传入的带参数名的参数组装成一个字典，参数名就是字典中键值对的键，而参数值就是字典中键值对的值\n不带参数名的参数（位置参数）必须出现在带参数名的参数（关键字参数）之前\n理论推导 语言模型（Language Model）中最经典的交叉熵损失函数（Cross-Entropy Loss） 在概率论和深度学习中，给概率 $P$ 取对数（$\\log$）绝不是为了让公式看起来更高级，而是出于数学稳定性、计算效率以及优化便利性的深度考量\n语言模型的目标是最大化整个序列出现的概率。假设一个序列有 $T$ 个词，其联合概率是每一个词出现的条件概率的连乘：\n$$P(x_1, x_2, \\dots, x_T) = \\prod_{t=1}^{T} P(x_t | x_{">
-<title>Be a good engineer</title>
-
-<link rel='canonical' href='http://localhost:1313/p/be-a-good-engineer/'>
-
-<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="Be a good engineer">
-<meta property='og:description' content="成为一个好的工程师 基本功笔记 主流并行框架（DDP/DeepSpeed/Megatron）均基于 SPMD（Single Program Multiple Data）架构：所有进程执行相同代码逻辑，通过环境变量差异自主确定行为模式，无需中心调度节点。灵活性不如single-controller模式。\n计算GPU称为Worker，梯度聚合GPU称为Server\nAllReduce 目前最通用的AllReduce方法：Ring-AllReduce。它由百度最先提出，非常有效地解决了数据并行中通讯负载不均的问题，使得DDP得以实现\nRing-ALLReduce(&ldquo;先富带动后富&quot;思想)则分两大步骤实现该目标：Reduce-Scatter(圆排列转一圈后所有参数都有一个位置已经都更新完成)和All-Gather(把每一部分更新完的参数更新到其他的)\nRing-AllReduce的方法，因为在之后的ZeRO，Megatron-LM中，它将频繁地出现，是分布式训练系统中重要的算子\nZeRO(DP) 图解大模型训练之：数据并行上篇(DP, DDP与ZeRO)\n图解大模型训练之：数据并行下篇(DeepSpeed ZeRO，零冗余优化)\nZeRO是模型并行的形式，数据并行的实质\n模型并行，是指在forward和backward的过程中，我只需要用自己维护的那块W来计算就行。即同样的输入X，每块GPU上各算模型的一部分，最后通过某些方式聚合结果。 但对ZeRO来说，它做forward和backward的时候，是需要把各GPU上维护的W聚合起来的，即本质上还是用完整的W进行计算。它是不同的输入X，完整的参数W，最终再做聚合。 对activation的存储是灵活的。不像optimizer states，gradients和parameters对模型更新是必须的，activation只是起到加速梯度计算的作用。因此，在哪几层保存activation，保存哪些activation都是可以灵活设置的。\nZeRO-Offload\nforward和backward计算量高，因此和它们相关的部分，例如参数W（fp16），activation，就全放入GPU。 update的部分计算量低，因此和它相关的部分，全部放入CPU中。例如W(fp32)，optimizer states（fp32）和gradients(fp16)等。 TP 图解大模型训练之：张量模型并行(TP)，Megatron-LM\n在之前的内容中，已经介绍过流水线并行(PP)、数据并行(DP，DDP和ZeRO)。下面将要介绍最重要，也是目前基于Transformer做大模型预训练最基本的并行范式：来自NVIDIA的张量模型并行(TP)。它的基本思想就是把模型的参数纵向切开，放到不同的GPU上进行独立计算，然后再做聚合。\n关于随机种子设定的一般结论 一般在TP/PP组内，设定不同的随机种子。而在DP组内，设定相同的随机种子。这只是一个一般结论，我们可以根据实际情况去调整\npython杂谈 语言本身没有任何限制。在Python中，可以通过给对象属性名添加前缀下划线的方式来说明属性的访问可见性，例如，可以用__name表示一个私有属性，_name表示一个受保护属性。\n下划线(_)开头表示Python中的私有变量, 但私有变量在Python中不存在, 只需遵循一些规范即可\n除了对象方法之外，类中还可以有静态方法和类方法，这两类方法是发给类的消息，二者并没有实质性的区别\n可以直接使用类名.方法名的方式来调用静态方法和类方法，二者的区别在于，类方法的第一个参数是类对象本身，而静态方法则没有这个参数\n简单的总结一下，对象方法、类方法、静态方法都可以通过类名.方法名的方式来调用，区别在于方法的第一个参数到底是普通对象还是类对象，还是没有接受消息的对象。静态方法通常也可以直接写成一个独立的函数，因为它并没有跟特定的对象绑定\nsuper().init()来调用父类初始化方法，super函数是Python内置函数中专门为获取当前对象的父类对象而设计的\n子类继承父类的方法后，还可以对方法进行重写（重新实现该方法），不同的子类可以对父类的同一个方法给出不同的实现版本，这样的方法在程序运行时就会表现出多态行为（调用相同的方法，做了不同的事情）\n在没有特殊处理的情况下，函数的参数都是位置参数，也就意味着传入参数的时候对号入座即可\n调用函数时，如果希望函数的调用者必须以参数名=参数值的方式传参，可以用命名关键字参数（keyword-only argument）取代位置参数。所谓命名关键字参数，是在函数的参数列表中，写在*之后的参数\n在函数的参数列表中可以使用可变参数*args来接收任意数量的参数\n关键字参数会将传入的带参数名的参数组装成一个字典，参数名就是字典中键值对的键，而参数值就是字典中键值对的值\n不带参数名的参数（位置参数）必须出现在带参数名的参数（关键字参数）之前\n理论推导 语言模型（Language Model）中最经典的交叉熵损失函数（Cross-Entropy Loss） 在概率论和深度学习中，给概率 $P$ 取对数（$\\log$）绝不是为了让公式看起来更高级，而是出于数学稳定性、计算效率以及优化便利性的深度考量\n语言模型的目标是最大化整个序列出现的概率。假设一个序列有 $T$ 个词，其联合概率是每一个词出现的条件概率的连乘：\n$$P(x_1, x_2, \\dots, x_T) = \\prod_{t=1}^{T} P(x_t | x_{">
-<meta property='og:url' content='http://localhost:1313/p/be-a-good-engineer/'>
-<meta property='og:site_name' content='Huanyu Yang'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2026-01-30T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2026-01-30T00:00:00&#43;00:00'/>
-<meta name="twitter:title" content="Be a good engineer">
-<meta name="twitter:description" content="成为一个好的工程师 基本功笔记 主流并行框架（DDP/DeepSpeed/Megatron）均基于 SPMD（Single Program Multiple Data）架构：所有进程执行相同代码逻辑，通过环境变量差异自主确定行为模式，无需中心调度节点。灵活性不如single-controller模式。\n计算GPU称为Worker，梯度聚合GPU称为Server\nAllReduce 目前最通用的AllReduce方法：Ring-AllReduce。它由百度最先提出，非常有效地解决了数据并行中通讯负载不均的问题，使得DDP得以实现\nRing-ALLReduce(&ldquo;先富带动后富&quot;思想)则分两大步骤实现该目标：Reduce-Scatter(圆排列转一圈后所有参数都有一个位置已经都更新完成)和All-Gather(把每一部分更新完的参数更新到其他的)\nRing-AllReduce的方法，因为在之后的ZeRO，Megatron-LM中，它将频繁地出现，是分布式训练系统中重要的算子\nZeRO(DP) 图解大模型训练之：数据并行上篇(DP, DDP与ZeRO)\n图解大模型训练之：数据并行下篇(DeepSpeed ZeRO，零冗余优化)\nZeRO是模型并行的形式，数据并行的实质\n模型并行，是指在forward和backward的过程中，我只需要用自己维护的那块W来计算就行。即同样的输入X，每块GPU上各算模型的一部分，最后通过某些方式聚合结果。 但对ZeRO来说，它做forward和backward的时候，是需要把各GPU上维护的W聚合起来的，即本质上还是用完整的W进行计算。它是不同的输入X，完整的参数W，最终再做聚合。 对activation的存储是灵活的。不像optimizer states，gradients和parameters对模型更新是必须的，activation只是起到加速梯度计算的作用。因此，在哪几层保存activation，保存哪些activation都是可以灵活设置的。\nZeRO-Offload\nforward和backward计算量高，因此和它们相关的部分，例如参数W（fp16），activation，就全放入GPU。 update的部分计算量低，因此和它相关的部分，全部放入CPU中。例如W(fp32)，optimizer states（fp32）和gradients(fp16)等。 TP 图解大模型训练之：张量模型并行(TP)，Megatron-LM\n在之前的内容中，已经介绍过流水线并行(PP)、数据并行(DP，DDP和ZeRO)。下面将要介绍最重要，也是目前基于Transformer做大模型预训练最基本的并行范式：来自NVIDIA的张量模型并行(TP)。它的基本思想就是把模型的参数纵向切开，放到不同的GPU上进行独立计算，然后再做聚合。\n关于随机种子设定的一般结论 一般在TP/PP组内，设定不同的随机种子。而在DP组内，设定相同的随机种子。这只是一个一般结论，我们可以根据实际情况去调整\npython杂谈 语言本身没有任何限制。在Python中，可以通过给对象属性名添加前缀下划线的方式来说明属性的访问可见性，例如，可以用__name表示一个私有属性，_name表示一个受保护属性。\n下划线(_)开头表示Python中的私有变量, 但私有变量在Python中不存在, 只需遵循一些规范即可\n除了对象方法之外，类中还可以有静态方法和类方法，这两类方法是发给类的消息，二者并没有实质性的区别\n可以直接使用类名.方法名的方式来调用静态方法和类方法，二者的区别在于，类方法的第一个参数是类对象本身，而静态方法则没有这个参数\n简单的总结一下，对象方法、类方法、静态方法都可以通过类名.方法名的方式来调用，区别在于方法的第一个参数到底是普通对象还是类对象，还是没有接受消息的对象。静态方法通常也可以直接写成一个独立的函数，因为它并没有跟特定的对象绑定\nsuper().init()来调用父类初始化方法，super函数是Python内置函数中专门为获取当前对象的父类对象而设计的\n子类继承父类的方法后，还可以对方法进行重写（重新实现该方法），不同的子类可以对父类的同一个方法给出不同的实现版本，这样的方法在程序运行时就会表现出多态行为（调用相同的方法，做了不同的事情）\n在没有特殊处理的情况下，函数的参数都是位置参数，也就意味着传入参数的时候对号入座即可\n调用函数时，如果希望函数的调用者必须以参数名=参数值的方式传参，可以用命名关键字参数（keyword-only argument）取代位置参数。所谓命名关键字参数，是在函数的参数列表中，写在*之后的参数\n在函数的参数列表中可以使用可变参数*args来接收任意数量的参数\n关键字参数会将传入的带参数名的参数组装成一个字典，参数名就是字典中键值对的键，而参数值就是字典中键值对的值\n不带参数名的参数（位置参数）必须出现在带参数名的参数（关键字参数）之前\n理论推导 语言模型（Language Model）中最经典的交叉熵损失函数（Cross-Entropy Loss） 在概率论和深度学习中，给概率 $P$ 取对数（$\\log$）绝不是为了让公式看起来更高级，而是出于数学稳定性、计算效率以及优化便利性的深度考量\n语言模型的目标是最大化整个序列出现的概率。假设一个序列有 $T$ 个词，其联合概率是每一个词出现的条件概率的连乘：\n$$P(x_1, x_2, \\dots, x_T) = \\prod_{t=1}^{T} P(x_t | x_{">
-    </head>
-    <body class="
-    article-page
-    ">
-    <script>
-        (function() {
-            const colorSchemeKey = 'StackColorScheme';
-            if(!localStorage.getItem(colorSchemeKey)){
-                localStorage.setItem(colorSchemeKey, "auto");
-            }
-        })();
-    </script><script>
-    (function() {
-        const colorSchemeKey = 'StackColorScheme';
-        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
-        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
-
-        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
-            
-
-            document.documentElement.dataset.scheme = 'dark';
-        } else {
-            document.documentElement.dataset.scheme = 'light';
-        }
-    })();
-</script>
-<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
-    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
-        <span class="hamburger-box">
-            <span class="hamburger-inner"></span>
-        </span>
-    </button>
-
-    <header>
-        
-            
-            <figure class="site-avatar">
-                <a href="/">
-                
-                    
-                    
-                    
-                        
-                        <img src="/img/blackcat_hu_9b67805b0bc532cc.jpg" width="300"
-                            height="300" class="site-logo" loading="lazy" alt="Avatar">
-                    
-                
-                </a>
-                
-            </figure>
-            
-        
-        
-        <div class="site-meta">
-            <h1 class="site-name"><a href="/">Huanyu Yang</a></h1>
-            <h2 class="site-description">Welcome to my blog!</h2>
-        </div>
-    </header><ol class="menu-social">
-            
-                <li>
-                    <a 
-                        href='https://github.com/QingZhou-YangHY'
-                        target="_blank"
-                        title="GitHub"
-                        rel="me"
-                    >
-                        
-                        
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
-</svg>
-
-
-
-                        
-                    </a>
-                </li>
-            
-        </ol><ol class="menu" id="main-menu">
-        
-        
-        
-        <li >
-            <a href='/' >
-                
-                
-                
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <polyline points="5 12 3 12 12 3 21 12 19 12" />
-  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
-  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
-</svg>
-
-
-
-                
-                <span>Home</span>
-            </a>
-        </li>
-        
-        
-        <li >
-            <a href='/about/' >
-                
-                
-                
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="7" r="4" />
-  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-</svg>
-
-
-
-                
-                <span>About</span>
-            </a>
-        </li>
-        
-        
-        <li >
-            <a href='/archives/' >
-                
-                
-                
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <rect x="3" y="4" width="18" height="4" rx="2" />
-  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
-  <line x1="10" y1="12" x2="14" y2="12" />
-</svg>
-
-
-
-                
-                <span>Archives</span>
-            </a>
-        </li>
-        
-        
-        <li >
-            <a href='/search/' >
-                
-                
-                
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="10" cy="10" r="7" />
-  <line x1="21" y1="21" x2="15" y2="15" />
-</svg>
-
-
-
-                
-                <span>Search</span>
-            </a>
-        </li>
-        
-        
-        <li >
-            <a href='/links/' >
-                
-                
-                
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
-  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
-</svg>
-
-
-
-                
-                <span>Links</span>
-            </a>
-        </li>
-        
-        <li class="menu-bottom-section">
-            <ol class="menu">
-                    
-                        <li id="i18n-switch">  
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-  <path d="M4 5h7" />
-  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
-  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
-  <path d="M12 20l4 -9l4 9" />
-  <path d="M19.1 18h-6.2" />
-</svg>
-
-
-
-                            <select name="language" title="language" onchange="window.location.href = this.selectedOptions[0].value">
-                                
-                                    <option value="http://localhost:1313/" selected>English</option>
-                                
-                                    <option value="http://localhost:1313/zh-cn/" >中文</option>
-                                
-                            </select>
-                        </li>
-                    
-                
-
-                
-                    <li id="dark-mode-toggle">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="8" cy="12" r="2" />
-  <rect x="2" y="6" width="20" height="12" rx="6" />
-</svg>
-
-
-
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="16" cy="12" r="2" />
-  <rect x="2" y="6" width="20" height="12" rx="6" />
-</svg>
-
-
-
-                        <span>Dark Mode</span>
-                    </li>
-                
-            </ol>
-        </li>
-    </ol>
-</aside>
-
-    <aside class="sidebar right-sidebar sticky">
-        
-            
-                
-    <section class="widget archives">
-        <div class="widget-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <line x1="5" y1="9" x2="19" y2="9" />
-  <line x1="5" y1="15" x2="19" y2="15" />
-  <line x1="11" y1="4" x2="7" y2="20" />
-  <line x1="17" y1="4" x2="13" y2="20" />
-</svg>
-
-
-
-        </div>
-        <h2 class="widget-title section-title">Table of contents</h2>
-        
-        <div class="widget--toc">
-            <nav id="TableOfContents">
-  <ol>
-    <li><a href="#成为一个好的工程师">成为一个好的工程师</a>
-      <ol>
-        <li><a href="#基本功笔记">基本功笔记</a>
-          <ol>
-            <li><a href="#allreduce">AllReduce</a></li>
-            <li><a href="#zerodp">ZeRO(DP)</a></li>
-            <li><a href="#tp">TP</a></li>
-            <li><a href="#关于随机种子设定的一般结论">关于随机种子设定的一般结论</a></li>
-            <li><a href="#python杂谈">python杂谈</a></li>
-            <li><a href="#理论推导">理论推导</a></li>
-            <li><a href="#语言模型language-model中最经典的交叉熵损失函数cross-entropy-loss">语言模型（Language Model）中最经典的交叉熵损失函数（Cross-Entropy Loss）</a></li>
-            <li><a href="#sft">SFT</a></li>
-            <li><a href="#dpo">DPO</a></li>
-            <li><a href="#rstrejection-sampling-fine-tuning">RST(Rejection Sampling Fine-tuning)</a></li>
-          </ol>
-        </li>
-        <li><a href="#attention">Attention</a>
-          <ol>
-            <li><a href="#softmax-attention">Softmax Attention</a></li>
-            <li><a href="#linear-attention">Linear Attention</a></li>
-            <li><a href="#deltanet">DeltaNet</a></li>
-            <li><a href="#gated-deltanet">Gated DeltaNet</a></li>
-          </ol>
-        </li>
-        <li><a href="#训练经验">训练经验</a>
-          <ol>
-            <li><a href="#个人实战经验">个人实战经验</a></li>
-            <li><a href="#他人经验">他人经验</a></li>
-          </ol>
-        </li>
-        <li><a href="#面向进程编程">面向进程编程</a></li>
-        <li><a href="#megatron">Megatron</a>
-          <ol>
-            <li><a href="#pretrain部分code大致流程">pretrain部分code大致流程</a></li>
-            <li><a href="#crossentropy">CrossEntropy</a></li>
-            <li><a href="#精度问题">精度问题</a></li>
-          </ol>
-        </li>
-        <li><a href="#deepspeed">DeepSpeed</a></li>
-        <li><a href="#监控平台">监控平台</a></li>
-        <li><a href="#verl框架使用方法快速上手">veRL框架使用方法/快速上手</a></li>
-      </ol>
-    </li>
-  </ol>
-</nav>
-        </div>
-    </section>
-
-            
-        
-    </aside>
-
-
-            <main class="main full-width">
-    <article class="main-article">
-    <header class="article-header">
-
-    <div class="article-details">
-    
-    <header class="article-category">
-        
-            <a href="/categories/notes/" style="background-color: #457b9d; color: #fff;">
-                Notes
-            </a>
-        
-    </header>
-    
-
-    <div class="article-title-wrapper">
-        <h2 class="article-title">
-            <a href="/p/be-a-good-engineer/">Be a good engineer</a>
-        </h2>
-    
-        
-    </div>
-
-    
-    
-    
-    
-    <footer class="article-time">
-        
-            <div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
-  <circle cx="18" cy="18" r="4" />
-  <path d="M15 3v4" />
-  <path d="M7 3v4" />
-  <path d="M3 11h16" />
-  <path d="M18 16.496v1.504l1 1" />
-</svg>
-                <time class="article-time--published">Jan 30, 2026</time>
-            </div>
-        
-
-        
-    </footer>
-    
-
-    
-</div>
-
-</header>
-
-    <section class="article-content">
-    
-    
-    <h2 id="成为一个好的工程师">成为一个好的工程师
-</h2><h3 id="基本功笔记">基本功笔记
-</h3><p>主流并行框架（DDP/DeepSpeed/Megatron）均基于 SPMD（Single Program Multiple Data）架构：所有进程执行相同代码逻辑，通过环境变量差异自主确定行为模式，无需中心调度节点。灵活性不如single-controller模式。</p>
-<p>计算GPU称为Worker，梯度聚合GPU称为Server</p>
-<h4 id="allreduce">AllReduce
-</h4><p>目前最通用的AllReduce方法：Ring-AllReduce。它由百度最先提出，非常有效地解决了数据并行中通讯负载不均的问题，使得DDP得以实现</p>
-<p>Ring-ALLReduce(&ldquo;先富带动后富&quot;思想)则分两大步骤实现该目标：Reduce-Scatter(圆排列转一圈后所有参数都有一个位置已经都更新完成)和All-Gather(把每一部分更新完的参数更新到其他的)</p>
-<p>Ring-AllReduce的方法，因为在之后的ZeRO，Megatron-LM中，它将频繁地出现，是分布式训练系统中重要的算子</p>
-<h4 id="zerodp">ZeRO(DP)
-</h4><p><a class="link" href="https://zhuanlan.zhihu.com/p/617133971"  target="_blank" rel="noopener"
-    >图解大模型训练之：数据并行上篇(DP, DDP与ZeRO)</a><br>
-<a class="link" href="https://zhuanlan.zhihu.com/p/618865052"  target="_blank" rel="noopener"
-    >图解大模型训练之：数据并行下篇(DeepSpeed ZeRO，零冗余优化)</a></p>
-<p>ZeRO是模型并行的形式，数据并行的实质</p>
-<ul>
-<li>模型并行，是指在forward和backward的过程中，我只需要用自己维护的那块W来计算就行。即同样的输入X，每块GPU上各算模型的一部分，最后通过某些方式聚合结果。
-但对ZeRO来说，它做forward和backward的时候，是需要把各GPU上维护的W聚合起来的，即本质上还是用完整的W进行计算。它是不同的输入X，完整的参数W，最终再做聚合。</li>
-</ul>
-<p>对activation的存储是灵活的。不像optimizer states，gradients和parameters对模型更新是必须的，activation只是起到加速梯度计算的作用。因此，在哪几层保存activation，保存哪些activation都是可以灵活设置的。</p>
-<p>ZeRO-Offload</p>
-<ul>
-<li>forward和backward计算量高，因此和它们相关的部分，例如参数W（fp16），activation，就全放入GPU。</li>
-<li>update的部分计算量低，因此和它相关的部分，全部放入CPU中。例如W(fp32)，optimizer states（fp32）和gradients(fp16)等。</li>
-</ul>
-<h4 id="tp">TP
-</h4><p><a class="link" href="https://zhuanlan.zhihu.com/p/622212228"  target="_blank" rel="noopener"
-    >图解大模型训练之：张量模型并行(TP)，Megatron-LM</a></p>
-<p>在之前的内容中，已经介绍过流水线并行(PP)、数据并行(DP，DDP和ZeRO)。下面将要介绍最重要，也是目前基于Transformer做大模型预训练最基本的并行范式：来自NVIDIA的张量模型并行(TP)。它的基本思想就是把模型的参数纵向切开，放到不同的GPU上进行独立计算，然后再做聚合。</p>
-<h4 id="关于随机种子设定的一般结论">关于随机种子设定的一般结论
-</h4><p>一般在TP/PP组内，设定不同的随机种子。而在DP组内，设定相同的随机种子。这只是一个一般结论，我们可以根据实际情况去调整</p>
-<h4 id="python杂谈">python杂谈
-</h4><p>语言本身没有任何限制。在Python中，可以通过给对象属性名添加前缀下划线的方式来说明属性的访问可见性，例如，可以用__name表示一个私有属性，_name表示一个受保护属性。</p>
-<p>下划线(_)开头表示Python中的私有变量, 但私有变量在Python中不存在, 只需遵循一些规范即可</p>
-<p>除了对象方法之外，类中还可以有静态方法和类方法，这两类方法是发给类的消息，二者并没有实质性的区别</p>
-<p>可以直接使用类名.方法名的方式来调用静态方法和类方法，二者的区别在于，类方法的第一个参数是类对象本身，而静态方法则没有这个参数</p>
-<p>简单的总结一下，对象方法、类方法、静态方法都可以通过类名.方法名的方式来调用，区别在于方法的第一个参数到底是普通对象还是类对象，还是没有接受消息的对象。静态方法通常也可以直接写成一个独立的函数，因为它并没有跟特定的对象绑定</p>
-<p>super().<strong>init</strong>()来调用父类初始化方法，super函数是Python内置函数中专门为获取当前对象的父类对象而设计的</p>
-<p>子类继承父类的方法后，还可以对方法进行重写（重新实现该方法），不同的子类可以对父类的同一个方法给出不同的实现版本，这样的方法在程序运行时就会表现出多态行为（调用相同的方法，做了不同的事情）</p>
-<hr>
-<p>在没有特殊处理的情况下，函数的参数都是位置参数，也就意味着传入参数的时候对号入座即可<br>
-调用函数时，如果希望函数的调用者必须以参数名=参数值的方式传参，可以用命名关键字参数（keyword-only argument）取代位置参数。所谓命名关键字参数，是在函数的参数列表中，写在*之后的参数</p>
-<p>在函数的参数列表中可以使用可变参数*args来接收任意数量的参数<br>
-关键字参数会将传入的带参数名的参数组装成一个字典，参数名就是字典中键值对的键，而参数值就是字典中键值对的值</p>
-<p>不带参数名的参数（位置参数）必须出现在带参数名的参数（关键字参数）之前</p>
-<hr>
-<h4 id="理论推导">理论推导
-</h4><h4 id="语言模型language-model中最经典的交叉熵损失函数cross-entropy-loss">语言模型（Language Model）中最经典的交叉熵损失函数（Cross-Entropy Loss）
-</h4><p>在概率论和深度学习中，给概率 $P$ 取对数（$\log$）绝不是为了让公式看起来更高级，而是出于数学稳定性、计算效率以及优化便利性的深度考量</p>
-<p>语言模型的目标是最大化整个序列出现的概率。假设一个序列有 $T$ 个词，其联合概率是每一个词出现的条件概率的连乘：</p>
-$$P(x_1, x_2, \dots, x_T) = \prod_{t=1}^{T} P(x_t | x_{<t})$$<p>证明:</p>
-<ul>
-<li>
-<p>e.g.</p>
-<p>$P(x_1, x_2, x_3) = P(x_1, x_2) \cdot P(x_3 | x_1, x_2)$</p>
-<p>$P(x_1, x_2) = P(x_1) \cdot P(x_2 | x_1)$</p>
-<p>=&gt;$P(x_1, x_2, x_3) = P(x_1) \cdot P(x_2 | x_1) \cdot P(x_3 | x_1, x_2)$</p>
-</li>
-<li>
-<p>递归进行约分</p>
-<p>$P(x_1, \dots, x_T) = P(x_1, \dots, x_{T-1}) \cdot P(x_T | x_1, \dots, x_{T-1})$</p>
-<p>$P(x_1, \dots, x_{T-1}) = P(x_1, \dots, x_{T-2}) \cdot P(x_{T-1} | x_1, \dots, x_{T-2})$</p>
-<p>&hellip;&hellip;</p>
-<p>直到拆到 $P(x_1)$</p>
-<p>两边约分 =&gt; $P(x_1, \dots, x_T) = P(x_1) \cdot P(x_2|x_1) \cdot P(x_3|x_{1,2}) \dots P(x_T|x_{&lt;T}) = \prod_{t=1}^{T} P(x_t | x_{&lt;t})$</p>
-</li>
-</ul>
-<blockquote>
-<p>注：当 $t=1$ 时，$x_{&lt;1}$ 为空集，即起始词概率 $P(x_1)$。</p></blockquote>
-<h4 id="sft">SFT
-</h4><p>next token loss或者叫lm loss，这是现代语言模型最原始、最直接的训练方式：</p>
-<p>$\mathcal{L}<em>{lm} = -\frac{1}{T} \sum</em>{t=1}^{T} log P(x_t | x_{&lt;t})$</p>
-<h4 id="dpo">DPO
-</h4><p>优化目标是最大化给定 $x$,$y_l$,$y_w$下，好answer优于坏answer的概率</p>
-<p>$\mathcal{L}<em>{DPO} = -\mathbb{E} \left[ \log \sigma \left( \beta \log \frac{\pi</em>\theta(y_w|x)}{\pi_{ref}(y_w|x)} - \beta \log \frac{\pi_\theta(y_l|x)}{\pi_{ref}(y_l|x)} \right) \right]$</p>
-<ul>
-<li>其中 $\pi_\theta$,$\pi_{ref}$分别表示正在训练的模型和冻住不训的参考模型，
-$x$,$y_l$,$y_w$分别表示prompt，较差的answer和较好的answer。</li>
-</ul>
-<p>目前工业界稳定跑通的DPO，很多用的都是下面这个公式：<br>
-$\mathcal{L}<em>{DPO} = -\mathbb{E} \left[ \log \sigma \left( \beta \log \frac{\pi</em>\theta(y_w|x)}{\pi_{ref}(y_w|x)} - \beta \log \frac{\pi_\theta(y_l|x)}{\pi_{ref}(y_l|x)} \right) +  \alpha \log \pi_\theta(y_w|x) \right]$</p>
-<p>另外额外提一嘴，DPO训练的时候 $\pi(y|x)$ 是 $\sum_{t=1}^{T} P(y_t|x_{&lt;t})$ ，而不是 $\frac{1}{T} \sum_{t=1}^{T} P(y_t|x_{&lt;t})$ ，这个原理我没有细究，因为我用的也不多。</p>
-<h4 id="rstrejection-sampling-fine-tuning">RST(Rejection Sampling Fine-tuning)
-</h4><p>我们希望充分利用偏好对训练出来的 $\pi^<em>$ 模型，但是 $\pi^</em>$ 又是个判别模型。既然判别模型做不了生成，那就找个生成的模型来采样，判别模型负责拒绝就可以了，于是也就有了拒绝采样的训练</p>
-<p>offline RST的一般流程如下：</p>
-<ol>
-<li>用经过SFT 的模型或few shot的 pretrain 模型回答 SFT 所有训练数据的问题，得到模型answer</li>
-<li>用奖励模型对SFT数据中原始的answer和模型生成answer进行打分</li>
-<li>得分 top1 的answer 去替换SFT数据中的原始answer，产生新的一版训练数据</li>
-<li>新的数据去训练1中用来生成answer的模型</li>
-<li>重复1-4：模型回答SFT数据-&gt;打分-&gt;top1替换得到新版数据-&gt;训练模型-&gt;模型回答SFT数据-&gt;打分-&gt;&hellip;.</li>
-</ol>
-<h3 id="attention">Attention
-</h3><p>定义</p>
-$$\mathbf{q}_i, \mathbf{k}_i, \mathbf{v}_i, \mathbf{o}_i \in \mathbb{R}^{d \times 1} $$$$\mathbf{Q} = [\mathbf{q}_1, \mathbf{q}_2, \dots, \mathbf{q}_n]^\top \in \mathbb{R}^{n \times d} $$$$\mathbf{K} = [\mathbf{k}_1, \mathbf{k}_2, \dots, \mathbf{k}_n]^\top \in \mathbb{R}^{n \times d} $$$$\mathbf{V} = [\mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_n]^\top \in \mathbb{R}^{n \times d} $$$$\mathbf{O} = [\mathbf{o}_1, \mathbf{o}_2, \dots, \mathbf{o}_n]^\top \in \mathbb{R}^{n \times d}$$<h4 id="softmax-attention">Softmax Attention
-</h4><p>Softmax Attention通常指 Attention is all you need 中的Attention机制</p>
-$$\mathbf{O} = \text{softmax}(\mathbf{Q}\mathbf{K}^\top + \log \mathbf{M})\mathbf{V}$$$$o_t = \sum_{j=1}^{t} \left( \underbrace{\frac{\exp(\boldsymbol{q}_t^\top \boldsymbol{k}_j)}{\sum_{j=1}^{t} \exp(\boldsymbol{q}_t^\top \boldsymbol{k}_j)}}_{\text{权重 } \alpha_{tj}} \right) \cdot \boldsymbol{v}_j= \frac{\sum_{j=1}^{t} \exp(\mathbf{q}_t^\top \mathbf{k}_j) \mathbf{v}_j}{\sum_{j=1}^{t} \exp(\mathbf{q}_t^\top \mathbf{k}_j)}$$<blockquote>
-<p>里面的分母可以提出来，每一项那部分都是常数</p></blockquote>
-<p>如果对最终输出O进行RMSNorm(Root Mean Square Layer Normalization)，分母会被消去，所以认为重点是分子部分</p>
-$$\mathbf{O} = \exp(\mathbf{Q}\mathbf{K}^\top + \log \mathbf{M})\mathbf{V} = (\exp(\mathbf{Q}\mathbf{K}^\top) \odot \mathbf{M})\mathbf{V} $$<blockquote>
-<p>其中⊙是hadmard积(逐元素积,相同形状的矩阵对应位置元素相乘)</p></blockquote>
-<h4 id="linear-attention">Linear Attention
-</h4><p>一开始的Linear Attention是模拟softmax attention,一种最简单的做法是去掉exp  </p>
-$$\mathbf{O} = (\mathbf{Q}\mathbf{K}^\top \odot \mathbf{M})\mathbf{V}$$<p>对于非Causal的注意力计算(没有$\mathbf{M}$)，可以通过矩阵交换律改变计算顺序得到线性的计算 </p>
-$$\mathbf{O} = \mathbf{Q}(\mathbf{K}^\top \mathbf{V})$$<blockquote>
-<p>原本$QK^\top$的时间复杂度是$O(n^{2}d)$，现在$K^\top V$的时间复杂度是$O(nd^{2})$，与Q相乘仍然是$O(nd^{2})$</p></blockquote>
-$$
+<!doctype html><html lang=en dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content='成为一个好的工程师 基本功笔记 主流并行框架（DDP/DeepSpeed/Megatron）均基于 SPMD（Single Program Multiple Data）架构：所有进程执行相同代码逻辑，通过环境变量差异自主确定行为模式，无需中心调度节点。灵活性不如single-controller模式。\n计算GPU称为Worker，梯度聚合GPU称为Server\nAllReduce 目前最通用的AllReduce方法：Ring-AllReduce。它由百度最先提出，非常有效地解决了数据并行中通讯负载不均的问题，使得DDP得以实现\nRing-ALLReduce(&ldquo;先富带动后富"思想)则分两大步骤实现该目标：Reduce-Scatter(圆排列转一圈后所有参数都有一个位置已经都更新完成)和All-Gather(把每一部分更新完的参数更新到其他的)\nRing-AllReduce的方法，因为在之后的ZeRO，Megatron-LM中，它将频繁地出现，是分布式训练系统中重要的算子\nZeRO(DP) 图解大模型训练之：数据并行上篇(DP, DDP与ZeRO)\n图解大模型训练之：数据并行下篇(DeepSpeed ZeRO，零冗余优化)\nZeRO是模型并行的形式，数据并行的实质\n模型并行，是指在forward和backward的过程中，我只需要用自己维护的那块W来计算就行。即同样的输入X，每块GPU上各算模型的一部分，最后通过某些方式聚合结果。 但对ZeRO来说，它做forward和backward的时候，是需要把各GPU上维护的W聚合起来的，即本质上还是用完整的W进行计算。它是不同的输入X，完整的参数W，最终再做聚合。 对activation的存储是灵活的。不像optimizer states，gradients和parameters对模型更新是必须的，activation只是起到加速梯度计算的作用。因此，在哪几层保存activation，保存哪些activation都是可以灵活设置的。\nZeRO-Offload\nforward和backward计算量高，因此和它们相关的部分，例如参数W（fp16），activation，就全放入GPU。 update的部分计算量低，因此和它相关的部分，全部放入CPU中。例如W(fp32)，optimizer states（fp32）和gradients(fp16)等。 TP 图解大模型训练之：张量模型并行(TP)，Megatron-LM\n在之前的内容中，已经介绍过流水线并行(PP)、数据并行(DP，DDP和ZeRO)。下面将要介绍最重要，也是目前基于Transformer做大模型预训练最基本的并行范式：来自NVIDIA的张量模型并行(TP)。它的基本思想就是把模型的参数纵向切开，放到不同的GPU上进行独立计算，然后再做聚合。\n关于随机种子设定的一般结论 一般在TP/PP组内，设定不同的随机种子。而在DP组内，设定相同的随机种子。这只是一个一般结论，我们可以根据实际情况去调整\npython杂谈 语言本身没有任何限制。在Python中，可以通过给对象属性名添加前缀下划线的方式来说明属性的访问可见性，例如，可以用__name表示一个私有属性，_name表示一个受保护属性。\n下划线(_)开头表示Python中的私有变量, 但私有变量在Python中不存在, 只需遵循一些规范即可\n除了对象方法之外，类中还可以有静态方法和类方法，这两类方法是发给类的消息，二者并没有实质性的区别\n可以直接使用类名.方法名的方式来调用静态方法和类方法，二者的区别在于，类方法的第一个参数是类对象本身，而静态方法则没有这个参数\n简单的总结一下，对象方法、类方法、静态方法都可以通过类名.方法名的方式来调用，区别在于方法的第一个参数到底是普通对象还是类对象，还是没有接受消息的对象。静态方法通常也可以直接写成一个独立的函数，因为它并没有跟特定的对象绑定\nsuper().init()来调用父类初始化方法，super函数是Python内置函数中专门为获取当前对象的父类对象而设计的\n子类继承父类的方法后，还可以对方法进行重写（重新实现该方法），不同的子类可以对父类的同一个方法给出不同的实现版本，这样的方法在程序运行时就会表现出多态行为（调用相同的方法，做了不同的事情）\n在没有特殊处理的情况下，函数的参数都是位置参数，也就意味着传入参数的时候对号入座即可\n调用函数时，如果希望函数的调用者必须以参数名=参数值的方式传参，可以用命名关键字参数（keyword-only argument）取代位置参数。所谓命名关键字参数，是在函数的参数列表中，写在*之后的参数\n在函数的参数列表中可以使用可变参数*args来接收任意数量的参数\n关键字参数会将传入的带参数名的参数组装成一个字典，参数名就是字典中键值对的键，而参数值就是字典中键值对的值\n不带参数名的参数（位置参数）必须出现在带参数名的参数（关键字参数）之前\n理论推导 语言模型（Language Model）中最经典的交叉熵损失函数（Cross-Entropy Loss） 在概率论和深度学习中，给概率 $P$ 取对数（$\\log$）绝不是为了让公式看起来更高级，而是出于数学稳定性、计算效率以及优化便利性的深度考量\n语言模型的目标是最大化整个序列出现的概率。假设一个序列有 $T$ 个词，其联合概率是每一个词出现的条件概率的连乘：\n$$P(x_1, x_2, \\dots, x_T) = \\prod_{t=1}^{T} P(x_t | x_{'><title>Be a good engineer</title><link rel=canonical href=https://QingZhou-YangHY.github.io/p/be-a-good-engineer/><link rel=stylesheet href=/scss/style.min.28097fc829e4f20bbfd960f4ae234851a62a2c44368c87af13a1dfb22484a671.css><meta property='og:title' content="Be a good engineer"><meta property='og:description' content='成为一个好的工程师 基本功笔记 主流并行框架（DDP/DeepSpeed/Megatron）均基于 SPMD（Single Program Multiple Data）架构：所有进程执行相同代码逻辑，通过环境变量差异自主确定行为模式，无需中心调度节点。灵活性不如single-controller模式。\n计算GPU称为Worker，梯度聚合GPU称为Server\nAllReduce 目前最通用的AllReduce方法：Ring-AllReduce。它由百度最先提出，非常有效地解决了数据并行中通讯负载不均的问题，使得DDP得以实现\nRing-ALLReduce(&ldquo;先富带动后富"思想)则分两大步骤实现该目标：Reduce-Scatter(圆排列转一圈后所有参数都有一个位置已经都更新完成)和All-Gather(把每一部分更新完的参数更新到其他的)\nRing-AllReduce的方法，因为在之后的ZeRO，Megatron-LM中，它将频繁地出现，是分布式训练系统中重要的算子\nZeRO(DP) 图解大模型训练之：数据并行上篇(DP, DDP与ZeRO)\n图解大模型训练之：数据并行下篇(DeepSpeed ZeRO，零冗余优化)\nZeRO是模型并行的形式，数据并行的实质\n模型并行，是指在forward和backward的过程中，我只需要用自己维护的那块W来计算就行。即同样的输入X，每块GPU上各算模型的一部分，最后通过某些方式聚合结果。 但对ZeRO来说，它做forward和backward的时候，是需要把各GPU上维护的W聚合起来的，即本质上还是用完整的W进行计算。它是不同的输入X，完整的参数W，最终再做聚合。 对activation的存储是灵活的。不像optimizer states，gradients和parameters对模型更新是必须的，activation只是起到加速梯度计算的作用。因此，在哪几层保存activation，保存哪些activation都是可以灵活设置的。\nZeRO-Offload\nforward和backward计算量高，因此和它们相关的部分，例如参数W（fp16），activation，就全放入GPU。 update的部分计算量低，因此和它相关的部分，全部放入CPU中。例如W(fp32)，optimizer states（fp32）和gradients(fp16)等。 TP 图解大模型训练之：张量模型并行(TP)，Megatron-LM\n在之前的内容中，已经介绍过流水线并行(PP)、数据并行(DP，DDP和ZeRO)。下面将要介绍最重要，也是目前基于Transformer做大模型预训练最基本的并行范式：来自NVIDIA的张量模型并行(TP)。它的基本思想就是把模型的参数纵向切开，放到不同的GPU上进行独立计算，然后再做聚合。\n关于随机种子设定的一般结论 一般在TP/PP组内，设定不同的随机种子。而在DP组内，设定相同的随机种子。这只是一个一般结论，我们可以根据实际情况去调整\npython杂谈 语言本身没有任何限制。在Python中，可以通过给对象属性名添加前缀下划线的方式来说明属性的访问可见性，例如，可以用__name表示一个私有属性，_name表示一个受保护属性。\n下划线(_)开头表示Python中的私有变量, 但私有变量在Python中不存在, 只需遵循一些规范即可\n除了对象方法之外，类中还可以有静态方法和类方法，这两类方法是发给类的消息，二者并没有实质性的区别\n可以直接使用类名.方法名的方式来调用静态方法和类方法，二者的区别在于，类方法的第一个参数是类对象本身，而静态方法则没有这个参数\n简单的总结一下，对象方法、类方法、静态方法都可以通过类名.方法名的方式来调用，区别在于方法的第一个参数到底是普通对象还是类对象，还是没有接受消息的对象。静态方法通常也可以直接写成一个独立的函数，因为它并没有跟特定的对象绑定\nsuper().init()来调用父类初始化方法，super函数是Python内置函数中专门为获取当前对象的父类对象而设计的\n子类继承父类的方法后，还可以对方法进行重写（重新实现该方法），不同的子类可以对父类的同一个方法给出不同的实现版本，这样的方法在程序运行时就会表现出多态行为（调用相同的方法，做了不同的事情）\n在没有特殊处理的情况下，函数的参数都是位置参数，也就意味着传入参数的时候对号入座即可\n调用函数时，如果希望函数的调用者必须以参数名=参数值的方式传参，可以用命名关键字参数（keyword-only argument）取代位置参数。所谓命名关键字参数，是在函数的参数列表中，写在*之后的参数\n在函数的参数列表中可以使用可变参数*args来接收任意数量的参数\n关键字参数会将传入的带参数名的参数组装成一个字典，参数名就是字典中键值对的键，而参数值就是字典中键值对的值\n不带参数名的参数（位置参数）必须出现在带参数名的参数（关键字参数）之前\n理论推导 语言模型（Language Model）中最经典的交叉熵损失函数（Cross-Entropy Loss） 在概率论和深度学习中，给概率 $P$ 取对数（$\\log$）绝不是为了让公式看起来更高级，而是出于数学稳定性、计算效率以及优化便利性的深度考量\n语言模型的目标是最大化整个序列出现的概率。假设一个序列有 $T$ 个词，其联合概率是每一个词出现的条件概率的连乘：\n$$P(x_1, x_2, \\dots, x_T) = \\prod_{t=1}^{T} P(x_t | x_{'><meta property='og:url' content='https://QingZhou-YangHY.github.io/p/be-a-good-engineer/'><meta property='og:site_name' content='Huanyu Yang'><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:published_time' content='2026-01-30T00:00:00+00:00'><meta property='article:modified_time' content='2026-01-30T00:00:00+00:00'><meta name=twitter:title content="Be a good engineer"><meta name=twitter:description content='成为一个好的工程师 基本功笔记 主流并行框架（DDP/DeepSpeed/Megatron）均基于 SPMD（Single Program Multiple Data）架构：所有进程执行相同代码逻辑，通过环境变量差异自主确定行为模式，无需中心调度节点。灵活性不如single-controller模式。\n计算GPU称为Worker，梯度聚合GPU称为Server\nAllReduce 目前最通用的AllReduce方法：Ring-AllReduce。它由百度最先提出，非常有效地解决了数据并行中通讯负载不均的问题，使得DDP得以实现\nRing-ALLReduce(&ldquo;先富带动后富"思想)则分两大步骤实现该目标：Reduce-Scatter(圆排列转一圈后所有参数都有一个位置已经都更新完成)和All-Gather(把每一部分更新完的参数更新到其他的)\nRing-AllReduce的方法，因为在之后的ZeRO，Megatron-LM中，它将频繁地出现，是分布式训练系统中重要的算子\nZeRO(DP) 图解大模型训练之：数据并行上篇(DP, DDP与ZeRO)\n图解大模型训练之：数据并行下篇(DeepSpeed ZeRO，零冗余优化)\nZeRO是模型并行的形式，数据并行的实质\n模型并行，是指在forward和backward的过程中，我只需要用自己维护的那块W来计算就行。即同样的输入X，每块GPU上各算模型的一部分，最后通过某些方式聚合结果。 但对ZeRO来说，它做forward和backward的时候，是需要把各GPU上维护的W聚合起来的，即本质上还是用完整的W进行计算。它是不同的输入X，完整的参数W，最终再做聚合。 对activation的存储是灵活的。不像optimizer states，gradients和parameters对模型更新是必须的，activation只是起到加速梯度计算的作用。因此，在哪几层保存activation，保存哪些activation都是可以灵活设置的。\nZeRO-Offload\nforward和backward计算量高，因此和它们相关的部分，例如参数W（fp16），activation，就全放入GPU。 update的部分计算量低，因此和它相关的部分，全部放入CPU中。例如W(fp32)，optimizer states（fp32）和gradients(fp16)等。 TP 图解大模型训练之：张量模型并行(TP)，Megatron-LM\n在之前的内容中，已经介绍过流水线并行(PP)、数据并行(DP，DDP和ZeRO)。下面将要介绍最重要，也是目前基于Transformer做大模型预训练最基本的并行范式：来自NVIDIA的张量模型并行(TP)。它的基本思想就是把模型的参数纵向切开，放到不同的GPU上进行独立计算，然后再做聚合。\n关于随机种子设定的一般结论 一般在TP/PP组内，设定不同的随机种子。而在DP组内，设定相同的随机种子。这只是一个一般结论，我们可以根据实际情况去调整\npython杂谈 语言本身没有任何限制。在Python中，可以通过给对象属性名添加前缀下划线的方式来说明属性的访问可见性，例如，可以用__name表示一个私有属性，_name表示一个受保护属性。\n下划线(_)开头表示Python中的私有变量, 但私有变量在Python中不存在, 只需遵循一些规范即可\n除了对象方法之外，类中还可以有静态方法和类方法，这两类方法是发给类的消息，二者并没有实质性的区别\n可以直接使用类名.方法名的方式来调用静态方法和类方法，二者的区别在于，类方法的第一个参数是类对象本身，而静态方法则没有这个参数\n简单的总结一下，对象方法、类方法、静态方法都可以通过类名.方法名的方式来调用，区别在于方法的第一个参数到底是普通对象还是类对象，还是没有接受消息的对象。静态方法通常也可以直接写成一个独立的函数，因为它并没有跟特定的对象绑定\nsuper().init()来调用父类初始化方法，super函数是Python内置函数中专门为获取当前对象的父类对象而设计的\n子类继承父类的方法后，还可以对方法进行重写（重新实现该方法），不同的子类可以对父类的同一个方法给出不同的实现版本，这样的方法在程序运行时就会表现出多态行为（调用相同的方法，做了不同的事情）\n在没有特殊处理的情况下，函数的参数都是位置参数，也就意味着传入参数的时候对号入座即可\n调用函数时，如果希望函数的调用者必须以参数名=参数值的方式传参，可以用命名关键字参数（keyword-only argument）取代位置参数。所谓命名关键字参数，是在函数的参数列表中，写在*之后的参数\n在函数的参数列表中可以使用可变参数*args来接收任意数量的参数\n关键字参数会将传入的带参数名的参数组装成一个字典，参数名就是字典中键值对的键，而参数值就是字典中键值对的值\n不带参数名的参数（位置参数）必须出现在带参数名的参数（关键字参数）之前\n理论推导 语言模型（Language Model）中最经典的交叉熵损失函数（Cross-Entropy Loss） 在概率论和深度学习中，给概率 $P$ 取对数（$\\log$）绝不是为了让公式看起来更高级，而是出于数学稳定性、计算效率以及优化便利性的深度考量\n语言模型的目标是最大化整个序列出现的概率。假设一个序列有 $T$ 个词，其联合概率是每一个词出现的条件概率的连乘：\n$$P(x_1, x_2, \\dots, x_T) = \\prod_{t=1}^{T} P(x_t | x_{'><link rel=preload as=font type=font/woff2 href=/fonts/inter-400.woff2 crossorigin><link rel=preload as=font type=font/woff2 href=/fonts/serif-700.woff2 crossorigin></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"light")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label="Toggle Menu">
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=/img/blackcat_hu_9b67805b0bc532cc.jpg width=300 height=300 class=site-logo loading=lazy alt=Avatar></a></figure><div class=site-meta><h1 class=site-name><a href=/>Huanyu Yang</a></h1><h2 class=site-description>Building LLM agents. Notes on agents, post-training, and RL infra.</h2></div></header><ol class=menu-social><li><a href=mailto:yhy3868850350@gmail.com target=_blank title=Email rel=me><svg class="icon icon-tabler icon-tabler-mail" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M3 7a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/><path d="M3 7l9 6 9-6"/></svg></a></li><li><a href=https://github.com/QingZhou-YangHY target=_blank title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>Home</span></a></li><li><a href=/about/><svg class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg>
+<span>About</span></a></li><li><a href=/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>Archives</span></a></li><li><a href=/search/><svg class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg>
+<span>Search</span></a></li><li><a href=/links/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>Links</span></a></li><li class=menu-bottom-section><ol class=menu><li id=i18n-switch><svg class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 5h7"/><path d="M9 3v2c0 4.418-2.239 8-5 8"/><path d="M5 9c-.003 2.144 2.952 3.908 6.7 4"/><path d="M12 20l4-9 4 9"/><path d="M19.1 18h-6.2"/></svg>
+<select name=language title=language onchange="window.location.href=this.selectedOptions[0].value"><option value=https://QingZhou-YangHY.github.io/p/be-a-good-engineer/ selected>English</option><option value=https://QingZhou-YangHY.github.io/zh-cn/>中文</option></select></li><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>Dark Mode</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">Table of contents</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#成为一个好的工程师>成为一个好的工程师</a><ol><li><a href=#基本功笔记>基本功笔记</a><ol><li><a href=#allreduce>AllReduce</a></li><li><a href=#zerodp>ZeRO(DP)</a></li><li><a href=#tp>TP</a></li><li><a href=#关于随机种子设定的一般结论>关于随机种子设定的一般结论</a></li><li><a href=#python杂谈>python杂谈</a></li><li><a href=#理论推导>理论推导</a></li><li><a href=#语言模型language-model中最经典的交叉熵损失函数cross-entropy-loss>语言模型（Language Model）中最经典的交叉熵损失函数（Cross-Entropy Loss）</a></li><li><a href=#sft>SFT</a></li><li><a href=#dpo>DPO</a></li><li><a href=#rstrejection-sampling-fine-tuning>RST(Rejection Sampling Fine-tuning)</a></li></ol></li><li><a href=#attention>Attention</a><ol><li><a href=#softmax-attention>Softmax Attention</a></li><li><a href=#linear-attention>Linear Attention</a></li><li><a href=#deltanet>DeltaNet</a></li><li><a href=#gated-deltanet>Gated DeltaNet</a></li></ol></li><li><a href=#训练经验>训练经验</a><ol><li><a href=#个人实战经验>个人实战经验</a></li><li><a href=#他人经验>他人经验</a></li></ol></li><li><a href=#面向进程编程>面向进程编程</a></li><li><a href=#megatron>Megatron</a><ol><li><a href=#pretrain部分code大致流程>pretrain部分code大致流程</a></li><li><a href=#crossentropy>CrossEntropy</a></li><li><a href=#精度问题>精度问题</a></li></ol></li><li><a href=#deepspeed>DeepSpeed</a></li><li><a href=#监控平台>监控平台</a></li><li><a href=#verl框架使用方法快速上手>veRL框架使用方法/快速上手</a></li></ol></li></ol></nav></div></section></aside><main class="main full-width"><article class=main-article><header class=article-header><div class=article-details><header class=article-category><a href=/categories/notes/>Notes</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/p/be-a-good-engineer/>Be a good engineer</a></h2></div><footer class=article-time><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published>Jan 30, 2026</time></div></footer></div></header><section class=article-content><h2 id=成为一个好的工程师>成为一个好的工程师</h2><h3 id=基本功笔记>基本功笔记</h3><p>主流并行框架（DDP/DeepSpeed/Megatron）均基于 SPMD（Single Program Multiple Data）架构：所有进程执行相同代码逻辑，通过环境变量差异自主确定行为模式，无需中心调度节点。灵活性不如single-controller模式。</p><p>计算GPU称为Worker，梯度聚合GPU称为Server</p><h4 id=allreduce>AllReduce</h4><p>目前最通用的AllReduce方法：Ring-AllReduce。它由百度最先提出，非常有效地解决了数据并行中通讯负载不均的问题，使得DDP得以实现</p><p>Ring-ALLReduce(&ldquo;先富带动后富"思想)则分两大步骤实现该目标：Reduce-Scatter(圆排列转一圈后所有参数都有一个位置已经都更新完成)和All-Gather(把每一部分更新完的参数更新到其他的)</p><p>Ring-AllReduce的方法，因为在之后的ZeRO，Megatron-LM中，它将频繁地出现，是分布式训练系统中重要的算子</p><h4 id=zerodp>ZeRO(DP)</h4><p><a class=link href=https://zhuanlan.zhihu.com/p/617133971 target=_blank rel=noopener>图解大模型训练之：数据并行上篇(DP, DDP与ZeRO)</a><br><a class=link href=https://zhuanlan.zhihu.com/p/618865052 target=_blank rel=noopener>图解大模型训练之：数据并行下篇(DeepSpeed ZeRO，零冗余优化)</a></p><p>ZeRO是模型并行的形式，数据并行的实质</p><ul><li>模型并行，是指在forward和backward的过程中，我只需要用自己维护的那块W来计算就行。即同样的输入X，每块GPU上各算模型的一部分，最后通过某些方式聚合结果。
+但对ZeRO来说，它做forward和backward的时候，是需要把各GPU上维护的W聚合起来的，即本质上还是用完整的W进行计算。它是不同的输入X，完整的参数W，最终再做聚合。</li></ul><p>对activation的存储是灵活的。不像optimizer states，gradients和parameters对模型更新是必须的，activation只是起到加速梯度计算的作用。因此，在哪几层保存activation，保存哪些activation都是可以灵活设置的。</p><p>ZeRO-Offload</p><ul><li>forward和backward计算量高，因此和它们相关的部分，例如参数W（fp16），activation，就全放入GPU。</li><li>update的部分计算量低，因此和它相关的部分，全部放入CPU中。例如W(fp32)，optimizer states（fp32）和gradients(fp16)等。</li></ul><h4 id=tp>TP</h4><p><a class=link href=https://zhuanlan.zhihu.com/p/622212228 target=_blank rel=noopener>图解大模型训练之：张量模型并行(TP)，Megatron-LM</a></p><p>在之前的内容中，已经介绍过流水线并行(PP)、数据并行(DP，DDP和ZeRO)。下面将要介绍最重要，也是目前基于Transformer做大模型预训练最基本的并行范式：来自NVIDIA的张量模型并行(TP)。它的基本思想就是把模型的参数纵向切开，放到不同的GPU上进行独立计算，然后再做聚合。</p><h4 id=关于随机种子设定的一般结论>关于随机种子设定的一般结论</h4><p>一般在TP/PP组内，设定不同的随机种子。而在DP组内，设定相同的随机种子。这只是一个一般结论，我们可以根据实际情况去调整</p><h4 id=python杂谈>python杂谈</h4><p>语言本身没有任何限制。在Python中，可以通过给对象属性名添加前缀下划线的方式来说明属性的访问可见性，例如，可以用__name表示一个私有属性，_name表示一个受保护属性。</p><p>下划线(_)开头表示Python中的私有变量, 但私有变量在Python中不存在, 只需遵循一些规范即可</p><p>除了对象方法之外，类中还可以有静态方法和类方法，这两类方法是发给类的消息，二者并没有实质性的区别</p><p>可以直接使用类名.方法名的方式来调用静态方法和类方法，二者的区别在于，类方法的第一个参数是类对象本身，而静态方法则没有这个参数</p><p>简单的总结一下，对象方法、类方法、静态方法都可以通过类名.方法名的方式来调用，区别在于方法的第一个参数到底是普通对象还是类对象，还是没有接受消息的对象。静态方法通常也可以直接写成一个独立的函数，因为它并没有跟特定的对象绑定</p><p>super().<strong>init</strong>()来调用父类初始化方法，super函数是Python内置函数中专门为获取当前对象的父类对象而设计的</p><p>子类继承父类的方法后，还可以对方法进行重写（重新实现该方法），不同的子类可以对父类的同一个方法给出不同的实现版本，这样的方法在程序运行时就会表现出多态行为（调用相同的方法，做了不同的事情）</p><hr><p>在没有特殊处理的情况下，函数的参数都是位置参数，也就意味着传入参数的时候对号入座即可<br>调用函数时，如果希望函数的调用者必须以参数名=参数值的方式传参，可以用命名关键字参数（keyword-only argument）取代位置参数。所谓命名关键字参数，是在函数的参数列表中，写在*之后的参数</p><p>在函数的参数列表中可以使用可变参数*args来接收任意数量的参数<br>关键字参数会将传入的带参数名的参数组装成一个字典，参数名就是字典中键值对的键，而参数值就是字典中键值对的值</p><p>不带参数名的参数（位置参数）必须出现在带参数名的参数（关键字参数）之前</p><hr><h4 id=理论推导>理论推导</h4><h4 id=语言模型language-model中最经典的交叉熵损失函数cross-entropy-loss>语言模型（Language Model）中最经典的交叉熵损失函数（Cross-Entropy Loss）</h4><p>在概率论和深度学习中，给概率 $P$ 取对数（$\log$）绝不是为了让公式看起来更高级，而是出于数学稳定性、计算效率以及优化便利性的深度考量</p><p>语言模型的目标是最大化整个序列出现的概率。假设一个序列有 $T$ 个词，其联合概率是每一个词出现的条件概率的连乘：</p>$$P(x_1, x_2, \dots, x_T) = \prod_{t=1}^{T} P(x_t | x_{<t})$$<p>证明:</p><ul><li><p>e.g.</p><p>$P(x_1, x_2, x_3) = P(x_1, x_2) \cdot P(x_3 | x_1, x_2)$</p><p>$P(x_1, x_2) = P(x_1) \cdot P(x_2 | x_1)$</p><p>=>$P(x_1, x_2, x_3) = P(x_1) \cdot P(x_2 | x_1) \cdot P(x_3 | x_1, x_2)$</p></li><li><p>递归进行约分</p><p>$P(x_1, \dots, x_T) = P(x_1, \dots, x_{T-1}) \cdot P(x_T | x_1, \dots, x_{T-1})$</p><p>$P(x_1, \dots, x_{T-1}) = P(x_1, \dots, x_{T-2}) \cdot P(x_{T-1} | x_1, \dots, x_{T-2})$</p><p>&mldr;&mldr;</p><p>直到拆到 $P(x_1)$</p><p>两边约分 => $P(x_1, \dots, x_T) = P(x_1) \cdot P(x_2|x_1) \cdot P(x_3|x_{1,2}) \dots P(x_T|x_{&lt;T}) = \prod_{t=1}^{T} P(x_t | x_{&lt;t})$</p></li></ul><blockquote><p>注：当 $t=1$ 时，$x_{&lt;1}$ 为空集，即起始词概率 $P(x_1)$。</p></blockquote><h4 id=sft>SFT</h4><p>next token loss或者叫lm loss，这是现代语言模型最原始、最直接的训练方式：</p><p>$\mathcal{L}<em>{lm} = -\frac{1}{T} \sum</em>{t=1}^{T} log P(x_t | x_{&lt;t})$</p><h4 id=dpo>DPO</h4><p>优化目标是最大化给定 $x$,$y_l$,$y_w$下，好answer优于坏answer的概率</p><p>$\mathcal{L}<em>{DPO} = -\mathbb{E} \left[ \log \sigma \left( \beta \log \frac{\pi</em>\theta(y_w|x)}{\pi_{ref}(y_w|x)} - \beta \log \frac{\pi_\theta(y_l|x)}{\pi_{ref}(y_l|x)} \right) \right]$</p><ul><li>其中 $\pi_\theta$,$\pi_{ref}$分别表示正在训练的模型和冻住不训的参考模型，
+$x$,$y_l$,$y_w$分别表示prompt，较差的answer和较好的answer。</li></ul><p>目前工业界稳定跑通的DPO，很多用的都是下面这个公式：<br>$\mathcal{L}<em>{DPO} = -\mathbb{E} \left[ \log \sigma \left( \beta \log \frac{\pi</em>\theta(y_w|x)}{\pi_{ref}(y_w|x)} - \beta \log \frac{\pi_\theta(y_l|x)}{\pi_{ref}(y_l|x)} \right) + \alpha \log \pi_\theta(y_w|x) \right]$</p><p>另外额外提一嘴，DPO训练的时候 $\pi(y|x)$ 是 $\sum_{t=1}^{T} P(y_t|x_{&lt;t})$ ，而不是 $\frac{1}{T} \sum_{t=1}^{T} P(y_t|x_{&lt;t})$ ，这个原理我没有细究，因为我用的也不多。</p><h4 id=rstrejection-sampling-fine-tuning>RST(Rejection Sampling Fine-tuning)</h4><p>我们希望充分利用偏好对训练出来的 $\pi^<em>$ 模型，但是 $\pi^</em>$ 又是个判别模型。既然判别模型做不了生成，那就找个生成的模型来采样，判别模型负责拒绝就可以了，于是也就有了拒绝采样的训练</p><p>offline RST的一般流程如下：</p><ol><li>用经过SFT 的模型或few shot的 pretrain 模型回答 SFT 所有训练数据的问题，得到模型answer</li><li>用奖励模型对SFT数据中原始的answer和模型生成answer进行打分</li><li>得分 top1 的answer 去替换SFT数据中的原始answer，产生新的一版训练数据</li><li>新的数据去训练1中用来生成answer的模型</li><li>重复1-4：模型回答SFT数据->打分->top1替换得到新版数据->训练模型->模型回答SFT数据->打分->&mldr;.</li></ol><h3 id=attention>Attention</h3><p>定义</p>$$\mathbf{q}_i, \mathbf{k}_i, \mathbf{v}_i, \mathbf{o}_i \in \mathbb{R}^{d \times 1} $$$$\mathbf{Q} = [\mathbf{q}_1, \mathbf{q}_2, \dots, \mathbf{q}_n]^\top \in \mathbb{R}^{n \times d} $$$$\mathbf{K} = [\mathbf{k}_1, \mathbf{k}_2, \dots, \mathbf{k}_n]^\top \in \mathbb{R}^{n \times d} $$$$\mathbf{V} = [\mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_n]^\top \in \mathbb{R}^{n \times d} $$$$\mathbf{O} = [\mathbf{o}_1, \mathbf{o}_2, \dots, \mathbf{o}_n]^\top \in \mathbb{R}^{n \times d}$$<h4 id=softmax-attention>Softmax Attention</h4><p>Softmax Attention通常指 Attention is all you need 中的Attention机制</p>$$\mathbf{O} = \text{softmax}(\mathbf{Q}\mathbf{K}^\top + \log \mathbf{M})\mathbf{V}$$$$o_t = \sum_{j=1}^{t} \left( \underbrace{\frac{\exp(\boldsymbol{q}_t^\top \boldsymbol{k}_j)}{\sum_{j=1}^{t} \exp(\boldsymbol{q}_t^\top \boldsymbol{k}_j)}}_{\text{权重 } \alpha_{tj}} \right) \cdot \boldsymbol{v}_j= \frac{\sum_{j=1}^{t} \exp(\mathbf{q}_t^\top \mathbf{k}_j) \mathbf{v}_j}{\sum_{j=1}^{t} \exp(\mathbf{q}_t^\top \mathbf{k}_j)}$$<blockquote><p>里面的分母可以提出来，每一项那部分都是常数</p></blockquote><p>如果对最终输出O进行RMSNorm(Root Mean Square Layer Normalization)，分母会被消去，所以认为重点是分子部分</p>$$\mathbf{O} = \exp(\mathbf{Q}\mathbf{K}^\top + \log \mathbf{M})\mathbf{V} = (\exp(\mathbf{Q}\mathbf{K}^\top) \odot \mathbf{M})\mathbf{V} $$<blockquote><p>其中⊙是hadmard积(逐元素积,相同形状的矩阵对应位置元素相乘)</p></blockquote><h4 id=linear-attention>Linear Attention</h4><p>一开始的Linear Attention是模拟softmax attention,一种最简单的做法是去掉exp</p>$$\mathbf{O} = (\mathbf{Q}\mathbf{K}^\top \odot \mathbf{M})\mathbf{V}$$<p>对于非Causal的注意力计算(没有$\mathbf{M}$)，可以通过矩阵交换律改变计算顺序得到线性的计算</p>$$\mathbf{O} = \mathbf{Q}(\mathbf{K}^\top \mathbf{V})$$<blockquote><p>原本$QK^\top$的时间复杂度是$O(n^{2}d)$，现在$K^\top V$的时间复杂度是$O(nd^{2})$，与Q相乘仍然是$O(nd^{2})$</p></blockquote>$$
 \mathbf{o}_t = \sum_{j=1}^{t} \mathbf{v}_j (\mathbf{k}_j^\top \mathbf{q}_t) = \sum_{j=1}^{t} (\mathbf{v}_j \mathbf{k}_j^\top) \mathbf{q}_t = \left( \sum_{j=1}^{t} \mathbf{v}_j \mathbf{k}_j^\top \right) \mathbf{q}_t
-$$<p>下图手证 $\mathbf{o}<em>t = \sum</em>{j=1}^{t} \mathbf{v}_j (\mathbf{k}_j^\top \mathbf{q}_t)$ ,记住矩阵有结合律和分配律, 没有交换律和消去律</p>
-<p><img src="/p/be-a-good-engineer/image/linear_o_t.jpg"
-	width="4096"
-	height="3072"
-	srcset="/p/be-a-good-engineer/image/linear_o_t_hu_a8461dbdbd422eee.jpg 480w, /p/be-a-good-engineer/image/linear_o_t_hu_c38bb4eb534f65f2.jpg 1024w"
-	loading="lazy"
-	
-		alt="linear_o_t"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="133"
-		data-flex-basis="320px"
-	
-></p>
-<p>将括号部分标记为 $S_t$ ,有 </p>
-$$
+$$<p>下图手证 $\mathbf{o}<em>t = \sum</em>{j=1}^{t} \mathbf{v}_j (\mathbf{k}_j^\top \mathbf{q}_t)$ ,记住矩阵有结合律和分配律, 没有交换律和消去律</p><p><img src=/p/be-a-good-engineer/image/linear_o_t.jpg width=4096 height=3072 srcset="/p/be-a-good-engineer/image/linear_o_t_hu_a8461dbdbd422eee.jpg 480w, /p/be-a-good-engineer/image/linear_o_t_hu_c38bb4eb534f65f2.jpg 1024w" loading=lazy alt=linear_o_t class=gallery-image data-flex-grow=133 data-flex-basis=320px></p><p>将括号部分标记为 $S_t$ ,有</p>$$
 \mathbf{o}_t = \mathbf{S}_t \mathbf{q}_t, \quad \mathbf{S}_t = \mathbf{S}_{t-1} + \mathbf{v}_t \mathbf{k}_t^\top
-$$<h4 id="deltanet">DeltaNet
-</h4><p>最早的线性Attention对应的损失函数是 $-v^T(Sk)$</p>
-<p>一个更理想更直接的损失可能是MSE/L2 Loss，即 $\frac{1}{2} |Sk - v|^2$ DeltaNet便使用了这样的损失<br>
-</p>
-$$o_t = f(S_t; q_t), \quad S_t = S_{t-1} - \underbrace{\eta_t (S_{t-1} k_t - v_t) k_t^\top}_{\nabla_{S_{t-1}} \frac{1}{2} \| S_{t-1} k_t - v_t \|^2}$$<p>
-​
+$$<h4 id=deltanet>DeltaNet</h4><p>最早的线性Attention对应的损失函数是 $-v^T(Sk)$</p><p>一个更理想更直接的损失可能是MSE/L2 Loss，即 $\frac{1}{2} |Sk - v|^2$ DeltaNet便使用了这样的损失<br></p>$$o_t = f(S_t; q_t), \quad S_t = S_{t-1} - \underbrace{\eta_t (S_{t-1} k_t - v_t) k_t^\top}_{\nabla_{S_{t-1}} \frac{1}{2} \| S_{t-1} k_t - v_t \|^2}$$<p>​
 $ \eta_t $是一个常数，不妨设其为1方便分析
-将式子拆开可以得到</p>
-$$
+将式子拆开可以得到</p>$$
 \begin{aligned}
 S_t &= S_{t-1} - (S_{t-1}\boldsymbol{k}_t - \boldsymbol{v}_t)\boldsymbol{k}_t^\top \\
 &= S_{t-1} - (S_{t-1}\boldsymbol{k}_t)\boldsymbol{k}_t^\top + \boldsymbol{v}_t\boldsymbol{k}_t^\top \\
 &= S_{t-1}(\boldsymbol{I} - \boldsymbol{k}_t\boldsymbol{k}_t^\top) + \boldsymbol{v}_t\boldsymbol{k}_t^\top
 \end{aligned}
-$$<p>相比于一开始的状态更新，DeltaNet的状态更新之前先减去了一个 $(S_{t-1}\boldsymbol{k}_t)\boldsymbol{k}<em>t^\top, \quad S</em>{t-1}\boldsymbol{k}_t$ 是模型对v的预测，所以这里就有点像是 去除模型的旧知识，加入正确的新知识。这个规则称为Delta Rule，也是Delta的来源</p>
-<p>联想记忆（Associative Memory） 或 线性注意力 机制中，如何从存储矩阵 $S$ 中通过键 $k_j$ 检索出对应值 $v_j$ 的数学原理，以及为什么会产生误差?</p>
-$$S = \sum_{i=1}^{n} v_i k_i^\top$$<p>
-</p>
-$$Sk_j = \left( \sum_{i=1}^{n} v_i k_i^\top \right) k_j = \sum_{i=1}^{n} v_i (k_i^\top k_j)$$<p>为了看清检索结果准不准，我们将求和拆分为“目标项”（$i=j$）和“干扰项”（$i \neq j$）：当 $i = j$ 时：项为 $v_j (k_j^\top k_j)$。如果键向量是单位向量（即 $k_j^\top k_j = 1$），这一项就直接等于 $v_j$。当 $i \neq j$ 时：项为 $\sum_{i \neq j} (k_i^\top k_j) v_i$。这些是其他存储项对当前检索的干扰</p>
-$$Sk_j = v_j + \underbrace{\sum_{i \neq j} (k_i^\top k_j) v_i}_{\text{retrieval error}}$$<h4 id="gated-deltanet">Gated DeltaNet
-</h4><p>Gated DeltaNet将遗忘门加入到了DeltaNet中，它的引入方式为
-</p>
-$$
+$$<p>相比于一开始的状态更新，DeltaNet的状态更新之前先减去了一个 $(S_{t-1}\boldsymbol{k}_t)\boldsymbol{k}<em>t^\top, \quad S</em>{t-1}\boldsymbol{k}_t$ 是模型对v的预测，所以这里就有点像是 去除模型的旧知识，加入正确的新知识。这个规则称为Delta Rule，也是Delta的来源</p><p>联想记忆（Associative Memory） 或 线性注意力 机制中，如何从存储矩阵 $S$ 中通过键 $k_j$ 检索出对应值 $v_j$ 的数学原理，以及为什么会产生误差?</p>$$S = \sum_{i=1}^{n} v_i k_i^\top$$<p></p>$$Sk_j = \left( \sum_{i=1}^{n} v_i k_i^\top \right) k_j = \sum_{i=1}^{n} v_i (k_i^\top k_j)$$<p>为了看清检索结果准不准，我们将求和拆分为“目标项”（$i=j$）和“干扰项”（$i \neq j$）：当 $i = j$ 时：项为 $v_j (k_j^\top k_j)$。如果键向量是单位向量（即 $k_j^\top k_j = 1$），这一项就直接等于 $v_j$。当 $i \neq j$ 时：项为 $\sum_{i \neq j} (k_i^\top k_j) v_i$。这些是其他存储项对当前检索的干扰</p>$$Sk_j = v_j + \underbrace{\sum_{i \neq j} (k_i^\top k_j) v_i}_{\text{retrieval error}}$$<h4 id=gated-deltanet>Gated DeltaNet</h4><p>Gated DeltaNet将遗忘门加入到了DeltaNet中，它的引入方式为</p>$$
 \boldsymbol{S}_t = \alpha_t \boldsymbol{S}_{t-1} (\boldsymbol{I} - \beta_t \boldsymbol{k}_t \boldsymbol{k}_t^\top) + \beta_t \boldsymbol{v}_t \boldsymbol{k}_t^\top
-$$<h3 id="训练经验">训练经验
-</h3><h4 id="个人实战经验">个人实战经验
-</h4><ul>
-<li>PEFT（Parameter-Efficient Fine-Tuning，参数高效微调）,就是我们常说的Lora</li>
-</ul>
-<p><code>model = get_peft_model(model, config)</code></p>
-<h4 id="他人经验">他人经验
-</h4><p><a class="link" href="https://zhuanlan.zhihu.com/p/721492096"  target="_blank" rel="noopener"
-    >LLM实践&ndash;支线：拯救Continue Pretrain的数据</a> 这里面评论区提到的</p>
-<ul>
-<li>SFT确实是可以注入知识的，只不过必须全参，lora完全不行，lora训十轮也学不进去，全参训一轮就学得差不多了，之前看各种文章无脑推荐高效微调法，其实是一个很大的误区。知识在整句话中其实只占很小的一部分，属于次要奇异值，lora会把这些东西忽略掉，导致学习一些hacking，比如格式、行文。所以我也说sft注入没有不可以，多样性一定保证，也要避免hacking。平时工作我也从来不用lora，因为次要奇异值往往更重要</li>
-</ul>
-<p><a class="link" href="https://zhuanlan.zhihu.com/p/4547529049"  target="_blank" rel="noopener"
-    >LLM实践&ndash;拒绝采样</a> 评论区</p>
-<ul>
-<li>所有的后训练改进过程都是在解决LM LOSS不等于预期LOSS的问题，试图去稳定性量化预期LOSS，目前的所有技术都只是通过尝试来试图接近，这是token-based paradigm的必然问题。解决这个问题的终极方案是从next-token LM model转为semantic model，用semantic loss来替代Lm loss。</li>
-</ul>
-<h3 id="面向进程编程">面向进程编程
-</h3><p>整份脚本处理的是发生在1个进程上的事情。这样做的好处是，我们只需要维护1份脚本，然后将其发去不同机器的各张卡上执行，就能实现全局的并行。</p>
-<h3 id="megatron">Megatron
-</h3><p>Megatron还是要看的<br>
-<a class="link" href="https://zhuanlan.zhihu.com/p/613196255"  target="_blank" rel="noopener"
-    >图解大模型训练之：流水线并行（Pipeline Parallelism），以Gpipe为例</a><br>
-<a class="link" href="https://zhuanlan.zhihu.com/p/617133971"  target="_blank" rel="noopener"
-    >图解大模型训练之：数据并行上篇(DP, DDP与ZeRO)</a><br>
-<a class="link" href="https://zhuanlan.zhihu.com/p/618865052"  target="_blank" rel="noopener"
-    >图解大模型训练之：数据并行下篇(DeepSpeed ZeRO，零冗余优化)</a><br>
-<a class="link" href="https://zhuanlan.zhihu.com/p/622212228"  target="_blank" rel="noopener"
-    >图解大模型训练之：张量模型并行(TP)，Megatron-LM</a><br>
-<a class="link" href="https://zhuanlan.zhihu.com/p/629121480"  target="_blank" rel="noopener"
-    >图解大模型系列之：Megatron源码解读1，分布式环境初始化</a><br>
-<a class="link" href="https://zhuanlan.zhihu.com/p/634377071"  target="_blank" rel="noopener"
-    >图解大模型训练之：Megatron源码解读2，模型并行</a><br>
-<a class="link" href="https://zhuanlan.zhihu.com/p/662700424"  target="_blank" rel="noopener"
-    >图解大模型训练系列之：Megatron源码解读3，分布式混合精度训练</a></p>
-<h4 id="pretrain部分code大致流程">pretrain部分code大致流程
-</h4><div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span><span class="lnt">15
-</span><span class="lnt">16
-</span><span class="lnt">17
-</span><span class="lnt">18
-</span><span class="lnt">19
-</span><span class="lnt">20
-</span><span class="lnt">21
-</span><span class="lnt">22
-</span><span class="lnt">23
-</span><span class="lnt">24
-</span><span class="lnt">25
-</span><span class="lnt">26
-</span><span class="lnt">27
-</span><span class="lnt">28
-</span><span class="lnt">29
-</span><span class="lnt">30
-</span><span class="lnt">31
-</span><span class="lnt">32
-</span><span class="lnt">33
-</span><span class="lnt">34
-</span><span class="lnt">35
-</span><span class="lnt">36
-</span><span class="lnt">37
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">def pretrain(
-</span></span><span class="line"><span class="cl">    train_valid_test_dataset_provider,
-</span></span><span class="line"><span class="cl">    model_provider,
-</span></span><span class="line"><span class="cl">    forward_step_func,
-</span></span><span class="line"><span class="cl">    valid_forward_step_func=None,
-</span></span><span class="line"><span class="cl">    extra_args_provider=None,
-</span></span><span class="line"><span class="cl">    args_defaults={},
-</span></span><span class="line"><span class="cl">):  
-</span></span><span class="line"><span class="cl">    # 1.初始化分布式环境(源码解读1内容)
-</span></span><span class="line"><span class="cl">    initialize_megatron(
-</span></span><span class="line"><span class="cl">        extra_args_provider=extra_args_provider, args_defaults=args_defaults
-</span></span><span class="line"><span class="cl">    )
-</span></span><span class="line"><span class="cl">    ...
-</span></span><span class="line"><span class="cl">    # 2、模型并行：定义模型架构，并切割模型（本文重点）
-</span></span><span class="line"><span class="cl">    model, optimizer, lr_scheduler = setup_model_and_optimizer(model_provider)
-</span></span><span class="line"><span class="cl">    ...
-</span></span><span class="line"><span class="cl">    
-</span></span><span class="line"><span class="cl">    # 3、构造train/val/test数据集（下一篇将讲述）
-</span></span><span class="line"><span class="cl">    ... (
-</span></span><span class="line"><span class="cl">            train_data_iterator,
-</span></span><span class="line"><span class="cl">            valid_data_iterator,
-</span></span><span class="line"><span class="cl">            test_data_iterator,
-</span></span><span class="line"><span class="cl">        ) = build_train_valid_test_data_iterators(train_valid_test_dataset_provider) 
-</span></span><span class="line"><span class="cl">    
-</span></span><span class="line"><span class="cl">    ...
-</span></span><span class="line"><span class="cl">    # 4、训练（下下一篇将讲述）
-</span></span><span class="line"><span class="cl">    iteration = train(
-</span></span><span class="line"><span class="cl">            forward_step_func,
-</span></span><span class="line"><span class="cl">            valid_forward_step_func,
-</span></span><span class="line"><span class="cl">            model,
-</span></span><span class="line"><span class="cl">            optimizer,
-</span></span><span class="line"><span class="cl">            lr_scheduler,
-</span></span><span class="line"><span class="cl">            train_data_iterator,
-</span></span><span class="line"><span class="cl">            valid_data_iterator,
-</span></span><span class="line"><span class="cl">        )
-</span></span><span class="line"><span class="cl">    
-</span></span><span class="line"><span class="cl">    ...
-</span></span></code></pre></td></tr></table>
-</div>
-</div><h4 id="crossentropy">CrossEntropy
-</h4><p>在语言模型训练中，我们需要计算预测分布与真实标签之间的交叉熵损失。对于单个样本，交叉熵损失定义为：</p>
-$$
+$$<h3 id=训练经验>训练经验</h3><h4 id=个人实战经验>个人实战经验</h4><ul><li>PEFT（Parameter-Efficient Fine-Tuning，参数高效微调）,就是我们常说的Lora</li></ul><p><code>model = get_peft_model(model, config)</code></p><h4 id=他人经验>他人经验</h4><p><a class=link href=https://zhuanlan.zhihu.com/p/721492096 target=_blank rel=noopener>LLM实践&ndash;支线：拯救Continue Pretrain的数据</a> 这里面评论区提到的</p><ul><li>SFT确实是可以注入知识的，只不过必须全参，lora完全不行，lora训十轮也学不进去，全参训一轮就学得差不多了，之前看各种文章无脑推荐高效微调法，其实是一个很大的误区。知识在整句话中其实只占很小的一部分，属于次要奇异值，lora会把这些东西忽略掉，导致学习一些hacking，比如格式、行文。所以我也说sft注入没有不可以，多样性一定保证，也要避免hacking。平时工作我也从来不用lora，因为次要奇异值往往更重要</li></ul><p><a class=link href=https://zhuanlan.zhihu.com/p/4547529049 target=_blank rel=noopener>LLM实践&ndash;拒绝采样</a> 评论区</p><ul><li>所有的后训练改进过程都是在解决LM LOSS不等于预期LOSS的问题，试图去稳定性量化预期LOSS，目前的所有技术都只是通过尝试来试图接近，这是token-based paradigm的必然问题。解决这个问题的终极方案是从next-token LM model转为semantic model，用semantic loss来替代Lm loss。</li></ul><h3 id=面向进程编程>面向进程编程</h3><p>整份脚本处理的是发生在1个进程上的事情。这样做的好处是，我们只需要维护1份脚本，然后将其发去不同机器的各张卡上执行，就能实现全局的并行。</p><h3 id=megatron>Megatron</h3><p>Megatron还是要看的<br><a class=link href=https://zhuanlan.zhihu.com/p/613196255 target=_blank rel=noopener>图解大模型训练之：流水线并行（Pipeline Parallelism），以Gpipe为例</a><br><a class=link href=https://zhuanlan.zhihu.com/p/617133971 target=_blank rel=noopener>图解大模型训练之：数据并行上篇(DP, DDP与ZeRO)</a><br><a class=link href=https://zhuanlan.zhihu.com/p/618865052 target=_blank rel=noopener>图解大模型训练之：数据并行下篇(DeepSpeed ZeRO，零冗余优化)</a><br><a class=link href=https://zhuanlan.zhihu.com/p/622212228 target=_blank rel=noopener>图解大模型训练之：张量模型并行(TP)，Megatron-LM</a><br><a class=link href=https://zhuanlan.zhihu.com/p/629121480 target=_blank rel=noopener>图解大模型系列之：Megatron源码解读1，分布式环境初始化</a><br><a class=link href=https://zhuanlan.zhihu.com/p/634377071 target=_blank rel=noopener>图解大模型训练之：Megatron源码解读2，模型并行</a><br><a class=link href=https://zhuanlan.zhihu.com/p/662700424 target=_blank rel=noopener>图解大模型训练系列之：Megatron源码解读3，分布式混合精度训练</a></p><h4 id=pretrain部分code大致流程>pretrain部分code大致流程</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>def pretrain(
+</span></span><span class=line><span class=cl>    train_valid_test_dataset_provider,
+</span></span><span class=line><span class=cl>    model_provider,
+</span></span><span class=line><span class=cl>    forward_step_func,
+</span></span><span class=line><span class=cl>    valid_forward_step_func=None,
+</span></span><span class=line><span class=cl>    extra_args_provider=None,
+</span></span><span class=line><span class=cl>    args_defaults={},
+</span></span><span class=line><span class=cl>):  
+</span></span><span class=line><span class=cl>    # 1.初始化分布式环境(源码解读1内容)
+</span></span><span class=line><span class=cl>    initialize_megatron(
+</span></span><span class=line><span class=cl>        extra_args_provider=extra_args_provider, args_defaults=args_defaults
+</span></span><span class=line><span class=cl>    )
+</span></span><span class=line><span class=cl>    ...
+</span></span><span class=line><span class=cl>    # 2、模型并行：定义模型架构，并切割模型（本文重点）
+</span></span><span class=line><span class=cl>    model, optimizer, lr_scheduler = setup_model_and_optimizer(model_provider)
+</span></span><span class=line><span class=cl>    ...
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    # 3、构造train/val/test数据集（下一篇将讲述）
+</span></span><span class=line><span class=cl>    ... (
+</span></span><span class=line><span class=cl>            train_data_iterator,
+</span></span><span class=line><span class=cl>            valid_data_iterator,
+</span></span><span class=line><span class=cl>            test_data_iterator,
+</span></span><span class=line><span class=cl>        ) = build_train_valid_test_data_iterators(train_valid_test_dataset_provider) 
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    ...
+</span></span><span class=line><span class=cl>    # 4、训练（下下一篇将讲述）
+</span></span><span class=line><span class=cl>    iteration = train(
+</span></span><span class=line><span class=cl>            forward_step_func,
+</span></span><span class=line><span class=cl>            valid_forward_step_func,
+</span></span><span class=line><span class=cl>            model,
+</span></span><span class=line><span class=cl>            optimizer,
+</span></span><span class=line><span class=cl>            lr_scheduler,
+</span></span><span class=line><span class=cl>            train_data_iterator,
+</span></span><span class=line><span class=cl>            valid_data_iterator,
+</span></span><span class=line><span class=cl>        )
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    ...
+</span></span></code></pre></td></tr></table></div></div><h4 id=crossentropy>CrossEntropy</h4><p>在语言模型训练中，我们需要计算预测分布与真实标签之间的交叉熵损失。对于单个样本，交叉熵损失定义为：</p>$$
 L = -\log P(y|x) = -\log\left(\frac{e^{s_y}}{\sum_{j=1}^{V} e^{s_j}}\right) = \log\left(\sum_{j=1}^{V} e^{s_j}\right) - s_y
-$$<p>其中：</p>
-<ul>
-<li>$s = [s_1, s_2, \ldots, s_V]$ 是模型输出的 logits（未归一化的对数概率）</li>
-<li>$V$ 是词汇表大小</li>
-<li>$y$ 是真实标签</li>
-<li>$s_y$ 是真实类别对应的 logit</li>
-</ul>
-<p><strong>数值稳定性处理</strong></p>
-<p>为了数值稳定性，我们在计算 softmax 前先减去最大值：</p>
-$$
+$$<p>其中：</p><ul><li>$s = [s_1, s_2, \ldots, s_V]$ 是模型输出的 logits（未归一化的对数概率）</li><li>$V$ 是词汇表大小</li><li>$y$ 是真实标签</li><li>$s_y$ 是真实类别对应的 logit</li></ul><p><strong>数值稳定性处理</strong></p><p>为了数值稳定性，我们在计算 softmax 前先减去最大值：</p>$$
 \text{logits}' = s - \max(s)
-$$<p>这样做的理由：</p>
-<ol>
-<li>防止 $\exp(s)$ 溢出</li>
-<li>不改变 softmax 结果（分子分母同时乘以 $e^{-\max(s)}$）</li>
-</ol>
-<p><strong>词汇表并行（Vocab Parallel）</strong></p>
-<p>在张量并行中，词汇表被切分到多个 GPU 上：</p>
-<ul>
-<li>假设有 $N$ 个 GPU，词汇表大小为 $V$</li>
-<li>每个 GPU 维护 $V/N$ 个词的 logits</li>
-<li>需要通过通信（AllReduce）来计算全局的 softmax 和 loss</li>
-</ul>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">  1
-</span><span class="lnt">  2
-</span><span class="lnt">  3
-</span><span class="lnt">  4
-</span><span class="lnt">  5
-</span><span class="lnt">  6
-</span><span class="lnt">  7
-</span><span class="lnt">  8
-</span><span class="lnt">  9
-</span><span class="lnt"> 10
-</span><span class="lnt"> 11
-</span><span class="lnt"> 12
-</span><span class="lnt"> 13
-</span><span class="lnt"> 14
-</span><span class="lnt"> 15
-</span><span class="lnt"> 16
-</span><span class="lnt"> 17
-</span><span class="lnt"> 18
-</span><span class="lnt"> 19
-</span><span class="lnt"> 20
-</span><span class="lnt"> 21
-</span><span class="lnt"> 22
-</span><span class="lnt"> 23
-</span><span class="lnt"> 24
-</span><span class="lnt"> 25
-</span><span class="lnt"> 26
-</span><span class="lnt"> 27
-</span><span class="lnt"> 28
-</span><span class="lnt"> 29
-</span><span class="lnt"> 30
-</span><span class="lnt"> 31
-</span><span class="lnt"> 32
-</span><span class="lnt"> 33
-</span><span class="lnt"> 34
-</span><span class="lnt"> 35
-</span><span class="lnt"> 36
-</span><span class="lnt"> 37
-</span><span class="lnt"> 38
-</span><span class="lnt"> 39
-</span><span class="lnt"> 40
-</span><span class="lnt"> 41
-</span><span class="lnt"> 42
-</span><span class="lnt"> 43
-</span><span class="lnt"> 44
-</span><span class="lnt"> 45
-</span><span class="lnt"> 46
-</span><span class="lnt"> 47
-</span><span class="lnt"> 48
-</span><span class="lnt"> 49
-</span><span class="lnt"> 50
-</span><span class="lnt"> 51
-</span><span class="lnt"> 52
-</span><span class="lnt"> 53
-</span><span class="lnt"> 54
-</span><span class="lnt"> 55
-</span><span class="lnt"> 56
-</span><span class="lnt"> 57
-</span><span class="lnt"> 58
-</span><span class="lnt"> 59
-</span><span class="lnt"> 60
-</span><span class="lnt"> 61
-</span><span class="lnt"> 62
-</span><span class="lnt"> 63
-</span><span class="lnt"> 64
-</span><span class="lnt"> 65
-</span><span class="lnt"> 66
-</span><span class="lnt"> 67
-</span><span class="lnt"> 68
-</span><span class="lnt"> 69
-</span><span class="lnt"> 70
-</span><span class="lnt"> 71
-</span><span class="lnt"> 72
-</span><span class="lnt"> 73
-</span><span class="lnt"> 74
-</span><span class="lnt"> 75
-</span><span class="lnt"> 76
-</span><span class="lnt"> 77
-</span><span class="lnt"> 78
-</span><span class="lnt"> 79
-</span><span class="lnt"> 80
-</span><span class="lnt"> 81
-</span><span class="lnt"> 82
-</span><span class="lnt"> 83
-</span><span class="lnt"> 84
-</span><span class="lnt"> 85
-</span><span class="lnt"> 86
-</span><span class="lnt"> 87
-</span><span class="lnt"> 88
-</span><span class="lnt"> 89
-</span><span class="lnt"> 90
-</span><span class="lnt"> 91
-</span><span class="lnt"> 92
-</span><span class="lnt"> 93
-</span><span class="lnt"> 94
-</span><span class="lnt"> 95
-</span><span class="lnt"> 96
-</span><span class="lnt"> 97
-</span><span class="lnt"> 98
-</span><span class="lnt"> 99
-</span><span class="lnt">100
-</span><span class="lnt">101
-</span><span class="lnt">102
-</span><span class="lnt">103
-</span><span class="lnt">104
-</span><span class="lnt">105
-</span><span class="lnt">106
-</span><span class="lnt">107
-</span><span class="lnt">108
-</span><span class="lnt">109
-</span><span class="lnt">110
-</span><span class="lnt">111
-</span><span class="lnt">112
-</span><span class="lnt">113
-</span><span class="lnt">114
-</span><span class="lnt">115
-</span><span class="lnt">116
-</span><span class="lnt">117
-</span><span class="lnt">118
-</span><span class="lnt">119
-</span><span class="lnt">120
-</span><span class="lnt">121
-</span><span class="lnt">122
-</span><span class="lnt">123
-</span><span class="lnt">124
-</span><span class="lnt">125
-</span><span class="lnt">126
-</span><span class="lnt">127
-</span><span class="lnt">128
-</span><span class="lnt">129
-</span><span class="lnt">130
-</span><span class="lnt">131
-</span><span class="lnt">132
-</span><span class="lnt">133
-</span><span class="lnt">134
-</span><span class="lnt">135
-</span><span class="lnt">136
-</span><span class="lnt">137
-</span><span class="lnt">138
-</span><span class="lnt">139
-</span><span class="lnt">140
-</span><span class="lnt">141
-</span><span class="lnt">142
-</span><span class="lnt">143
-</span><span class="lnt">144
-</span><span class="lnt">145
-</span><span class="lnt">146
-</span><span class="lnt">147
-</span><span class="lnt">148
-</span><span class="lnt">149
-</span><span class="lnt">150
-</span><span class="lnt">151
-</span><span class="lnt">152
-</span><span class="lnt">153
-</span><span class="lnt">154
-</span><span class="lnt">155
-</span><span class="lnt">156
-</span><span class="lnt">157
-</span><span class="lnt">158
-</span><span class="lnt">159
-</span><span class="lnt">160
-</span><span class="lnt">161
-</span><span class="lnt">162
-</span><span class="lnt">163
-</span><span class="lnt">164
-</span><span class="lnt">165
-</span><span class="lnt">166
-</span><span class="lnt">167
-</span><span class="lnt">168
-</span><span class="lnt">169
-</span><span class="lnt">170
-</span><span class="lnt">171
-</span><span class="lnt">172
-</span><span class="lnt">173
-</span><span class="lnt">174
-</span><span class="lnt">175
-</span><span class="lnt">176
-</span><span class="lnt">177
-</span><span class="lnt">178
-</span><span class="lnt">179
-</span><span class="lnt">180
-</span><span class="lnt">181
-</span><span class="lnt">182
-</span><span class="lnt">183
-</span><span class="lnt">184
-</span><span class="lnt">185
-</span><span class="lnt">186
-</span><span class="lnt">187
-</span><span class="lnt">188
-</span><span class="lnt">189
-</span><span class="lnt">190
-</span><span class="lnt">191
-</span><span class="lnt">192
-</span><span class="lnt">193
-</span><span class="lnt">194
-</span><span class="lnt">195
-</span><span class="lnt">196
-</span><span class="lnt">197
-</span><span class="lnt">198
-</span><span class="lnt">199
-</span><span class="lnt">200
-</span><span class="lnt">201
-</span><span class="lnt">202
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">_VocabParallelCrossEntropy</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
-</span></span><span class="line"><span class="cl">    <span class="nd">@staticmethod</span>
-</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">vocab_parallel_logits</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
-</span></span><span class="line"><span class="cl">        <span class="s2">&#34;&#34;&#34;
-</span></span></span><span class="line"><span class="cl"><span class="s2">        前向传播：计算词汇表并行下的交叉熵损失
-</span></span></span><span class="line"><span class="cl"><span class="s2">
-</span></span></span><span class="line"><span class="cl"><span class="s2">        输入：
-</span></span></span><span class="line"><span class="cl"><span class="s2">        - vocab_parallel_logits: [batch_size, seq_len, partition_vocab_size]
-</span></span></span><span class="line"><span class="cl"><span class="s2">          当前 GPU 上维护的部分词汇表 logits
-</span></span></span><span class="line"><span class="cl"><span class="s2">        - target: [batch_size, seq_len]
-</span></span></span><span class="line"><span class="cl"><span class="s2">          真实标签（词汇表索引）
-</span></span></span><span class="line"><span class="cl"><span class="s2">
-</span></span></span><span class="line"><span class="cl"><span class="s2">        输出：
-</span></span></span><span class="line"><span class="cl"><span class="s2">        - loss: [batch_size, seq_len]
-</span></span></span><span class="line"><span class="cl"><span class="s2">          每个位置的交叉熵损失
-</span></span></span><span class="line"><span class="cl"><span class="s2">        &#34;&#34;&#34;</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="c1"># ============ 第一步：数值稳定性处理 ============</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 在词汇表维度上找到最大值（只在当前 GPU 的分区上找）</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># logits_max: [batch_size, seq_len]</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 数学表达：m_i = max(s_i) 其中 s_i 是第 i 个样本的 logits</span>
-</span></span><span class="line"><span class="cl">        <span class="n">logits_max</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">vocab_parallel_logits</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="c1"># 通过 AllReduce 获取全局最大值（跨所有 GPU）</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 这样确保所有 GPU 使用相同的最大值进行归一化</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 数学表达：m_global = max(m_1, m_2, ..., m_N) 其中 N 是 GPU 数量</span>
-</span></span><span class="line"><span class="cl">        <span class="n">torch</span><span class="o">.</span><span class="n">distributed</span><span class="o">.</span><span class="n">all_reduce</span><span class="p">(</span>
-</span></span><span class="line"><span class="cl">            <span class="n">logits_max</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">            <span class="n">op</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">distributed</span><span class="o">.</span><span class="n">ReduceOp</span><span class="o">.</span><span class="n">MAX</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">            <span class="n">group</span><span class="o">=</span><span class="n">get_tensor_model_parallel_group</span><span class="p">(),</span>
-</span></span><span class="line"><span class="cl">        <span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="c1"># 减去最大值，实现数值稳定</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># logits&#39; = logits - max(logits)</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 这样可以防止 exp(logits) 溢出，同时不改变 softmax 结果</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 数学表达：s&#39;_ij = s_ij - m_global</span>
-</span></span><span class="line"><span class="cl">        <span class="n">vocab_parallel_logits</span><span class="o">.</span><span class="n">sub_</span><span class="p">(</span><span class="n">logits_max</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="c1"># ============ 第二步：确定当前 GPU 的词汇表范围 ============</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 获取当前 GPU 负责的词汇表索引范围</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 例如：V=10000, N=4, rank=0 -&gt; [0, 2500), rank=1 -&gt; [2500, 5000), ...</span>
-</span></span><span class="line"><span class="cl">        <span class="n">get_vocab_range</span> <span class="o">=</span> <span class="n">VocabUtility</span><span class="o">.</span><span class="n">vocab_range_from_per_partition_vocab_size</span>
-</span></span><span class="line"><span class="cl">        <span class="n">partition_vocab_size</span> <span class="o">=</span> <span class="n">vocab_parallel_logits</span><span class="o">.</span><span class="n">size</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># 当前 GPU 的词汇表分区大小</span>
-</span></span><span class="line"><span class="cl">        <span class="n">rank</span> <span class="o">=</span> <span class="n">get_tensor_model_parallel_rank</span><span class="p">()</span>  <span class="c1"># 当前 GPU 的 rank</span>
-</span></span><span class="line"><span class="cl">        <span class="n">world_size</span> <span class="o">=</span> <span class="n">get_tensor_model_parallel_world_size</span><span class="p">()</span>  <span class="c1"># 总 GPU 数量</span>
-</span></span><span class="line"><span class="cl">        <span class="n">vocab_start_index</span><span class="p">,</span> <span class="n">vocab_end_index</span> <span class="o">=</span> <span class="n">get_vocab_range</span><span class="p">(</span>
-</span></span><span class="line"><span class="cl">            <span class="n">partition_vocab_size</span><span class="p">,</span> <span class="n">rank</span><span class="p">,</span> <span class="n">world_size</span>
-</span></span><span class="line"><span class="cl">        <span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="c1"># ============ 第三步：创建目标掩码 ============</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 判断哪些目标在当前 GPU 的词汇表范围内</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># target_mask=True 表示目标不在当前 GPU 的词汇表范围内</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 数学表达：mask_i = 1 if (target_i &lt; start) or (target_i &gt;= end), else 0</span>
-</span></span><span class="line"><span class="cl">        <span class="n">target_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">target</span> <span class="o">&lt;</span> <span class="n">vocab_start_index</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">target</span> <span class="o">&gt;=</span> <span class="n">vocab_end_index</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="c1"># 将全局目标索引转换为当前 GPU 的局部索引</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 数学表达：target&#39;_i = target_i - vocab_start_index</span>
-</span></span><span class="line"><span class="cl">        <span class="n">masked_target</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span> <span class="o">-</span> <span class="n">vocab_start_index</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="c1"># 将不在当前范围内的目标设为 0（之后会被 mask 掉）</span>
-</span></span><span class="line"><span class="cl">        <span class="n">masked_target</span><span class="p">[</span><span class="n">target_mask</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="c1"># ============ 第四步：提取目标位置的 logit ============</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 将 logits 展平为 2D：[batch_size * seq_len, partition_vocab_size]</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 将 target 展平为 1D：[batch_size * seq_len]</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 这样方便使用高级索引</span>
-</span></span><span class="line"><span class="cl">        <span class="n">logits_2d</span> <span class="o">=</span> <span class="n">vocab_parallel_logits</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">partition_vocab_size</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">        <span class="n">masked_target_1d</span> <span class="o">=</span> <span class="n">masked_target</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="c1"># 创建行索引 [0, 1, 2, ..., batch_size * seq_len - 1]</span>
-</span></span><span class="line"><span class="cl">        <span class="n">arange_1d</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
-</span></span><span class="line"><span class="cl">            <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">logits_2d</span><span class="o">.</span><span class="n">size</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">device</span><span class="o">=</span><span class="n">logits_2d</span><span class="o">.</span><span class="n">device</span>
-</span></span><span class="line"><span class="cl">        <span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="c1"># 提取每个样本对应目标位置的 logit</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 数学表达：s&#39;_target = logits[arange_1d, masked_target_1d]</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 即取出每个样本在其目标词汇位置的 logit 值</span>
-</span></span><span class="line"><span class="cl">        <span class="n">predicted_logits_1d</span> <span class="o">=</span> <span class="n">logits_2d</span><span class="p">[</span><span class="n">arange_1d</span><span class="p">,</span> <span class="n">masked_target_1d</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl">        <span class="n">predicted_logits_1d</span> <span class="o">=</span> <span class="n">predicted_logits_1d</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="c1"># 恢复原始形状：[batch_size, seq_len]</span>
-</span></span><span class="line"><span class="cl">        <span class="n">predicted_logits</span> <span class="o">=</span> <span class="n">predicted_logits_1d</span><span class="o">.</span><span class="n">view_as</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="c1"># 将不在当前 GPU 范围内的目标的 logit 设为 0</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 这样做是因为之后会通过 AllReduce 求和，只需要贡献自己的部分</span>
-</span></span><span class="line"><span class="cl">        <span class="n">predicted_logits</span><span class="p">[</span><span class="n">target_mask</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="c1"># 通过 AllReduce 从所有 GPU 收集目标的 logit</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 每个 GPU 只贡献自己分区内的目标 logit</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 最终得到所有目标位置的完整 logit 值</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 数学表达：s_y = Σ(s&#39;_y_i) 对所有 GPU 求和</span>
-</span></span><span class="line"><span class="cl">        <span class="n">torch</span><span class="o">.</span><span class="n">distributed</span><span class="o">.</span><span class="n">all_reduce</span><span class="p">(</span>
-</span></span><span class="line"><span class="cl">            <span class="n">predicted_logits</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">            <span class="n">op</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">distributed</span><span class="o">.</span><span class="n">ReduceOp</span><span class="o">.</span><span class="n">SUM</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">            <span class="n">group</span><span class="o">=</span><span class="n">get_tensor_model_parallel_group</span><span class="p">(),</span>
-</span></span><span class="line"><span class="cl">        <span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="c1"># ============ 第五步：计算归一化项（log-sum-exp）============</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 计算 exp(logits&#39;)</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 数学表达：e&#39;_ij = exp(s&#39;_ij)</span>
-</span></span><span class="line"><span class="cl">        <span class="n">exp_logits</span> <span class="o">=</span> <span class="n">vocab_parallel_logits</span>
-</span></span><span class="line"><span class="cl">        <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">vocab_parallel_logits</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">exp_logits</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="c1"># 在当前 GPU 的词汇表维度上求和</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 数学表达：E&#39;_i = Σ(e&#39;_ij) 对当前 GPU 的词汇表维度求和</span>
-</span></span><span class="line"><span class="cl">        <span class="n">sum_exp_logits</span> <span class="o">=</span> <span class="n">exp_logits</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="c1"># 通过 AllReduce 从所有 GPU 收集完整的指数和</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 数学表达：E_i = Σ(E&#39;_i) 对所有 GPU 求和</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 这就是 softmax 的分母：Σ(exp(s_j))</span>
-</span></span><span class="line"><span class="cl">        <span class="n">torch</span><span class="o">.</span><span class="n">distributed</span><span class="o">.</span><span class="n">all_reduce</span><span class="p">(</span>
-</span></span><span class="line"><span class="cl">            <span class="n">sum_exp_logits</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">            <span class="n">op</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">distributed</span><span class="o">.</span><span class="n">ReduceOp</span><span class="o">.</span><span class="n">SUM</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">            <span class="n">group</span><span class="o">=</span><span class="n">get_tensor_model_parallel_group</span><span class="p">(),</span>
-</span></span><span class="line"><span class="cl">        <span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="c1"># ============ 第六步：计算最终损失 ============</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 交叉熵损失：L = log(sum(exp(logits))) - predicted_logit</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 数学表达：L = log(E_i) - s_y</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 这对应：L = log(Σ(exp(s_j))) - s_y</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 即：L = -log(exp(s_y) / Σ(exp(s_j))) = -softmax_y</span>
-</span></span><span class="line"><span class="cl">        <span class="n">loss</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">sum_exp_logits</span><span class="p">)</span> <span class="o">-</span> <span class="n">predicted_logits</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="c1"># ============ 第七步：保存反向传播所需的中间变量 ============</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 计算 softmax 并保存，用于反向传播</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 数学表达：softmax_ij = exp(s&#39;_ij) / E_i</span>
-</span></span><span class="line"><span class="cl">        <span class="n">exp_logits</span><span class="o">.</span><span class="n">div_</span><span class="p">(</span><span class="n">sum_exp_logits</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="c1"># 保存 softmax、target_mask 和 masked_target_1d 用于反向传播</span>
-</span></span><span class="line"><span class="cl">        <span class="n">ctx</span><span class="o">.</span><span class="n">save_for_backward</span><span class="p">(</span><span class="n">exp_logits</span><span class="p">,</span> <span class="n">target_mask</span><span class="p">,</span> <span class="n">masked_target_1d</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">loss</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="nd">@staticmethod</span>
-</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">backward</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">grad_output</span><span class="p">):</span>
-</span></span><span class="line"><span class="cl">        <span class="s2">&#34;&#34;&#34;
-</span></span></span><span class="line"><span class="cl"><span class="s2">        反向传播：计算交叉熵损失对 logits 的梯度
-</span></span></span><span class="line"><span class="cl"><span class="s2">
-</span></span></span><span class="line"><span class="cl"><span class="s2">        数学推导：
-</span></span></span><span class="line"><span class="cl"><span class="s2">        前向传播：L = log(Σ(exp(s_j))) - s_y
-</span></span></span><span class="line"><span class="cl"><span class="s2">
-</span></span></span><span class="line"><span class="cl"><span class="s2">        对 logits 的梯度：
-</span></span></span><span class="line"><span class="cl"><span class="s2">        ∂L/∂s_i = softmax_i - 1_{i=y}
-</span></span></span><span class="line"><span class="cl"><span class="s2">
-</span></span></span><span class="line"><span class="cl"><span class="s2">        其中：
-</span></span></span><span class="line"><span class="cl"><span class="s2">        - softmax_i = exp(s_i) / Σ(exp(s_j))
-</span></span></span><span class="line"><span class="cl"><span class="s2">        - 1_{i=y} 是指示函数，当 i=y 时为 1，否则为 0
-</span></span></span><span class="line"><span class="cl"><span class="s2">
-</span></span></span><span class="line"><span class="cl"><span class="s2">        在词汇表并行的场景下：
-</span></span></span><span class="line"><span class="cl"><span class="s2">        - 当前 GPU 只计算自己分区内的梯度
-</span></span></span><span class="line"><span class="cl"><span class="s2">        - 对于目标位置：grad = softmax - 1
-</span></span></span><span class="line"><span class="cl"><span class="s2">        - 对于非目标位置：grad = softmax
-</span></span></span><span class="line"><span class="cl"><span class="s2">        &#34;&#34;&#34;</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="c1"># ============ 第一步：恢复前向传播保存的中间变量 ============</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># softmax: [batch_size, seq_len, partition_vocab_size]</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># target_mask: [batch_size, seq_len] (布尔掩码)</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># masked_target_1d: [batch_size * seq_len] (局部索引)</span>
-</span></span><span class="line"><span class="cl">        <span class="n">softmax</span><span class="p">,</span> <span class="n">target_mask</span><span class="p">,</span> <span class="n">masked_target_1d</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">saved_tensors</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="c1"># ============ 第二步：初始化梯度 ============</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 交叉熵损失的梯度基础是 softmax 值</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 对于所有位置，梯度从 softmax 开始</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 数学表达：∂L/∂s_i = softmax_i （基础项）</span>
-</span></span><span class="line"><span class="cl">        <span class="n">grad_input</span> <span class="o">=</span> <span class="n">softmax</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="c1"># 为了方便索引，转换为 2D 格式</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># grad_2d: [batch_size * seq_len, partition_vocab_size]</span>
-</span></span><span class="line"><span class="cl">        <span class="n">partition_vocab_size</span> <span class="o">=</span> <span class="n">softmax</span><span class="o">.</span><span class="n">size</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl">        <span class="n">grad_2d</span> <span class="o">=</span> <span class="n">grad_input</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">partition_vocab_size</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="c1"># ============ 第三步：处理目标位置的梯度 ============</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 对于目标位置，需要减去 1（指示函数）</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 数学表达：∂L/∂s_y = softmax_y - 1</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 其中 1 是真实标签的指示函数 1_{i=y}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="c1"># 创建行索引</span>
-</span></span><span class="line"><span class="cl">        <span class="n">arange_1d</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">grad_2d</span><span class="o">.</span><span class="n">size</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">device</span><span class="o">=</span><span class="n">grad_2d</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="c1"># 对目标位置的梯度进行调整：</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 1. 如果目标在当前 GPU 的词汇表范围内（target_mask=False）：</span>
-</span></span><span class="line"><span class="cl">        <span class="c1">#    grad = softmax - 1 （减 1）</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 2. 如果目标不在当前范围内（target_mask=True）：</span>
-</span></span><span class="line"><span class="cl">        <span class="c1">#    grad = softmax - 0 （不减 1，因为目标在其他 GPU 上）</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 数学表达：</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># ∂L/∂s_y = softmax_y - (1 - mask_y)</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 其中 mask_y = 1 表示目标不在当前 GPU，mask_y = 0 表示目标在当前 GPU</span>
-</span></span><span class="line"><span class="cl">        <span class="n">grad_2d</span><span class="p">[</span><span class="n">arange_1d</span><span class="p">,</span> <span class="n">masked_target_1d</span><span class="p">]</span> <span class="o">-=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">target_mask</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="c1"># ============ 第四步：乘以上层梯度 ============</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 根据链式法则，需要乘以损失对输出的梯度</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 数学表达：∂L_total/∂s = (∂L/∂s) × (∂L_total/∂L)</span>
-</span></span><span class="line"><span class="cl">        <span class="c1"># 其中 grad_output 是 ∂L_total/∂L</span>
-</span></span><span class="line"><span class="cl">        <span class="n">grad_input</span><span class="o">.</span><span class="n">mul_</span><span class="p">(</span><span class="n">grad_output</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="c1"># 返回梯度（第二个输入 target 不需要梯度，返回 None）</span>
-</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">grad_input</span><span class="p">,</span> <span class="kc">None</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">vocab_parallel_cross_entropy</span><span class="p">(</span><span class="n">vocab_parallel_logits</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
-</span></span><span class="line"><span class="cl">    <span class="s2">&#34;&#34;&#34;Helper function for the cross entropy.&#34;&#34;&#34;</span>
-</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">_VocabParallelCrossEntropy</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">vocab_parallel_logits</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><h4 id="精度问题">精度问题
-</h4><p>从占用存储角度看，fp16占据2 bytes，bf16占据2 bytes，fp32占据4 bytes<br>
-从数值表达范围来看：fp32 = bf16 &gt; fp16<br>
-从数值表达精度来看：fp32 &gt; fp16 &gt; bf16</p>
-<p>最好理解每一部分精度转换的原因和整个流程，算是基本功</p>
-<p>老样子，放一些写的好的文章可以学一学</p>
-<p><a class="link" href="https://zhuanlan.zhihu.com/p/662700424"  target="_blank" rel="noopener"
-    >图解大模型训练系列之：Megatron源码解读3，分布式混合精度训练</a><br>
-megatron/training.py的pretrain 函数。其中，函数setup_model_and_optimizer调用了optimizer/<strong>init</strong>.py/下的get_megatron_optimizer，因此它就是混合精度训练的入口函数</p>
-<p><a class="link" href="https://zhuanlan.zhihu.com/p/624740065"  target="_blank" rel="noopener"
-    >分析transformer模型的参数量、计算量、中间激活、KV cache</a></p>
-<p>两种做Loss Scale的方法：常量损失放大和动量损失放大</p>
-<h3 id="deepspeed">DeepSpeed
-</h3><p><a class="link" href="https://huggingface.co/docs/transformers/deepspeed"  target="_blank" rel="noopener"
-    >DeepSpeed官方文档</a>👈官方文档<br>
-<a class="link" href="https://www.deepspeed.ai/docs/config-json/"  target="_blank" rel="noopener"
-    >DeepSpeed配置JSON</a>👈使用只需要JSON配置文件<br>
-<a class="link" href="https://www.youtube.com/watch?v=mpuRca2UZtI&amp;t=2925s"  target="_blank" rel="noopener"
-    >【利用多張GPU訓練大型語言模型】 - YouTube</a>👈李宏毅老师YouTube视频讲解（约一个小时）<br>
-<a class="link" href="https://huggingface.co/spaces/nanotron/ultrascale-playbook"  target="_blank" rel="noopener"
-    >The Ultra-Scale Playbook:Training LLMs on GPU Clusters</a>👈并行训练高质参考资料</p>
-<blockquote>
-<p>hugging face经常有高质量实验总结，可以多关注一下</p></blockquote>
-<p>一开始会有batch-size个prompt去做rollout，每个prompt rollout出n个response，之后每mini-batch-size个prompt及其rollout出来的response会去做一次梯度下降，batch-size / mini-batch-size次梯度下降之后一个step结束</p>
-<ul>
-<li>Batch Size Related Parameters
-<strong>train_batch_size</strong> = <strong>train_micro_batch_size_per_gpu</strong> * <strong>gradient_accumulation_steps</strong> * <strong>number of GPUs</strong></li>
-<li>train_batch_size: [integer]
-代表着one step.Example:32</li>
-<li>train_micro_batch_size_per_gpu: [integer]
-一次更新的batch_size，所以叫micro_batch_size.</li>
-<li>gradient_accumulation_steps: [integer]
-积累几次</li>
-</ul>
-<p>一开始会有batch-size个prompt去做rollout，每个prompt rollout出n个response，之后每mini-batch-size个prompt及其rollout出来的response会去做一次梯度下降，batch-size / mini-batch-size次梯度下降之后一个step结束</p>
-<h3 id="监控平台">监控平台
-</h3><p>可以使用TensorBoard,wandb,Comet等，因为个人使用所以只介绍swanlab(wandb的国内镜像)<br>
-注册登录，设置 project_name 和 experiment_name 就可以在电脑上/手机上看了<br>
-很好用的监控平台！<br>
-<a class="link" href="https://docs.swanlab.cn/"  target="_blank" rel="noopener"
-    >swanlab官方文档</a>👈官方文档</p>
-<h3 id="verl框架使用方法快速上手">veRL框架使用方法/快速上手
-</h3><p>知乎上收藏了一些轮椅教程<br>
-<a class="link" href="https://zhuanlan.zhihu.com/p/29149216967"  target="_blank" rel="noopener"
-    >OpenRLHF&amp;Verl参数转换指南</a></p>
-<p>更深入的：<br>
-<a class="link" href="https://zhuanlan.zhihu.com/p/24682036412"  target="_blank" rel="noopener"
-    >HybridFlow / veRL 原文浅析</a>很干，对system理解有很大帮助</p>
-<p><a class="link" href="https://zhuanlan.zhihu.com/p/27676081245"  target="_blank" rel="noopener"
-    >[AI Infra] VeRL 框架入门&amp;代码带读</a></p>
-<p><a class="link" href="https://zhuanlan.zhihu.com/p/30876678559"  target="_blank" rel="noopener"
-    >从零开始的verl框架解析</a></p>
-
-</section>
-
-
-    <footer class="article-footer">
-    
-
-    </footer>
-
-
-    
-</article>
-
-    
-
-    
-
-<aside class="related-content--wrapper">
-    <h2 class="section-title">Related content</h2>
-    <div class="related-content">
-        <div class="flex article-list--tile">
-            
-                
-<article class="">
-    <a href="/p/nlp/">
-        
-        
-
-        <div class="article-details">
-            <h2 class="article-title">NLP</h2>
-        </div>
-    </a>
-</article>
-
-            
-                
-<article class="has-image">
-    <a href="/p/sjtu-research-intern/">
-        
-        
-            <div class="article-image">
-                <img src="/p/sjtu-research-intern/SJTU.a646047ad7c64afeed5d2be2fa5870be_hu_a70bed7b28ca1894.jpg" 
-                        width="250" 
-                        height="150" 
-                        loading="lazy"
-                        alt="Featured image of post SJTU-research-intern"
-                        
-                        data-hash="md5-pkYEetfGSv7tXSvi&#43;lhwvg==">
-                
-            </div>
-        
-
-        <div class="article-details">
-            <h2 class="article-title">SJTU-research-intern</h2>
-        </div>
-    </a>
-</article>
-
-            
-                
-<article class="">
-    <a href="/p/flash-attention%E5%AE%89%E8%A3%85%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E5%8F%8A%E5%85%B6%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/">
-        
-        
-
-        <div class="article-details">
-            <h2 class="article-title">Flash-Attention安装常见问题及其解决方案</h2>
-        </div>
-    </a>
-</article>
-
-            
-                
-<article class="has-image">
-    <a href="/p/ray%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%AD%E7%BB%83%E5%9B%A0%E8%BF%9B%E7%A8%8B%E8%80%97%E5%B0%BD%E5%AF%BC%E8%87%B4ssh%E6%96%AD%E5%BC%80%E8%BF%9E%E6%8E%A5/">
-        
-        
-            <div class="article-image">
-                <img src="/p/ray%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%AD%E7%BB%83%E5%9B%A0%E8%BF%9B%E7%A8%8B%E8%80%97%E5%B0%BD%E5%AF%BC%E8%87%B4ssh%E6%96%AD%E5%BC%80%E8%BF%9E%E6%8E%A5/Ray.c64a43cfcd8e30845b7034d2be973cdf_hu_39e0cf0a02b216da.jpg" 
-                        width="250" 
-                        height="150" 
-                        loading="lazy"
-                        alt="Featured image of post Ray分布式训练因进程耗尽导致SSH断开连接"
-                        
-                        data-hash="md5-xkpDz82OMIRbcDTSvpc83w==">
-                
-            </div>
-        
-
-        <div class="article-details">
-            <h2 class="article-title">Ray分布式训练因进程耗尽导致SSH断开连接</h2>
-        </div>
-    </a>
-</article>
-
-            
-                
-<article class="">
-    <a href="/p/still3/">
-        
-        
-
-        <div class="article-details">
-            <h2 class="article-title">STILL3</h2>
-        </div>
-    </a>
-</article>
-
-            
-        </div>
-    </div>
-</aside>
-
-     
-    
-        
-    
-
-    <footer class="site-footer">
-    <section class="copyright">
-        &copy; 
-        
-            2025 - 
-        
-        2026 Huanyu Yang
-    </section>
-    
-    <section class="powerby">
-        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.31.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
-    </section>
-</footer>
-
-
-    
-<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
-
-    
-    <div class="pswp__bg"></div>
-
-    
-    <div class="pswp__scroll-wrap">
-
-        
-        <div class="pswp__container">
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-        </div>
-
-        
-        <div class="pswp__ui pswp__ui--hidden">
-
-            <div class="pswp__top-bar">
-
-                
-
-                <div class="pswp__counter"></div>
-
-                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
-
-                <button class="pswp__button pswp__button--share" title="Share"></button>
-
-                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
-
-                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
-
-                
-                
-                <div class="pswp__preloader">
-                    <div class="pswp__preloader__icn">
-                        <div class="pswp__preloader__cut">
-                            <div class="pswp__preloader__donut"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-                <div class="pswp__share-tooltip"></div>
-            </div>
-
-            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
-            </button>
-
-            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
-            </button>
-
-            <div class="pswp__caption">
-                <div class="pswp__caption__center"></div>
-            </div>
-
-        </div>
-
-    </div>
-
-</div><script 
-                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
-                defer
-                >
-            </script><script 
-                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
-                defer
-                >
-            </script><link 
-                rel="stylesheet" 
-                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
-            ><link 
-                rel="stylesheet" 
-                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
-            >
-
-            </main>
-        </div>
-        <script 
-                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
-                
-                >
-            </script><script type="text/javascript" src="/ts/main.8c084058b40befe06689a879f198241d129be0572f9b5a66862385dd362c5e22.js" defer></script>
-<script>
-    (function () {
-        const customFont = document.createElement('link');
-        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
-
-        customFont.type = "text/css";
-        customFont.rel = "stylesheet";
-
-        document.head.appendChild(customFont);
-    }());
-</script>
-
-    </body>
-</html>
+$$<p>这样做的理由：</p><ol><li>防止 $\exp(s)$ 溢出</li><li>不改变 softmax 结果（分子分母同时乘以 $e^{-\max(s)}$）</li></ol><p><strong>词汇表并行（Vocab Parallel）</strong></p><p>在张量并行中，词汇表被切分到多个 GPU 上：</p><ul><li>假设有 $N$ 个 GPU，词汇表大小为 $V$</li><li>每个 GPU 维护 $V/N$ 个词的 logits</li><li>需要通过通信（AllReduce）来计算全局的 softmax 和 loss</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>  1
+</span><span class=lnt>  2
+</span><span class=lnt>  3
+</span><span class=lnt>  4
+</span><span class=lnt>  5
+</span><span class=lnt>  6
+</span><span class=lnt>  7
+</span><span class=lnt>  8
+</span><span class=lnt>  9
+</span><span class=lnt> 10
+</span><span class=lnt> 11
+</span><span class=lnt> 12
+</span><span class=lnt> 13
+</span><span class=lnt> 14
+</span><span class=lnt> 15
+</span><span class=lnt> 16
+</span><span class=lnt> 17
+</span><span class=lnt> 18
+</span><span class=lnt> 19
+</span><span class=lnt> 20
+</span><span class=lnt> 21
+</span><span class=lnt> 22
+</span><span class=lnt> 23
+</span><span class=lnt> 24
+</span><span class=lnt> 25
+</span><span class=lnt> 26
+</span><span class=lnt> 27
+</span><span class=lnt> 28
+</span><span class=lnt> 29
+</span><span class=lnt> 30
+</span><span class=lnt> 31
+</span><span class=lnt> 32
+</span><span class=lnt> 33
+</span><span class=lnt> 34
+</span><span class=lnt> 35
+</span><span class=lnt> 36
+</span><span class=lnt> 37
+</span><span class=lnt> 38
+</span><span class=lnt> 39
+</span><span class=lnt> 40
+</span><span class=lnt> 41
+</span><span class=lnt> 42
+</span><span class=lnt> 43
+</span><span class=lnt> 44
+</span><span class=lnt> 45
+</span><span class=lnt> 46
+</span><span class=lnt> 47
+</span><span class=lnt> 48
+</span><span class=lnt> 49
+</span><span class=lnt> 50
+</span><span class=lnt> 51
+</span><span class=lnt> 52
+</span><span class=lnt> 53
+</span><span class=lnt> 54
+</span><span class=lnt> 55
+</span><span class=lnt> 56
+</span><span class=lnt> 57
+</span><span class=lnt> 58
+</span><span class=lnt> 59
+</span><span class=lnt> 60
+</span><span class=lnt> 61
+</span><span class=lnt> 62
+</span><span class=lnt> 63
+</span><span class=lnt> 64
+</span><span class=lnt> 65
+</span><span class=lnt> 66
+</span><span class=lnt> 67
+</span><span class=lnt> 68
+</span><span class=lnt> 69
+</span><span class=lnt> 70
+</span><span class=lnt> 71
+</span><span class=lnt> 72
+</span><span class=lnt> 73
+</span><span class=lnt> 74
+</span><span class=lnt> 75
+</span><span class=lnt> 76
+</span><span class=lnt> 77
+</span><span class=lnt> 78
+</span><span class=lnt> 79
+</span><span class=lnt> 80
+</span><span class=lnt> 81
+</span><span class=lnt> 82
+</span><span class=lnt> 83
+</span><span class=lnt> 84
+</span><span class=lnt> 85
+</span><span class=lnt> 86
+</span><span class=lnt> 87
+</span><span class=lnt> 88
+</span><span class=lnt> 89
+</span><span class=lnt> 90
+</span><span class=lnt> 91
+</span><span class=lnt> 92
+</span><span class=lnt> 93
+</span><span class=lnt> 94
+</span><span class=lnt> 95
+</span><span class=lnt> 96
+</span><span class=lnt> 97
+</span><span class=lnt> 98
+</span><span class=lnt> 99
+</span><span class=lnt>100
+</span><span class=lnt>101
+</span><span class=lnt>102
+</span><span class=lnt>103
+</span><span class=lnt>104
+</span><span class=lnt>105
+</span><span class=lnt>106
+</span><span class=lnt>107
+</span><span class=lnt>108
+</span><span class=lnt>109
+</span><span class=lnt>110
+</span><span class=lnt>111
+</span><span class=lnt>112
+</span><span class=lnt>113
+</span><span class=lnt>114
+</span><span class=lnt>115
+</span><span class=lnt>116
+</span><span class=lnt>117
+</span><span class=lnt>118
+</span><span class=lnt>119
+</span><span class=lnt>120
+</span><span class=lnt>121
+</span><span class=lnt>122
+</span><span class=lnt>123
+</span><span class=lnt>124
+</span><span class=lnt>125
+</span><span class=lnt>126
+</span><span class=lnt>127
+</span><span class=lnt>128
+</span><span class=lnt>129
+</span><span class=lnt>130
+</span><span class=lnt>131
+</span><span class=lnt>132
+</span><span class=lnt>133
+</span><span class=lnt>134
+</span><span class=lnt>135
+</span><span class=lnt>136
+</span><span class=lnt>137
+</span><span class=lnt>138
+</span><span class=lnt>139
+</span><span class=lnt>140
+</span><span class=lnt>141
+</span><span class=lnt>142
+</span><span class=lnt>143
+</span><span class=lnt>144
+</span><span class=lnt>145
+</span><span class=lnt>146
+</span><span class=lnt>147
+</span><span class=lnt>148
+</span><span class=lnt>149
+</span><span class=lnt>150
+</span><span class=lnt>151
+</span><span class=lnt>152
+</span><span class=lnt>153
+</span><span class=lnt>154
+</span><span class=lnt>155
+</span><span class=lnt>156
+</span><span class=lnt>157
+</span><span class=lnt>158
+</span><span class=lnt>159
+</span><span class=lnt>160
+</span><span class=lnt>161
+</span><span class=lnt>162
+</span><span class=lnt>163
+</span><span class=lnt>164
+</span><span class=lnt>165
+</span><span class=lnt>166
+</span><span class=lnt>167
+</span><span class=lnt>168
+</span><span class=lnt>169
+</span><span class=lnt>170
+</span><span class=lnt>171
+</span><span class=lnt>172
+</span><span class=lnt>173
+</span><span class=lnt>174
+</span><span class=lnt>175
+</span><span class=lnt>176
+</span><span class=lnt>177
+</span><span class=lnt>178
+</span><span class=lnt>179
+</span><span class=lnt>180
+</span><span class=lnt>181
+</span><span class=lnt>182
+</span><span class=lnt>183
+</span><span class=lnt>184
+</span><span class=lnt>185
+</span><span class=lnt>186
+</span><span class=lnt>187
+</span><span class=lnt>188
+</span><span class=lnt>189
+</span><span class=lnt>190
+</span><span class=lnt>191
+</span><span class=lnt>192
+</span><span class=lnt>193
+</span><span class=lnt>194
+</span><span class=lnt>195
+</span><span class=lnt>196
+</span><span class=lnt>197
+</span><span class=lnt>198
+</span><span class=lnt>199
+</span><span class=lnt>200
+</span><span class=lnt>201
+</span><span class=lnt>202
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>_VocabParallelCrossEntropy</span><span class=p>(</span><span class=n>torch</span><span class=o>.</span><span class=n>autograd</span><span class=o>.</span><span class=n>Function</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=nd>@staticmethod</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>forward</span><span class=p>(</span><span class=n>ctx</span><span class=p>,</span> <span class=n>vocab_parallel_logits</span><span class=p>,</span> <span class=n>target</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>        前向传播：计算词汇表并行下的交叉熵损失
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>        输入：
+</span></span></span><span class=line><span class=cl><span class=s2>        - vocab_parallel_logits: [batch_size, seq_len, partition_vocab_size]
+</span></span></span><span class=line><span class=cl><span class=s2>          当前 GPU 上维护的部分词汇表 logits
+</span></span></span><span class=line><span class=cl><span class=s2>        - target: [batch_size, seq_len]
+</span></span></span><span class=line><span class=cl><span class=s2>          真实标签（词汇表索引）
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>        输出：
+</span></span></span><span class=line><span class=cl><span class=s2>        - loss: [batch_size, seq_len]
+</span></span></span><span class=line><span class=cl><span class=s2>          每个位置的交叉熵损失
+</span></span></span><span class=line><span class=cl><span class=s2>        &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># ============ 第一步：数值稳定性处理 ============</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 在词汇表维度上找到最大值（只在当前 GPU 的分区上找）</span>
+</span></span><span class=line><span class=cl>        <span class=c1># logits_max: [batch_size, seq_len]</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 数学表达：m_i = max(s_i) 其中 s_i 是第 i 个样本的 logits</span>
+</span></span><span class=line><span class=cl>        <span class=n>logits_max</span> <span class=o>=</span> <span class=n>torch</span><span class=o>.</span><span class=n>max</span><span class=p>(</span><span class=n>vocab_parallel_logits</span><span class=p>,</span> <span class=n>dim</span><span class=o>=-</span><span class=mi>1</span><span class=p>)[</span><span class=mi>0</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 通过 AllReduce 获取全局最大值（跨所有 GPU）</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 这样确保所有 GPU 使用相同的最大值进行归一化</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 数学表达：m_global = max(m_1, m_2, ..., m_N) 其中 N 是 GPU 数量</span>
+</span></span><span class=line><span class=cl>        <span class=n>torch</span><span class=o>.</span><span class=n>distributed</span><span class=o>.</span><span class=n>all_reduce</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>            <span class=n>logits_max</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>op</span><span class=o>=</span><span class=n>torch</span><span class=o>.</span><span class=n>distributed</span><span class=o>.</span><span class=n>ReduceOp</span><span class=o>.</span><span class=n>MAX</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>group</span><span class=o>=</span><span class=n>get_tensor_model_parallel_group</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>        <span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 减去最大值，实现数值稳定</span>
+</span></span><span class=line><span class=cl>        <span class=c1># logits&#39; = logits - max(logits)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 这样可以防止 exp(logits) 溢出，同时不改变 softmax 结果</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 数学表达：s&#39;_ij = s_ij - m_global</span>
+</span></span><span class=line><span class=cl>        <span class=n>vocab_parallel_logits</span><span class=o>.</span><span class=n>sub_</span><span class=p>(</span><span class=n>logits_max</span><span class=o>.</span><span class=n>unsqueeze</span><span class=p>(</span><span class=n>dim</span><span class=o>=-</span><span class=mi>1</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># ============ 第二步：确定当前 GPU 的词汇表范围 ============</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 获取当前 GPU 负责的词汇表索引范围</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 例如：V=10000, N=4, rank=0 -&gt; [0, 2500), rank=1 -&gt; [2500, 5000), ...</span>
+</span></span><span class=line><span class=cl>        <span class=n>get_vocab_range</span> <span class=o>=</span> <span class=n>VocabUtility</span><span class=o>.</span><span class=n>vocab_range_from_per_partition_vocab_size</span>
+</span></span><span class=line><span class=cl>        <span class=n>partition_vocab_size</span> <span class=o>=</span> <span class=n>vocab_parallel_logits</span><span class=o>.</span><span class=n>size</span><span class=p>()[</span><span class=o>-</span><span class=mi>1</span><span class=p>]</span>  <span class=c1># 当前 GPU 的词汇表分区大小</span>
+</span></span><span class=line><span class=cl>        <span class=n>rank</span> <span class=o>=</span> <span class=n>get_tensor_model_parallel_rank</span><span class=p>()</span>  <span class=c1># 当前 GPU 的 rank</span>
+</span></span><span class=line><span class=cl>        <span class=n>world_size</span> <span class=o>=</span> <span class=n>get_tensor_model_parallel_world_size</span><span class=p>()</span>  <span class=c1># 总 GPU 数量</span>
+</span></span><span class=line><span class=cl>        <span class=n>vocab_start_index</span><span class=p>,</span> <span class=n>vocab_end_index</span> <span class=o>=</span> <span class=n>get_vocab_range</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>            <span class=n>partition_vocab_size</span><span class=p>,</span> <span class=n>rank</span><span class=p>,</span> <span class=n>world_size</span>
+</span></span><span class=line><span class=cl>        <span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># ============ 第三步：创建目标掩码 ============</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 判断哪些目标在当前 GPU 的词汇表范围内</span>
+</span></span><span class=line><span class=cl>        <span class=c1># target_mask=True 表示目标不在当前 GPU 的词汇表范围内</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 数学表达：mask_i = 1 if (target_i &lt; start) or (target_i &gt;= end), else 0</span>
+</span></span><span class=line><span class=cl>        <span class=n>target_mask</span> <span class=o>=</span> <span class=p>(</span><span class=n>target</span> <span class=o>&lt;</span> <span class=n>vocab_start_index</span><span class=p>)</span> <span class=o>|</span> <span class=p>(</span><span class=n>target</span> <span class=o>&gt;=</span> <span class=n>vocab_end_index</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 将全局目标索引转换为当前 GPU 的局部索引</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 数学表达：target&#39;_i = target_i - vocab_start_index</span>
+</span></span><span class=line><span class=cl>        <span class=n>masked_target</span> <span class=o>=</span> <span class=n>target</span><span class=o>.</span><span class=n>clone</span><span class=p>()</span> <span class=o>-</span> <span class=n>vocab_start_index</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 将不在当前范围内的目标设为 0（之后会被 mask 掉）</span>
+</span></span><span class=line><span class=cl>        <span class=n>masked_target</span><span class=p>[</span><span class=n>target_mask</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># ============ 第四步：提取目标位置的 logit ============</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 将 logits 展平为 2D：[batch_size * seq_len, partition_vocab_size]</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 将 target 展平为 1D：[batch_size * seq_len]</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 这样方便使用高级索引</span>
+</span></span><span class=line><span class=cl>        <span class=n>logits_2d</span> <span class=o>=</span> <span class=n>vocab_parallel_logits</span><span class=o>.</span><span class=n>view</span><span class=p>(</span><span class=o>-</span><span class=mi>1</span><span class=p>,</span> <span class=n>partition_vocab_size</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>masked_target_1d</span> <span class=o>=</span> <span class=n>masked_target</span><span class=o>.</span><span class=n>view</span><span class=p>(</span><span class=o>-</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 创建行索引 [0, 1, 2, ..., batch_size * seq_len - 1]</span>
+</span></span><span class=line><span class=cl>        <span class=n>arange_1d</span> <span class=o>=</span> <span class=n>torch</span><span class=o>.</span><span class=n>arange</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>            <span class=n>start</span><span class=o>=</span><span class=mi>0</span><span class=p>,</span> <span class=n>end</span><span class=o>=</span><span class=n>logits_2d</span><span class=o>.</span><span class=n>size</span><span class=p>()[</span><span class=mi>0</span><span class=p>],</span> <span class=n>device</span><span class=o>=</span><span class=n>logits_2d</span><span class=o>.</span><span class=n>device</span>
+</span></span><span class=line><span class=cl>        <span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 提取每个样本对应目标位置的 logit</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 数学表达：s&#39;_target = logits[arange_1d, masked_target_1d]</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 即取出每个样本在其目标词汇位置的 logit 值</span>
+</span></span><span class=line><span class=cl>        <span class=n>predicted_logits_1d</span> <span class=o>=</span> <span class=n>logits_2d</span><span class=p>[</span><span class=n>arange_1d</span><span class=p>,</span> <span class=n>masked_target_1d</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=n>predicted_logits_1d</span> <span class=o>=</span> <span class=n>predicted_logits_1d</span><span class=o>.</span><span class=n>clone</span><span class=p>()</span><span class=o>.</span><span class=n>contiguous</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 恢复原始形状：[batch_size, seq_len]</span>
+</span></span><span class=line><span class=cl>        <span class=n>predicted_logits</span> <span class=o>=</span> <span class=n>predicted_logits_1d</span><span class=o>.</span><span class=n>view_as</span><span class=p>(</span><span class=n>target</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 将不在当前 GPU 范围内的目标的 logit 设为 0</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 这样做是因为之后会通过 AllReduce 求和，只需要贡献自己的部分</span>
+</span></span><span class=line><span class=cl>        <span class=n>predicted_logits</span><span class=p>[</span><span class=n>target_mask</span><span class=p>]</span> <span class=o>=</span> <span class=mf>0.0</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 通过 AllReduce 从所有 GPU 收集目标的 logit</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 每个 GPU 只贡献自己分区内的目标 logit</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 最终得到所有目标位置的完整 logit 值</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 数学表达：s_y = Σ(s&#39;_y_i) 对所有 GPU 求和</span>
+</span></span><span class=line><span class=cl>        <span class=n>torch</span><span class=o>.</span><span class=n>distributed</span><span class=o>.</span><span class=n>all_reduce</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>            <span class=n>predicted_logits</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>op</span><span class=o>=</span><span class=n>torch</span><span class=o>.</span><span class=n>distributed</span><span class=o>.</span><span class=n>ReduceOp</span><span class=o>.</span><span class=n>SUM</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>group</span><span class=o>=</span><span class=n>get_tensor_model_parallel_group</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>        <span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># ============ 第五步：计算归一化项（log-sum-exp）============</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 计算 exp(logits&#39;)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 数学表达：e&#39;_ij = exp(s&#39;_ij)</span>
+</span></span><span class=line><span class=cl>        <span class=n>exp_logits</span> <span class=o>=</span> <span class=n>vocab_parallel_logits</span>
+</span></span><span class=line><span class=cl>        <span class=n>torch</span><span class=o>.</span><span class=n>exp</span><span class=p>(</span><span class=n>vocab_parallel_logits</span><span class=p>,</span> <span class=n>out</span><span class=o>=</span><span class=n>exp_logits</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 在当前 GPU 的词汇表维度上求和</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 数学表达：E&#39;_i = Σ(e&#39;_ij) 对当前 GPU 的词汇表维度求和</span>
+</span></span><span class=line><span class=cl>        <span class=n>sum_exp_logits</span> <span class=o>=</span> <span class=n>exp_logits</span><span class=o>.</span><span class=n>sum</span><span class=p>(</span><span class=n>dim</span><span class=o>=-</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 通过 AllReduce 从所有 GPU 收集完整的指数和</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 数学表达：E_i = Σ(E&#39;_i) 对所有 GPU 求和</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 这就是 softmax 的分母：Σ(exp(s_j))</span>
+</span></span><span class=line><span class=cl>        <span class=n>torch</span><span class=o>.</span><span class=n>distributed</span><span class=o>.</span><span class=n>all_reduce</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>            <span class=n>sum_exp_logits</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>op</span><span class=o>=</span><span class=n>torch</span><span class=o>.</span><span class=n>distributed</span><span class=o>.</span><span class=n>ReduceOp</span><span class=o>.</span><span class=n>SUM</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>group</span><span class=o>=</span><span class=n>get_tensor_model_parallel_group</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>        <span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># ============ 第六步：计算最终损失 ============</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 交叉熵损失：L = log(sum(exp(logits))) - predicted_logit</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 数学表达：L = log(E_i) - s_y</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 这对应：L = log(Σ(exp(s_j))) - s_y</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 即：L = -log(exp(s_y) / Σ(exp(s_j))) = -softmax_y</span>
+</span></span><span class=line><span class=cl>        <span class=n>loss</span> <span class=o>=</span> <span class=n>torch</span><span class=o>.</span><span class=n>log</span><span class=p>(</span><span class=n>sum_exp_logits</span><span class=p>)</span> <span class=o>-</span> <span class=n>predicted_logits</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># ============ 第七步：保存反向传播所需的中间变量 ============</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 计算 softmax 并保存，用于反向传播</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 数学表达：softmax_ij = exp(s&#39;_ij) / E_i</span>
+</span></span><span class=line><span class=cl>        <span class=n>exp_logits</span><span class=o>.</span><span class=n>div_</span><span class=p>(</span><span class=n>sum_exp_logits</span><span class=o>.</span><span class=n>unsqueeze</span><span class=p>(</span><span class=n>dim</span><span class=o>=-</span><span class=mi>1</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 保存 softmax、target_mask 和 masked_target_1d 用于反向传播</span>
+</span></span><span class=line><span class=cl>        <span class=n>ctx</span><span class=o>.</span><span class=n>save_for_backward</span><span class=p>(</span><span class=n>exp_logits</span><span class=p>,</span> <span class=n>target_mask</span><span class=p>,</span> <span class=n>masked_target_1d</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>loss</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nd>@staticmethod</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>backward</span><span class=p>(</span><span class=n>ctx</span><span class=p>,</span> <span class=n>grad_output</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>        反向传播：计算交叉熵损失对 logits 的梯度
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>        数学推导：
+</span></span></span><span class=line><span class=cl><span class=s2>        前向传播：L = log(Σ(exp(s_j))) - s_y
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>        对 logits 的梯度：
+</span></span></span><span class=line><span class=cl><span class=s2>        ∂L/∂s_i = softmax_i - 1_{i=y}
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>        其中：
+</span></span></span><span class=line><span class=cl><span class=s2>        - softmax_i = exp(s_i) / Σ(exp(s_j))
+</span></span></span><span class=line><span class=cl><span class=s2>        - 1_{i=y} 是指示函数，当 i=y 时为 1，否则为 0
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>        在词汇表并行的场景下：
+</span></span></span><span class=line><span class=cl><span class=s2>        - 当前 GPU 只计算自己分区内的梯度
+</span></span></span><span class=line><span class=cl><span class=s2>        - 对于目标位置：grad = softmax - 1
+</span></span></span><span class=line><span class=cl><span class=s2>        - 对于非目标位置：grad = softmax
+</span></span></span><span class=line><span class=cl><span class=s2>        &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># ============ 第一步：恢复前向传播保存的中间变量 ============</span>
+</span></span><span class=line><span class=cl>        <span class=c1># softmax: [batch_size, seq_len, partition_vocab_size]</span>
+</span></span><span class=line><span class=cl>        <span class=c1># target_mask: [batch_size, seq_len] (布尔掩码)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># masked_target_1d: [batch_size * seq_len] (局部索引)</span>
+</span></span><span class=line><span class=cl>        <span class=n>softmax</span><span class=p>,</span> <span class=n>target_mask</span><span class=p>,</span> <span class=n>masked_target_1d</span> <span class=o>=</span> <span class=n>ctx</span><span class=o>.</span><span class=n>saved_tensors</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># ============ 第二步：初始化梯度 ============</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 交叉熵损失的梯度基础是 softmax 值</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 对于所有位置，梯度从 softmax 开始</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 数学表达：∂L/∂s_i = softmax_i （基础项）</span>
+</span></span><span class=line><span class=cl>        <span class=n>grad_input</span> <span class=o>=</span> <span class=n>softmax</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 为了方便索引，转换为 2D 格式</span>
+</span></span><span class=line><span class=cl>        <span class=c1># grad_2d: [batch_size * seq_len, partition_vocab_size]</span>
+</span></span><span class=line><span class=cl>        <span class=n>partition_vocab_size</span> <span class=o>=</span> <span class=n>softmax</span><span class=o>.</span><span class=n>size</span><span class=p>()[</span><span class=o>-</span><span class=mi>1</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=n>grad_2d</span> <span class=o>=</span> <span class=n>grad_input</span><span class=o>.</span><span class=n>view</span><span class=p>(</span><span class=o>-</span><span class=mi>1</span><span class=p>,</span> <span class=n>partition_vocab_size</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># ============ 第三步：处理目标位置的梯度 ============</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 对于目标位置，需要减去 1（指示函数）</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 数学表达：∂L/∂s_y = softmax_y - 1</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 其中 1 是真实标签的指示函数 1_{i=y}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 创建行索引</span>
+</span></span><span class=line><span class=cl>        <span class=n>arange_1d</span> <span class=o>=</span> <span class=n>torch</span><span class=o>.</span><span class=n>arange</span><span class=p>(</span><span class=n>start</span><span class=o>=</span><span class=mi>0</span><span class=p>,</span> <span class=n>end</span><span class=o>=</span><span class=n>grad_2d</span><span class=o>.</span><span class=n>size</span><span class=p>()[</span><span class=mi>0</span><span class=p>],</span> <span class=n>device</span><span class=o>=</span><span class=n>grad_2d</span><span class=o>.</span><span class=n>device</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 对目标位置的梯度进行调整：</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 1. 如果目标在当前 GPU 的词汇表范围内（target_mask=False）：</span>
+</span></span><span class=line><span class=cl>        <span class=c1>#    grad = softmax - 1 （减 1）</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 2. 如果目标不在当前范围内（target_mask=True）：</span>
+</span></span><span class=line><span class=cl>        <span class=c1>#    grad = softmax - 0 （不减 1，因为目标在其他 GPU 上）</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 数学表达：</span>
+</span></span><span class=line><span class=cl>        <span class=c1># ∂L/∂s_y = softmax_y - (1 - mask_y)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 其中 mask_y = 1 表示目标不在当前 GPU，mask_y = 0 表示目标在当前 GPU</span>
+</span></span><span class=line><span class=cl>        <span class=n>grad_2d</span><span class=p>[</span><span class=n>arange_1d</span><span class=p>,</span> <span class=n>masked_target_1d</span><span class=p>]</span> <span class=o>-=</span> <span class=mf>1.0</span> <span class=o>-</span> <span class=n>target_mask</span><span class=o>.</span><span class=n>view</span><span class=p>(</span><span class=o>-</span><span class=mi>1</span><span class=p>)</span><span class=o>.</span><span class=n>float</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># ============ 第四步：乘以上层梯度 ============</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 根据链式法则，需要乘以损失对输出的梯度</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 数学表达：∂L_total/∂s = (∂L/∂s) × (∂L_total/∂L)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 其中 grad_output 是 ∂L_total/∂L</span>
+</span></span><span class=line><span class=cl>        <span class=n>grad_input</span><span class=o>.</span><span class=n>mul_</span><span class=p>(</span><span class=n>grad_output</span><span class=o>.</span><span class=n>unsqueeze</span><span class=p>(</span><span class=n>dim</span><span class=o>=-</span><span class=mi>1</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 返回梯度（第二个输入 target 不需要梯度，返回 None）</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>grad_input</span><span class=p>,</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>vocab_parallel_cross_entropy</span><span class=p>(</span><span class=n>vocab_parallel_logits</span><span class=p>,</span> <span class=n>target</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;Helper function for the cross entropy.&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>_VocabParallelCrossEntropy</span><span class=o>.</span><span class=n>apply</span><span class=p>(</span><span class=n>vocab_parallel_logits</span><span class=p>,</span> <span class=n>target</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=精度问题>精度问题</h4><p>从占用存储角度看，fp16占据2 bytes，bf16占据2 bytes，fp32占据4 bytes<br>从数值表达范围来看：fp32 = bf16 > fp16<br>从数值表达精度来看：fp32 > fp16 > bf16</p><p>最好理解每一部分精度转换的原因和整个流程，算是基本功</p><p>老样子，放一些写的好的文章可以学一学</p><p><a class=link href=https://zhuanlan.zhihu.com/p/662700424 target=_blank rel=noopener>图解大模型训练系列之：Megatron源码解读3，分布式混合精度训练</a><br>megatron/training.py的pretrain 函数。其中，函数setup_model_and_optimizer调用了optimizer/<strong>init</strong>.py/下的get_megatron_optimizer，因此它就是混合精度训练的入口函数</p><p><a class=link href=https://zhuanlan.zhihu.com/p/624740065 target=_blank rel=noopener>分析transformer模型的参数量、计算量、中间激活、KV cache</a></p><p>两种做Loss Scale的方法：常量损失放大和动量损失放大</p><h3 id=deepspeed>DeepSpeed</h3><p><a class=link href=https://huggingface.co/docs/transformers/deepspeed target=_blank rel=noopener>DeepSpeed官方文档</a>👈官方文档<br><a class=link href=https://www.deepspeed.ai/docs/config-json/ target=_blank rel=noopener>DeepSpeed配置JSON</a>👈使用只需要JSON配置文件<br><a class=link href="https://www.youtube.com/watch?v=mpuRca2UZtI&amp;t=2925s" target=_blank rel=noopener>【利用多張GPU訓練大型語言模型】 - YouTube</a>👈李宏毅老师YouTube视频讲解（约一个小时）<br><a class=link href=https://huggingface.co/spaces/nanotron/ultrascale-playbook target=_blank rel=noopener>The Ultra-Scale Playbook:Training LLMs on GPU Clusters</a>👈并行训练高质参考资料</p><blockquote><p>hugging face经常有高质量实验总结，可以多关注一下</p></blockquote><p>一开始会有batch-size个prompt去做rollout，每个prompt rollout出n个response，之后每mini-batch-size个prompt及其rollout出来的response会去做一次梯度下降，batch-size / mini-batch-size次梯度下降之后一个step结束</p><ul><li>Batch Size Related Parameters
+<strong>train_batch_size</strong> = <strong>train_micro_batch_size_per_gpu</strong> * <strong>gradient_accumulation_steps</strong> * <strong>number of GPUs</strong></li><li>train_batch_size: [integer]
+代表着one step.Example:32</li><li>train_micro_batch_size_per_gpu: [integer]
+一次更新的batch_size，所以叫micro_batch_size.</li><li>gradient_accumulation_steps: [integer]
+积累几次</li></ul><p>一开始会有batch-size个prompt去做rollout，每个prompt rollout出n个response，之后每mini-batch-size个prompt及其rollout出来的response会去做一次梯度下降，batch-size / mini-batch-size次梯度下降之后一个step结束</p><h3 id=监控平台>监控平台</h3><p>可以使用TensorBoard,wandb,Comet等，因为个人使用所以只介绍swanlab(wandb的国内镜像)<br>注册登录，设置 project_name 和 experiment_name 就可以在电脑上/手机上看了<br>很好用的监控平台！<br><a class=link href=https://docs.swanlab.cn/ target=_blank rel=noopener>swanlab官方文档</a>👈官方文档</p><h3 id=verl框架使用方法快速上手>veRL框架使用方法/快速上手</h3><p>知乎上收藏了一些轮椅教程<br><a class=link href=https://zhuanlan.zhihu.com/p/29149216967 target=_blank rel=noopener>OpenRLHF&amp;Verl参数转换指南</a></p><p>更深入的：<br><a class=link href=https://zhuanlan.zhihu.com/p/24682036412 target=_blank rel=noopener>HybridFlow / veRL 原文浅析</a>很干，对system理解有很大帮助</p><p><a class=link href=https://zhuanlan.zhihu.com/p/27676081245 target=_blank rel=noopener>[AI Infra] VeRL 框架入门&代码带读</a></p><p><a class=link href=https://zhuanlan.zhihu.com/p/30876678559 target=_blank rel=noopener>从零开始的verl框架解析</a></p></section><footer class=article-footer></footer></article><aside class=related-content--wrapper><h2 class=section-title>Related content</h2><div class=related-content><div class="flex article-list--tile"><article><a href=/p/lora/><div class=article-details><h2 class=article-title>Lora</h2></div></a></article><article><a href=/p/nlp/><div class=article-details><h2 class=article-title>NLP</h2></div></a></article><article class=has-image><a href=/p/sjtu-research-intern/><div class=article-image><img src=/p/sjtu-research-intern/SJTU.a646047ad7c64afeed5d2be2fa5870be_hu_a70bed7b28ca1894.jpg width=250 height=150 loading=lazy alt="Featured image of post SJTU-research-intern" data-hash="md5-pkYEetfGSv7tXSvi+lhwvg=="></div><div class=article-details><h2 class=article-title>SJTU-research-intern</h2></div></a></article><article><a href=/p/flash-attention%E5%AE%89%E8%A3%85%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E5%8F%8A%E5%85%B6%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/><div class=article-details><h2 class=article-title>Flash-Attention安装常见问题及其解决方案</h2></div></a></article><article class=has-image><a href=/p/ray%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%AD%E7%BB%83%E5%9B%A0%E8%BF%9B%E7%A8%8B%E8%80%97%E5%B0%BD%E5%AF%BC%E8%87%B4ssh%E6%96%AD%E5%BC%80%E8%BF%9E%E6%8E%A5/><div class=article-image><img src=/p/ray%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%AD%E7%BB%83%E5%9B%A0%E8%BF%9B%E7%A8%8B%E8%80%97%E5%B0%BD%E5%AF%BC%E8%87%B4ssh%E6%96%AD%E5%BC%80%E8%BF%9E%E6%8E%A5/Ray.c64a43cfcd8e30845b7034d2be973cdf_hu_39e0cf0a02b216da.jpg width=250 height=150 loading=lazy alt="Featured image of post Ray分布式训练因进程耗尽导致SSH断开连接" data-hash="md5-xkpDz82OMIRbcDTSvpc83w=="></div><div class=article-details><h2 class=article-title>Ray分布式训练因进程耗尽导致SSH断开连接</h2></div></a></article></div></div></aside><footer class=site-footer><section class=copyright>&copy;
+2025 -
+2026 Huanyu Yang</section><section class=powerby>Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a><br>Theme <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.31.0>Stack</a></b> designed by <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a></section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.ec619835029dd121c5dbc0f3a845213d55d7f49c6972f6c1adc44845ff8ad3f3.js defer></script><script>(function(){if(t=window.matchMedia,t("(prefers-reduced-motion: reduce)").matches)return;if(t("(hover: none)").matches||t("(pointer: coarse)").matches)return;var t,s=".article-list article, .article-page .main-article, .widget--toc, .widget.archives .widget-archive--list",e=null,n=!1;function o(){if(n=!1,!e)return;var s=e.el,t=s.getBoundingClientRect();t.width&&t.height&&(s.style.setProperty("--mx",((e.x-t.left)/t.width*100).toFixed(2)+"%"),s.style.setProperty("--my",((e.y-t.top)/t.height*100).toFixed(2)+"%")),e=null}document.addEventListener("pointermove",function(t){var i=t.target&&t.target.closest?t.target.closest(s):null;if(!i)return;e={el:i,x:t.clientX,y:t.clientY},n||(n=!0,requestAnimationFrame(o))},{passive:!0})})()</script></body></html>

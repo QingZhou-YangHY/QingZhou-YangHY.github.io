@@ -1,20 +1,15 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-    <channel>
-        <title>Pages on 杨环宇</title>
-        <link>http://localhost:1313/zh-cn/page/</link>
-        <description>Recent content in Pages on 杨环宇</description>
-        <generator>Hugo -- gohugo.io</generator>
-        <language>zh-cn</language>
-        <copyright>Huanyu Yang</copyright><atom:link href="http://localhost:1313/zh-cn/page/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>关于</title>
-        <link>http://localhost:1313/zh-cn/%E5%85%B3%E4%BA%8E/</link>
-        <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-        
-        <guid>http://localhost:1313/zh-cn/%E5%85%B3%E4%BA%8E/</guid>
-        <description>&lt;p&gt;This is a test page for i18n support.&lt;/p&gt;
-</description>
-        </item>
-        
-    </channel>
-</rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Pages on 杨环宇</title><link>https://QingZhou-YangHY.github.io/zh-cn/page/</link><description>Recent content in Pages on 杨环宇</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>Huanyu Yang</copyright><lastBuildDate>Wed, 01 Jan 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://QingZhou-YangHY.github.io/zh-cn/page/index.xml" rel="self" type="application/rss+xml"/><item><title>关于</title><link>https://QingZhou-YangHY.github.io/zh-cn/%E5%85%B3%E4%BA%8E/</link><pubDate>Wed, 01 Jan 2025 00:00:00 +0000</pubDate><guid>https://QingZhou-YangHY.github.io/zh-cn/%E5%85%B3%E4%BA%8E/</guid><description>&lt;p&gt;你好，我是杨环宇，大连理工大学本科生。&lt;/p&gt;
+&lt;p&gt;我的方向是 &lt;strong&gt;LLM Agent&lt;/strong&gt; 开发，关注 Agent 系统与 Post-training，也常和让它们跑起来的基础设施打交道：强化学习、vLLM、vLLM-omni。&lt;/p&gt;
+&lt;p&gt;这个博客用来记录我在读、在做的东西：论文笔记、实现细节，以及一些我希望早点有人讲清楚的问题。&lt;/p&gt;
+&lt;h2 id="方向"&gt;方向
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;Agent 开发&lt;/li&gt;
+&lt;li&gt;Post-training&lt;/li&gt;
+&lt;li&gt;推理与 RL 基础设施（vLLM / vLLM-omni）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="联系"&gt;联系
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;邮箱：&lt;a class="link" href="mailto:3868850350@qq.com" &gt;3868850350@qq.com&lt;/a&gt; / &lt;a class="link" href="mailto:yhy3868850350@gmail.com" &gt;yhy3868850350@gmail.com&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;GitHub：&lt;a class="link" href="https://github.com/QingZhou-YangHY" target="_blank" rel="noopener"
+&gt;QingZhou-YangHY&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</description></item></channel></rss>
